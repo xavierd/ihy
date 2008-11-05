@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-O2 -Wall -W -pedantic
 LDFLAGS=
 EXEC=ihycreate
-OBJECTS= pcm.o
+OBJECTS= pcm.o main.o
 
 all: $(EXEC)
 
