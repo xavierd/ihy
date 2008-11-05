@@ -7,12 +7,12 @@
  */
 typedef struct {
 	/* RIFF header */
-	unsigned int		ChunkID; /* "RIFF" */
+	char				ChunkID[4]; /* "RIFF" */
 	unsigned int		ChunkSize;
-	unsigned int		Format;
+	char				Format[4]; /* WAVE */
 	/* fmt */
-	unsigned int		Subchunk1ID; /* "fmt " */
-	unsigned int		Subchunk1Size;
+	char				FormatBlocID[4]; /* "fmt " */
+	unsigned int		FormatBlocSize;
 	unsigned short int	AudioFormat;
 	unsigned short int	NumChannels;
 	unsigned int		SampleRate;
@@ -20,8 +20,8 @@ typedef struct {
 	unsigned short int	BlockAlign;
 	unsigned short int	BitsPerSample;
 	/* data */
-	unsigned int		Subchunk2ID; /* "data" */
-	unsigned int		Subchunk2Size;
+	char				DataBlocID[4]; /* "data" */
+	unsigned int		DataBlocSize;
 	char				**Data; /* mono/stereo matrix */
 } wav_file;
 
