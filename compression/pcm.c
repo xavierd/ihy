@@ -52,13 +52,13 @@ void read_data(wav_file *wav, FILE *file)
 	int SampleSize;
 	int NumSample;
 	SampleSize = wav->BitsPerSample / 8;
-	NumSample = wav->DataBlocSize / (wav->NumChannels * SampleSize);
-	wav->Data = malloc(NumSample * sizeof(char *));
+	NumSample = wav->DataBlocSize / wav->NumChannels / SampleSize;
+	wav->Data = malloc(NumSample * sizeof(char **));
 	for (i = 0; i <= NumSample; i++)
-		wav->Data[i] = malloc(wav->NumChannels);
+		wav->Data[i] = malloc(wav->NumChannels * sizeof(char *));
 	for (i = 0; i <= NumSample; i++)
 		for (j = 0; j <= wav->NumChannels; j++)
-			wav->Data[i][j] = malloc(SampleSize);
+			wav->Data[i][j] = malloc(SampleSize * sizeof(char));
 	for (i = 0; i <= NumSample; i++)
 		for (j = 0; j <= wav->NumChannels; j++)
 			fread(wav->Data[i][j], 1, SampleSize, file);
