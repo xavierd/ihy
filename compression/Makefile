@@ -1,5 +1,10 @@
+DEBUG=no
 CC=gcc
-CFLAGS=-O2 -Wall -W -pedantic
+ifeq ($(DEBUG),yes)
+	CFLAGS=-g -Wall -W -pedantic
+else
+	CFLAGS=-O2 -Wall -W -pedantic
+endif
 LDFLAGS=
 EXEC=ihycreate
 OBJECTS= pcm.o main.o

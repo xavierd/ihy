@@ -22,7 +22,7 @@ typedef struct {
 	/* data */
 	char				DataBlocID[4]; /* "data" */
 	unsigned int		DataBlocSize;
-	char				**Data; /* mono/stereo matrix */
+	char				***Data; /* NbSample/NbChannels/SampleSize */
 } wav_file;
 
 wav_file *open_wav(const char *filename);

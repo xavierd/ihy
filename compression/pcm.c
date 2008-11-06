@@ -38,7 +38,7 @@ wav_file *open_wav(const char *filename)
 	fread(&result->DataBlocID, 1, 4 * sizeof(char), file);
 	printf("%s\n", result->DataBlocID);
 	fread(&result->DataBlocSize, 1, sizeof(unsigned int), file);
-	printf("taille des données : %u\n", result->DataBlocSize+44);
+	printf("taille des données : %u\n", result->DataBlocSize);
 
 	read_data(result, file);
 
@@ -49,14 +49,33 @@ wav_file *open_wav(const char *filename)
 void read_data(wav_file *wav, FILE *file)
 {
 	int i, j;
-	int size;
-	int sizeofpos;
-	size = ((wav->BitsPerSample / 8) * wav->DataBlocSize / wav->NumChannels);
-	sizeofpos = (wav->BitsPerSample / 8) * sizeof(char);
-	wav->Data = malloc(wav-> NumChannels);
-	for (i = 0; i < wav->NumChannels; i++)
-		wav->Data[i] = malloc(size);
-	for (j = 0; j < size; j++)
-		for (i = 0; i < wav->NumChannels; i++)
-			fread(&wav->Data[i][j], 1, sizeofpos, file);
+	int SampleSize;
+	int NumSample;
+	SampleSize = wav->BitsPerSample / 8;
+	NumSample = wav->DataBlocSize / (wav->NumChannels * SampleSize);
+	wav->Data = malloc(NumSample * sizeof(char *));
+	for (i = 0; i <= NumSample; i++)
+		wav->Data[i] = malloc(wav->NumChannels);
+	for (i = 0; i <= NumSample; i++)
+		for (j = 0; j <= wav->NumChannels; j++)
+			wav->Data[i][j] = malloc(SampleSize);
+	for (i = 0; i <= NumSample; i++)
+		for (j = 0; j <= wav->NumChannels; j++)
+			fread(wav->Data[i][j], 1, SampleSize, file);
+#if 0
+	/* not compiled */
+	/* I've used this to test if the file was correctly read */
+	if (feof(file))
+		printf("EOF\n");
+	else
+	{
+		int c = getc(file);
+		i = 0;
+		while (c != EOF) {
+			i++;
+			c = getc(file);
+		};
+		printf("not at EOF, %d\n",i);
+	}
+#endif
 }
