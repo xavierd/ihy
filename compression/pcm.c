@@ -48,20 +48,14 @@ wav_file *open_wav(const char *filename)
 
 void read_data(wav_file *wav, FILE *file)
 {
-	int i, j;
-	int SampleSize;
-	int NumSample;
+	unsigned int i;
+	unsigned int SampleSize;
+	unsigned int NumSample;
 	SampleSize = wav->BitsPerSample / 8;
 	NumSample = wav->DataBlocSize / wav->NumChannels / SampleSize;
-	wav->Data = malloc(NumSample * sizeof(char **));
-	for (i = 0; i <= NumSample; i++)
-		wav->Data[i] = malloc(wav->NumChannels * sizeof(char *));
-	for (i = 0; i <= NumSample; i++)
-		for (j = 0; j <= wav->NumChannels; j++)
-			wav->Data[i][j] = malloc(SampleSize * sizeof(char));
-	for (i = 0; i <= NumSample; i++)
-		for (j = 0; j <= wav->NumChannels; j++)
-			fread(wav->Data[i][j], 1, SampleSize, file);
+	wav->Data = malloc(wav->DataBlocSize);
+	for (i = 0; i < wav->DataBlocSize; i = i + SampleSize)
+		fread(&wav->Data[i], SampleSize, sizeof(char), file);
 #if 0
 	/* not compiled */
 	/* I've used this to test if the file was correctly read */

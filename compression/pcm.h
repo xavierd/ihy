@@ -22,7 +22,11 @@ typedef struct {
 	/* data */
 	char				DataBlocID[4]; /* "data" */
 	unsigned int		DataBlocSize;
-	char				***Data; /* NbSample/NbChannels/SampleSize */
+	char				*Data;
+	/* How to get sample at time T and in channel C :
+	 * Data[(BitsPerSample/8)*NumChannels*T+C]
+	 * This will point to a Sample of (BitsPerSample/8)*sizeof(char)
+	 */
 } wav_file;
 
 wav_file *open_wav(const char *filename);
