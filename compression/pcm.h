@@ -30,5 +30,6 @@ typedef struct {
 } wav_file;
 
 wav_file *open_wav(const char *filename);
+void close_wav(wav_file *file);
 
 #endif

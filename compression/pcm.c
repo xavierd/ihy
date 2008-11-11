@@ -46,6 +46,12 @@ wav_file *open_wav(const char *filename)
 	return result;
 }
 
+void close_wav(wav_file *file)
+{
+	free(file->Data);
+	free(file);
+}
+
 void read_data(wav_file *wav, FILE *file)
 {
 	unsigned int i;
