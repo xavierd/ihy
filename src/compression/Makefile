@@ -1,17 +1,18 @@
 CC=gcc
 
-DEBUG=no
+DEBUG=yes
 ifeq ($(DEBUG),yes)
 	CFLAGS=-g -Wall -W -pedantic
+	OUTPUT=
 else
 	CFLAGS=-O2 -Wall -W -pedantic
+	OUTPUT=../../bin/
 endif
 
 LDFLAGS=
 
 OBJECTS=pcm.o main.o
 
-OUTPUT=../../bin/
 EXEC=ihydeflate
 
 all: $(EXEC)
