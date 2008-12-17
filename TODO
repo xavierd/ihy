@@ -1,0 +1,12 @@
+1) compression : le code C que tu as gratté ouvre un fichier,  le charge
+en mémoire,  le balance à caml, ensuite avec les ondelettes on reformule
+tout ça,  on  fait notre liste  de tableaux (ou  éventuellement un autre
+format),  on redonne ça au C, qui écrit le fichier .ihy avec les headers
+qui vont bien
+
+2)  décompression,  comme  la partie  1  mais  dans  l'autre sens,  avec
+écriture dans  un fichier wav en  sortie,  c'ets à  dire pas  de lecture
+encore
+
+3) début de l'interface de teddy,  il va s'amuser avec gtk et nous faire
+un truc clean si possible, mais pas encore lié avec les parties 1 et 2
