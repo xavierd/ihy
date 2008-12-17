@@ -1,21 +1,27 @@
-DEBUG=no
 CC=gcc
+
+DEBUG=no
 ifeq ($(DEBUG),yes)
 	CFLAGS=-g -Wall -W -pedantic
 else
 	CFLAGS=-O2 -Wall -W -pedantic
 endif
+
 LDFLAGS=
-EXEC=ihycreate
-OBJECTS= pcm.o main.o
+
+OBJECTS=pcm.o main.o
+
+OUTPUT=../../bin/
+EXEC=ihydeflate
 
 all: $(EXEC)
 
 $(EXEC): $(OBJECTS)
-	$(CC) -o $(EXEC) $(OBJECTS) $(CFLAGS) $(LDFLAGS)
+	$(CC) -o $(OUTPUT)$(EXEC) $(OBJECTS) $(LDFLAGS)
 
-pcm.o: pcm.c pcm.h
+%.o: %.c
+	$(CC) -o $@ -c $< $(CFLAGS)
 
 clean:
 	rm -rf $(OBJECTS)
-	rm -rf $(EXEC)
+	rm -rf $(OUTPUT)$(EXEC)
