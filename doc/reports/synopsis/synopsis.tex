@@ -1,0 +1,110 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\selectlanguage{francais}
+\title{Ihy Project}
+\author{
+Ihy Group : \\
+Teddy Wagnac : \textit{wagnac\_t}, Stéphane Sezer : \textit{sezer\_s},\\
+Nicolas Geniteau : \textit{genite\_n}, Xavier Deguillard : \textit{deguil\_x}
+}
+\date{24 octobre 2008}
+
+\begin{document}
+
+\maketitle
+
+\section*{Qui sommes-nous ?}
+L'équipe du Ihy project est composée de deux élèves de A2, un élève de B1, ainsi
+que d'un élève de B2.  Ces derniers se nomment	Teddy  Wagnac,	Stéphane  Sezer,
+Nicolas Geniteau et Xavier Deguillard. Le chef de projet sera Stéphane Sezer de
+A2.  L'équipe sera appelée	le	Ihy  Group,  en  référence	au	nom  du  projet.
+
+\section*{Présentation du projet}
+Ihy, quel nom étrange pour un projet. Dans, la lignée de Donald Knuth et de ses
+"clowneries", l'équipe a choisi un nom imprononçable pour la représenter.	Mais
+ce nom a une signification.  Il  s'agit  en  effet	de	celui  d'un  jeune	dieu
+égyptien.  On le  prénommait  "le  musicien"  ou  "le  joueur  de  sistre",  nom
+particulièrement adapté pour notre projet.\\ Partis d'une idée de création	d'un
+lecteur audio avec fonctionnalités avancées, nous nous sommes rendu  compte  que
+ce projet n'avait que peu,	voire  aucun  intérêt  algorithmique.	Au	fil  des
+réflexions, nous nous somme donc orientés vers l'élaboration d'un  codec  audio.
+En effet, les intérêts de ce type de travail sont  clairement  plus  élevés  que
+ceux d'un "simple" lecteur audio.
+
+\section*{Intérêts du projet}
+L'étendue d'un travail sur le traitement du signal est assez vaste. Elle englobe
+plusieurs  domaines  mathématiques	tels  que  les	 séries   de   Fourier;   et
+informatiques, comme le traitement temps réel,	sans  parler,  bien  entendu  du
+travail à effectuer sur les algorithmes.
+
+\section*{Ce que nous comptons faire}
+Notre travail se découpera en deux parties principales.   La  première	sera  le
+"cœur"	du	projet	à  proprement  parler,	c'est  à  dire	les  algorithmes  de
+compression/décompression du flux audio, et la seconde sera tout ce qui  servira
+de liant à ces derniers, c'est à dire l'interface  graphique  qui  permettra  de
+lire (décompression) des fichiers audio au format Ihy ainsi que de	produire  ce
+type de fichiers à partir de sources non  compressées  (compression).\\  Sachant
+que nous devons utiliser du C et du OCaml pour ce  projet,	nous  avons  décidé,
+grosso modo, de faire la première partie en OCaml, et la seconde en C.\\ Le type
+de compression en lui même reste à définir.  Nous avons tout de  même  plusieurs
+voies possible qui s'offrent à nous.  Tout d'abord,  il  existe  deux  types  de
+compression audio.	La première dite sans  perte,  qui	permet	de	restituer  à
+l'identique le signal  original  à	partir	du	flux  compressé;  ainsi  que  la
+compression dite avec perte, qui offre des taux plus élevés  car  elle	supprime
+des informations du flux original.	A priori, nous allons nous orienter vers  de
+la compression avec perte, pour ses performances, ainsi  que  l'intérêt  qu'elle
+porte au niveau de la compréhension de la perception sonore humaine.\\	Ensuite,
+il existe plusieurs manières d'aborder la compression. Celle qui nous intéresse
+ici est la compression par	ondelettes.   Cette  technique	sert  normalement  à
+traiter des images, mais des travaux sont en cours pour éventuellement l'adapter
+au signal audio.  Il est également envisageable de mêler  cette  dernière  à  la
+compression par fractales, encore une  fois  utilisée  essentiellement	dans  le
+traitement des images.\\ Une autre décision que nous  devrons  prendre	sera  de
+limiter ou non le type de données que nous	allons	traiter.   Par	exemple,  il
+paraît clair que le traitement de la voix,	et	plus  particulièrement	dans  le
+cadre de la téléphonie ne se fera pas de la même façon que	le	traitement	d'un
+enregistrement musical.\\ De plus  amples  informations  sur  nos  choix  seront
+apportées dans le cahier des charges qui sera remis plus  tard	dans  l'année.\\
+Notre  projet  prend  ainsi  clairement  une  approche	orientée  recherche   et
+innovation, et les résultats, s'ils sont à la hauteurs de nos attentes,  peuvent
+se révéler très intéressants.
+
+\section*{Ajout au synopsis original}
+Dans la pratique, notre programme traitera uniquement les  fichiers  PCM  et  si
+nous avons le temps et la possibilité, il pourra compresser directement les  CDs
+audio.	Le PCM est un fichier numérique codant directement le signal  analogique
+d'origine.	Ce format est sans perte et  est  donc	parfaitement  adapté  à  nos
+besoins.  A partir de cela, notre programme  compressera  les  données	dans  le
+format ihy, ces données seront vraisemblablement compressés avec pertes.   Après
+cette phase de compression, l'utilisateur pourra au choix télécharger  les	tags
+musicaux ou les ajouter lui même.  Enfin il pourra lire  la  musique  au  format
+ihy.\\ En ce qui concerne le travail à fournir,  nous  allons  normalement	nous
+orienter vers la compression par ondelettes qui représente	en	soit  une  belle
+prouesse si nous l'implantons  correctement  (aucun  codec	audio  ne  l'utilise
+actuellement), puis en seconde passe, un  algorithme  de  compression  des	plus
+classiques, j'ai nommé Huffman.  Bien  sûr	avant  que	tout  ceci	puisse	être
+utilisable il faut que le PCM soit décodé pour pouvoir le manipuler comme on  le
+souhaite. Une autre partie des plus importante est la conception de l'interface
+graphique qui possèdera un	lecteur  audio	des  plus  classiques  ainsi  qu'une
+interface pour compresser les fichiers PCM vers le format  ihy.\\  Le  découpage
+des taches se fera comme suit : Une personne sera  chargée	de	l'interface,  et
+donc de tout le lecteur, deux personnes travailleront sur l'implémentation de la
+compression par ondelettes, aussi bien au niveau de l'écriture des	algorithmes,
+que sur le travail de recherche d'information et de documentation qui  précèdera
+l'implémentation. En effet, une bonne connaissance des séries de Fourier, ainsi
+que de l'outil mathématique  qu'est  la  transformée  de  Fourier  s'avère	être
+indispensable pour maitriser les ondelettes.  Malheureusement  nous  ne  verrons
+que ces derniers en fin d'année en mathématiques.  Nous devrons  donc  anticiper
+sur une partie du programme.  Enfin, une  quatrième  personne  se  chargera  des
+algorithmes auxiliaires (comme par exemple Huffman) ainsi que de l'interface  du
+codec avec le "monde exterieur".   Le  codec  ihy  devra  pouvoir  être  utilisé
+indépendamment du lecteur qui lui est associé au sein du projet. Pour cela nous
+devrons séparer très clairement les deux parties du projet énoncée précédemment,
+c'est à dire le lecteur et le codec.\\ Cette organisation des tâches permet  une
+bonne  souplesse  au  fil  de  l'année	 et   laisse   libre   à   d'éventuelles
+réorganisations si certains membres s'avéraient  éprouver  des	difficultés  sur
+leur domaine de travail.
+
+\end{document}
