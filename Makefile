@@ -1,10 +1,9 @@
 all:
-	make -C src/compression
-#	make -C src/decompression
-#	make -C src/reader
+	$(MAKE) -C src/compression
+#	$(MAKE) -C src/decompression
+#	$(MAKE) -C src/reader
 
 clean:
-	make -C src/compression clean
-#	make -C src/decompression clean
-#	make -C src/reader clean
-
+	$(MAKE) -C src/compression clean
+#	$(MAKE) -C src/decompression clean
+#	$(MAKE) -C src/reader clean
