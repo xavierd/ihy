@@ -6,7 +6,7 @@
 int main(int argc, char ** argv)
 {
 	if (argc <= 1) {
-		printf("error: please specify filename\n");
+		printf("%s: please specify filename\n", argv[0]);
 		return 1;
 	} else {
 		wav_file *test;

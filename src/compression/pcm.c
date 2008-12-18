@@ -33,12 +33,12 @@ wav_file *open_wav(const char *filename)
 	fread(&result->ByteRate, 1, sizeof(unsigned int), file);
 	fread(&result->BlockAlign, 1, sizeof(unsigned short int), file);
 	fread(&result->BitsPerSample, 1, sizeof(unsigned short int), file);
-	printf("taille d'un échantillon : %u\n", result->BitsPerSample);
+	printf("taille d'un echantillon : %u\n", result->BitsPerSample);
 	/* data */
 	fread(&result->DataBlocID, 1, 4 * sizeof(char), file);
 	printf("%s\n", result->DataBlocID);
 	fread(&result->DataBlocSize, 1, sizeof(unsigned int), file);
-	printf("taille des données : %u\n", result->DataBlocSize);
+	printf("taille des donnees : %u\n", result->DataBlocSize);
 
 	read_data(result, file);
 
