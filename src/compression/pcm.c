@@ -3,7 +3,7 @@
 
 #include "pcm.h"
 
-void read_data(wav_file *wav, FILE *file);
+static void read_data(wav_file *wav, FILE *file);
 
 wav_file *open_wav(const char *filename)
 {
@@ -52,7 +52,7 @@ void close_wav(wav_file *file)
 	free(file);
 }
 
-void read_data(wav_file *wav, FILE *file)
+static void read_data(wav_file *wav, FILE *file)
 {
 	unsigned int i;
 	unsigned int SampleSize;
