@@ -1,32 +1,35 @@
 #ifndef DEF_PCM
 #define DEF_PCM
 
+#include <stdint.h>
+
 /* wav file structure */
 /* http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
  * for more precision
  */
-typedef struct {
-	/* RIFF header */
-	char				ChunkID[4]; /* "RIFF" */
-	unsigned int		ChunkSize;
-	char				Format[4]; /* WAVE */
-	/* fmt */
-	char				FormatBlocID[4]; /* "fmt " */
-	unsigned int		FormatBlocSize;
-	unsigned short int	AudioFormat;
-	unsigned short int	NumChannels;
-	unsigned int		SampleRate;
-	unsigned int		ByteRate;
-	unsigned short int	BlockAlign;
-	unsigned short int	BitsPerSample;
-	/* data */
-	char				DataBlocID[4]; /* "data" */
-	unsigned int		DataBlocSize;
-	char				*Data;
-	/* How to get sample at time T and in channel C :
-	 * Data[(BitsPerSample/8)*NumChannels*T+C]
-	 * This will point to a Sample of (BitsPerSample/8)*sizeof(char)
-	 */
+typedef struct
+{
+    /* RIFF header */
+    uint8_t		ChunkID[4]; /* "RIFF" */
+    uint32_t		ChunkSize;
+    uint8_t		Format[4]; /* WAVE */
+    /* fmt */
+    uint8_t		FormatBlocID[4]; /* "fmt " */
+    uint32_t		FormatBlocSize;
+    uint16_t		AudioFormat;
+    uint16_t		NumChannels;
+    uint32_t		SampleRate;
+    uint32_t		ByteRate;
+    uint16_t		BlockAlign;
+    uint16_t		BitsPerSample;
+    /* data */
+    uint8_t		DataBlocID[4]; /* "data" */
+    uint32_t		DataBlocSize;
+    int8_t		*Data;
+    /* How to get sample at time T and in channel C :
+     * Data[(BitsPerSample/8)*NumChannels*T+C]
+     * This will point to a Sample of (BitsPerSample/8)*sizeof(int8_t)
+     */
 } wav_file;
 
 wav_file *open_wav(const char *filename);
