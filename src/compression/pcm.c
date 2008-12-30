@@ -11,7 +11,7 @@ wav_file *open_wav(const char *filename)
     wav_file *result;
 
     file = fopen(filename, "rb");
-    if (file == NULL)
+    if (!file)
     {
 	printf("file not exist\n");
 	exit(1);

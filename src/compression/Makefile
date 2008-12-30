@@ -1,17 +1,19 @@
 CC=gcc
+CFLAGS=-Wall -W -pedantic
 
 DEBUG=yes
 ifeq ($(DEBUG),yes)
-	CFLAGS=-g -Wall -W -pedantic
+	CFLAGS+=-g
 	OUTPUT=
 else
-	CFLAGS=-O2 -Wall -W -pedantic
+	CFLAGS+=-O2
 	OUTPUT=../../bin/
 endif
 
 LDFLAGS=
 
-OBJECTS=pcm.o main.o
+SRC=pcm.c ihy.c main.c
+OBJECTS=${SRC:.c=.o}
 
 EXEC=ihydeflate
 
