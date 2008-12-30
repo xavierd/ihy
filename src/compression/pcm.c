@@ -18,13 +18,13 @@ wav_file *open_wav(const char *filename)
     }
     result = malloc(sizeof(wav_file));
     /* RIFF header */
-    fread(&result->ChunkID, 1, 4 * sizeof(uint8_t), file);
+    fread(&result->ChunkID, 1, 4 * sizeof(char), file);
     printf("%s\n", result->ChunkID);
     fread(&result->ChunkSize, 1, sizeof(uint32_t), file);
-    fread(&result->Format, 1, 4 * sizeof(uint8_t), file);
+    fread(&result->Format, 1, 4 * sizeof(char), file);
     printf("%s\n", result->Format);
     /* fmt */
-    fread(&result->FormatBlocID, 1, 4 * sizeof(uint8_t), file);
+    fread(&result->FormatBlocID, 1, 4 * sizeof(char), file);
     printf("%s\n", result->FormatBlocID);
     fread(&result->FormatBlocSize, 1, sizeof(uint32_t), file);
     fread(&result->AudioFormat, 1, sizeof(uint16_t), file);
@@ -35,7 +35,7 @@ wav_file *open_wav(const char *filename)
     fread(&result->BitsPerSample, 1, sizeof(uint16_t), file);
     printf("taille d'un echantillon : %u\n", result->BitsPerSample);
     /* data */
-    fread(&result->DataBlocID, 1, 4 * sizeof(uint8_t), file);
+    fread(&result->DataBlocID, 1, 4 * sizeof(char), file);
     printf("%s\n", result->DataBlocID);
     fread(&result->DataBlocSize, 1, sizeof(uint32_t), file);
     printf("taille des donnees : %u\n", result->DataBlocSize);

@@ -10,11 +10,11 @@
 typedef struct
 {
     /* RIFF header */
-    uint8_t		ChunkID[4]; /* "RIFF" */
+    char		ChunkID[4]; /* "RIFF" */
     uint32_t		ChunkSize;
-    uint8_t		Format[4]; /* WAVE */
+    char		Format[4]; /* WAVE */
     /* fmt */
-    uint8_t		FormatBlocID[4]; /* "fmt " */
+    char		FormatBlocID[4]; /* "fmt " */
     uint32_t		FormatBlocSize;
     uint16_t		AudioFormat;
     uint16_t		NumChannels;
@@ -23,7 +23,7 @@ typedef struct
     uint16_t		BlockAlign;
     uint16_t		BitsPerSample;
     /* data */
-    uint8_t		DataBlocID[4]; /* "data" */
+    char		DataBlocID[4]; /* "data" */
     uint32_t		DataBlocSize;
     int8_t		*Data;
     /* How to get sample at time T and in channel C :
