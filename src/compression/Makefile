@@ -3,7 +3,7 @@ CFLAGS=-Wall -W -pedantic
 
 DEBUG=yes
 ifeq (${DEBUG},yes)
-	CFLAGS+=-g
+	CFLAGS+=-g -D DEBUG
 	OUTPUT=
 else
 	CFLAGS+=-O2

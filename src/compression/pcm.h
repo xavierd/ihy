@@ -13,7 +13,7 @@ typedef struct
     char		ChunkID[4]; /* "RIFF" */
     uint32_t		ChunkSize;
     char		Format[4]; /* WAVE */
-    /* fmt */
+    /* fmt header */
     char		FormatBlocID[4]; /* "fmt " */
     uint32_t		FormatBlocSize;
     uint16_t		AudioFormat;

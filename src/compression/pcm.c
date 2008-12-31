@@ -19,13 +19,19 @@ wav_file *open_wav(const char *filename)
     result = malloc(sizeof(wav_file));
     /* RIFF header */
     fread(&result->ChunkID, 1, 4 * sizeof(char), file);
+#ifdef DEBUG
     printf("%s\n", result->ChunkID);
+#endif
     fread(&result->ChunkSize, 1, sizeof(uint32_t), file);
     fread(&result->Format, 1, 4 * sizeof(char), file);
+#ifdef DEBUG
     printf("%s\n", result->Format);
+#endif
     /* fmt */
     fread(&result->FormatBlocID, 1, 4 * sizeof(char), file);
+#ifdef DEBUG
     printf("%s\n", result->FormatBlocID);
+#endif
     fread(&result->FormatBlocSize, 1, sizeof(uint32_t), file);
     fread(&result->AudioFormat, 1, sizeof(uint16_t), file);
     fread(&result->NumChannels, 1, sizeof(uint16_t), file);
@@ -33,12 +39,18 @@ wav_file *open_wav(const char *filename)
     fread(&result->ByteRate, 1, sizeof(uint32_t), file);
     fread(&result->BlockAlign, 1, sizeof(uint16_t), file);
     fread(&result->BitsPerSample, 1, sizeof(uint16_t), file);
+#ifdef DEBUG
     printf("taille d'un echantillon : %u\n", result->BitsPerSample);
+#endif
     /* data */
     fread(&result->DataBlocID, 1, 4 * sizeof(char), file);
+#ifdef DEBUG
     printf("%s\n", result->DataBlocID);
+#endif
     fread(&result->DataBlocSize, 1, sizeof(uint32_t), file);
+#ifdef DEBUG
     printf("taille des donnees : %u\n", result->DataBlocSize);
+#endif
 
     read_data(result, file);
 
@@ -62,9 +74,6 @@ static void read_data(wav_file *wav, FILE *file)
     wav->Data = malloc(wav->DataBlocSize);
     for (i = 0; i < wav->DataBlocSize; i = i + SampleSize)
 	fread(&wav->Data[i], SampleSize, sizeof(int16_t), file);
-#if 0
-    /* not compiled */
-    /* I've used this to test if the file was correctly read */
     if (feof(file))
 	printf("EOF\n");
     else
@@ -78,5 +87,4 @@ static void read_data(wav_file *wav, FILE *file)
 	};
 	printf("not at EOF, %d\n",i);
     }
-#endif
 }
