@@ -74,6 +74,7 @@ static void read_data(wav_file *wav, FILE *file)
     wav->Data = malloc(wav->DataBlocSize);
     for (i = 0; i < wav->DataBlocSize; i = i + SampleSize)
 	fread(&wav->Data[i], SampleSize, sizeof(int16_t), file);
+#ifdef DEBUG
     if (feof(file))
 	printf("EOF\n");
     else
@@ -87,4 +88,5 @@ static void read_data(wav_file *wav, FILE *file)
 	};
 	printf("not at EOF, %d\n",i);
     }
+#endif
 }
