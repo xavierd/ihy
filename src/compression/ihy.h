@@ -5,13 +5,14 @@
 
 typedef struct
 {
-    uint8_t		*Sample;
+    uint8_t		**D;
+    uint8_t		S;
 } ihy_chunk;
 
 typedef struct
 {
     /* Header */
-    char		ChunkID[4]; /* "SNXT" */
+    char		FileID[4]; /* "SNXT" */
     uint64_t		FileSize;
     uint16_t		CompressionType;
     uint8_t		Channels;
@@ -28,10 +29,11 @@ typedef struct
     uint32_t		CommentLength;
     char		*Comment;
     /* Data */
-    ihy_chunk		*Data;
-} ihy_file;
+    ihy_chunk		*DataChunks;
+} ihy_data;
 
-ihy_file *open_ihy(const char *filename);
-void close_ihy(ihy_file *file);
+ihy_data *create_ihy();
+void write_ihy(const ihy_data *data, const char *filename);
+void destroy_ihy(const ihy_data *data);
 
 #endif
