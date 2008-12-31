@@ -34,6 +34,6 @@ typedef struct
 
 ihy_data *create_ihy();
 void write_ihy(const ihy_data *data, const char *filename);
-void destroy_ihy(const ihy_data *data);
+void destroy_ihy(ihy_data *data);
 
 #endif
