@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-Wall -W -pedantic
 
 DEBUG=yes
-ifeq ($(DEBUG),yes)
+ifeq (${DEBUG},yes)
 	CFLAGS+=-g
 	OUTPUT=
 else
@@ -13,18 +13,18 @@ endif
 LDFLAGS=
 
 SRC=pcm.c ihy.c main.c
-OBJECTS=${SRC:.c=.o}
+OBJ=${SRC:.c=.o}
 
 EXEC=ihydeflate
 
-all: $(EXEC)
+all: ${EXEC}
 
-$(EXEC): $(OBJECTS)
-	$(CC) -o $(OUTPUT)$(EXEC) $(OBJECTS) $(LDFLAGS)
+${EXEC}: ${OBJ}
+	${CC} -o ${OUTPUT}${EXEC} ${OBJ} ${LDFLAGS}
 
 %.o: %.c
-	$(CC) -o $@ -c $< $(CFLAGS)
+	${CC} -o $@ -c $< ${CFLAGS}
 
 clean:
-	rm -rf $(OBJECTS)
-	rm -rf $(OUTPUT)$(EXEC)
+	rm -rf ${OBJ}
+	rm -rf ${OUTPUT}${EXEC}
