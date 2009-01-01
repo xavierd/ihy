@@ -2,6 +2,7 @@
 #include <stdio.h>
 
 #include "pcm.h"
+#include "ihy.h"
 
 int main(int argc, char ** argv)
 {

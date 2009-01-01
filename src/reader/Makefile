@@ -11,10 +11,10 @@ endif
 
 LDFLAGS=
 
-SRC=pcm.c ihy.c main.c
+SRC=main.c
 OBJ=${SRC:.c=.o}
 
-EXEC=ihydeflate
+EXEC=ihyreader
 
 all: ${EXEC}
 
