@@ -25,9 +25,7 @@ void write_ihy(const ihy_data *data, const char *filename)
     /* Open file for writing */
     file = fopen(filename, "wb");
     if (!file)
-    {
 	exit(1);
-    }
     /* Write header */
     fwrite(&data->FileID, sizeof(char), 4, file);
     fwrite(&data->FileSize, sizeof(uint64_t), 1, file);
