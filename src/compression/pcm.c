@@ -73,7 +73,7 @@ static void read_data(wav_file *wav, FILE *file)
     NumSample = wav->DataBlocSize / wav->NumChannels / SampleSize;
     wav->Data = malloc(wav->DataBlocSize);
     for (i = 0; i < wav->DataBlocSize; i = i + SampleSize)
-	fread(&wav->Data[i], SampleSize, sizeof(int16_t), file);
+	fread(&wav->Data[i], SampleSize, sizeof(int8_t), file);
 #ifdef DEBUG
     if (feof(file))
 	printf("EOF\n");
