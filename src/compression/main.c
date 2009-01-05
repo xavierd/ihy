@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <caml/mlvalues.h>
+#include <caml/callback.h>
+#include <caml/bigarray.h>
 
 #include "pcm.h"
 #include "ihy.h"

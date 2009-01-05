@@ -1,5 +1,10 @@
+CAMLC=ocamlopt
+CAMLFLAGS=-output-obj bigarray.cmxa
+OCAMLPATH=${shell ocamlc -where}
+
 CC=gcc
-CFLAGS=-Wall -W -pedantic
+CFLAGS=-Wall -W -pedantic -I${OCAMLPATH}
+LDFLAGS=
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2
@@ -9,21 +14,30 @@ else
 	OUTPUT=
 endif
 
-LDFLAGS=
+CSRC=pcm.c ihy.c main.c
+COBJ=${CSRC:.c=.o}
+CAMLSRC=
+CAMLOBJ=${CAMLSRC:.ml=.o}
 
-SRC=pcm.c ihy.c main.c
-OBJ=${SRC:.c=.o}
+CAMLCMI=${CAMLSRC:.ml=.cmx}
+CAMLCMX=${CAMLSRC:.ml=.cmi}
 
 EXEC=ihydeflate
 
 all: ${EXEC}
 
-${EXEC}: ${OBJ}
-	${CC} -o ${OUTPUT}${EXEC} ${OBJ} ${LDFLAGS}
+${EXEC}: ${COBJ} ${CAMLOBJ}
+	${CC} -o ${OUTPUT}${EXEC} ${COBJ} ${CAMLOBJ} ${LDFLAGS} -L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray
 
 %.o: %.c
-	${CC} -o $@ -c $< ${CFLAGS}
+	${CC} ${CFLAGS} -o $@ -c $<
+
+%.o: %.ml
+	${CAMLC} ${CAMLFLAGS} $< -o $@
 
 clean:
-	rm -rf ${OBJ}
+	rm -rf ${COBJ}
+	rm -rf ${CAMLOBJ} ${CAMLCMX} ${CAMLCMI}
 	rm -rf ${OUTPUT}${EXEC}
+
+-include ${OCAMLPATH}/Makefile.config
