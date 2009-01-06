@@ -1,22 +1,5 @@
-Travail à faire pendant les vacances :
-
-1) Compression : le code C que Xavier a gratté  ouvre	un	fichier,  le  charge
-en mémoire, et appelle un algorithme en caml qui reformule toutes les données et
-renvoie une liste de tableaux (ou éventuellement un autre format), et le code C
-le réécrit dans un fichier au format ihy (spécifications à définir).
-
-2) Décompression : comme la partie 1 mais dans l'autre sens, c'est à dire qu'on
-ouvre un fichier ihy, on en extrait les données, et on réécrit le résultat dans
-un fichier wav.
-
-Pour les étapes 1 et 2, il n'y a aucune compression pour l'instant, et il n'y a
-donc aucune perte, seule l'organistaion des données change.
-
-3) Début de l'interface de teddy en GTK, avec boutons play/pause, et des petites
-interactions associées au clics. Cette partie n'est pas encore liée aux parties
-1 et 2.
-
-A la fin des vacances, et quand ces trois trucs seront faits, il ne restera,
-pour la première soutenance, qu'a lier les trois parties, et à envoyer les
-données extraites des fichiers ihy au périphérique de lecture plutôt que de
-recréer un fichier wav.
+* Merge du caml/c (déjà commencé)
+* Compression avec une ondelette de Haar
+* Travail inverse décompression (assez simple normalement)
+* Interface gtk
+* Merge de compression decompression et reader

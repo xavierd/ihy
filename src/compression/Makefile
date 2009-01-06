@@ -16,7 +16,7 @@ endif
 
 CSRC=pcm.c ihy.c main.c
 COBJ=${CSRC:.c=.o}
-CAMLSRC=
+CAMLSRC=ondelettes.ml
 CAMLOBJ=${CAMLSRC:.ml=.o}
 
 CAMLCMI=${CAMLSRC:.ml=.cmx}
