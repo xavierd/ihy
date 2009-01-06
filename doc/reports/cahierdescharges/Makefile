@@ -1,4 +1,4 @@
-flename=cahierdescharges
+filename=cahierdescharges
 
 all:pdf clean
 
