@@ -1,10 +1,10 @@
 CAMLC=ocamlopt
-CAMLFLAGS=-output-obj bigarray.cmxa
+CAMLFLAGS=bigarray.cmxa -output-obj
 OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
 CFLAGS=-Wall -W -pedantic -I${OCAMLPATH}
-LDFLAGS=
+LDFLAGS=${NATIVECCLIBS} -lasmrun -lbigarray
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2
@@ -27,10 +27,11 @@ EXEC=ihydeflate
 all: ${EXEC}
 
 ${EXEC}: ${COBJ} ${CAMLOBJ}
-	${CC} -o ${OUTPUT}${EXEC} ${COBJ} ${CAMLOBJ} ${LDFLAGS} -L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray
+	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} \
+	    -L${OCAMLPATH} ${LDFLAGS}
 
 %.o: %.c
-	${CC} ${CFLAGS} -o $@ -c $<
+	${CC} ${CFLAGS} -o $@ -c $< -I${OCAMLPATH}
 
 %.o: %.ml
 	${CAMLC} ${CAMLFLAGS} $< -o $@
