@@ -1,5 +1,5 @@
 CAMLC=ocamlopt
-CAMLFLAGS=bigarray.cmxa -output-obj
+CAMLFLAGS=-output-obj bigarray.cmxa
 OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
@@ -17,7 +17,7 @@ endif
 CSRC=pcm.c ihy.c main.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=ondelettes.ml
-CAMLOBJ=${CAMLSRC:.ml=.o}
+CAMLOBJ=${CAMLSRC:.ml=_ml.o}
 
 CAMLCMI=${CAMLSRC:.ml=.cmx}
 CAMLCMX=${CAMLSRC:.ml=.cmi}
@@ -31,9 +31,9 @@ ${EXEC}: ${COBJ} ${CAMLOBJ}
 	    -L${OCAMLPATH} ${LDFLAGS}
 
 %.o: %.c
-	${CC} ${CFLAGS} -o $@ -c $< -I${OCAMLPATH}
+	${CC} ${CFLAGS} -c $< -I${OCAMLPATH}
 
-%.o: %.ml
+%_ml.o: %.ml
 	${CAMLC} ${CAMLFLAGS} $< -o $@
 
 clean:
