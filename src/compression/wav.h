@@ -1,5 +1,5 @@
-#ifndef DEF_PCM
-#define DEF_PCM
+#ifndef DEF_WAV
+#define DEF_WAV
 
 #include <stdint.h>
 
@@ -30,9 +30,11 @@ typedef struct
      * Data[(BitsPerSample/8)*NumChannels*T+C]
      * This will point to a Sample of (BitsPerSample/8)*sizeof(int8_t)
      */
-} wav_file;
+} wav_data;
 
-wav_file *open_wav(const char *filename);
-void close_wav(wav_file *file);
+wav_data *create_wav();
+void read_wav(const char *filename, wav_data *data);
+void write_wav(const wav_data *data, const char *filename);
+void destroy_wav(wav_data *data);
 
 #endif

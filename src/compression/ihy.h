@@ -5,6 +5,7 @@
 
 typedef struct
 {
+    uint32_t		ChunkSize;
     uint8_t		**D;
     uint8_t		S;
 } ihy_chunk;
@@ -34,7 +35,8 @@ typedef struct
 } ihy_data;
 
 ihy_data *create_ihy();
+void read_ihy(const char *filename, ihy_data *data);
 void write_ihy(const ihy_data *data, const char *filename);
-void destroy_ihy(const ihy_data *data);
+void destroy_ihy(ihy_data *data);
 
 #endif

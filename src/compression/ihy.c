@@ -14,13 +14,19 @@ ihy_data *create_ihy()
     result->Track = "";
     result->Comment = "";
     result->DataChunks = NULL;
+
     return result;
+}
+
+void read_ihy(const char *filename, ihy_data *data)
+{
+    /* fix me */
 }
 
 void write_ihy(const ihy_data *data, const char *filename)
 {
     FILE *file;
-    uint64_t i;
+    uint32_t i;
 
     /* Open file for writing */
     file = fopen(filename, "wb");
@@ -44,10 +50,8 @@ void write_ihy(const ihy_data *data, const char *filename)
     fwrite(&data->CommentLength, sizeof(uint32_t), 1, file);
     fwrite(data->Comment, sizeof(char), strlen(data->Comment), file);
     /* Write data */
-    /* this code doesn't work
-     * see http://en.wikipedia.org/wiki/Sizeof#Using_sizeof_with_arrays
-     */
-    for (i = 0; i < (sizeof(data->DataChunks) / sizeof(ihy_chunk)); i++)
+    fwrite(&data->NbChunk, sizeof(uint32_t), 1, file);
+    for (i = 0; i < data->NbChunk; i++)
     {
 	/* fix me */
     }
@@ -57,14 +61,16 @@ void write_ihy(const ihy_data *data, const char *filename)
 
 void destroy_ihy(ihy_data *data)
 {
-    uint64_t i;
+    uint32_t i;
 
-    /* idem */
-    for (i = 0; i < sizeof(data->DataChunks->D); i++)
+    for (i = 0; i < sizeof(data->NbChunk); i++)
     {
-	free(data->DataChunks->D[i]);
+	/* fix me */
     }
-    free(data->DataChunks->D);
     free(data->DataChunks);
+    free(data->Artist);
+    free(data->Album);
+    free(data->Track);
+    free(data->Comment);
     free(data);
 }

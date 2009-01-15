@@ -14,7 +14,7 @@ else
 	OUTPUT=
 endif
 
-CSRC=pcm.c ihy.c main.c
+CSRC=wav.c ihy.c main.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=ondelettes.ml
 CAMLOBJ=${CAMLSRC:.ml=_ml.o}
