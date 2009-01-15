@@ -11,7 +11,7 @@ endif
 
 LDFLAGS=
 
-SRC=main.c pcm.c
+SRC=main.c
 OBJ=${SRC:.c=.o}
 
 EXEC=ihyinflate

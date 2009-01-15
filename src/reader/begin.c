@@ -16,7 +16,6 @@ int main(int argc,char **argv)
     GtkWidget *pGoodBtn;
     GtkWidget *pBadBtn;
 
-
     gtk_init(&argc,&argv);
 
     /* Creation de la fenetre */
@@ -75,7 +74,7 @@ void OnAboutBtn(GtkWidget *pBtn, gpointer data)
         GTK_MESSAGE_INFO,
         GTK_BUTTONS_OK,
         "Roi Heenok\n%s",
-        "Du rap dosé");
+        "Du rap dose");
 
     /* Affichage de la boite de message */
     gtk_dialog_run(GTK_DIALOG(pGoodBtn));
