@@ -21,6 +21,7 @@ CAMLOBJ=${CAMLSRC:.ml=_ml.o}
 
 CAMLCMI=${CAMLSRC:.ml=.cmx}
 CAMLCMX=${CAMLSRC:.ml=.cmi}
+CAMLO=${CAMLSRC:.ml=.o}
 
 EXEC=ihydeflate
 
@@ -38,7 +39,7 @@ ${EXEC}: ${COBJ} ${CAMLOBJ}
 
 clean:
 	rm -rf ${COBJ}
-	rm -rf ${CAMLOBJ} ${CAMLCMX} ${CAMLCMI}
+	rm -rf ${CAMLOBJ} ${CAMLCMX} ${CAMLCMI} ${CAMLO}
 	rm -rf ${OUTPUT}${EXEC}
 
 -include ${OCAMLPATH}/Makefile.config
