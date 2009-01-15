@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-Wall -W -pedantic
+CFLAGS=-Wall -W -pedantic `pkg-config --cflags gtk+-2.0`
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2
@@ -9,9 +9,9 @@ else
 	OUTPUT=
 endif
 
-LDFLAGS=
+LDFLAGS=`pkg-config --libs gtk+-2.0`
 
-SRC=main.c
+SRC=begin.c
 OBJ=${SRC:.c=.o}
 
 EXEC=ihyreader
