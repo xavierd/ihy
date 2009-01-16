@@ -6,8 +6,7 @@
 typedef struct
 {
     uint32_t		ChunkSize;
-    uint8_t		**D;
-    uint8_t		S;
+    uint8_t		*Values;
 } ihy_chunk;
 
 typedef struct

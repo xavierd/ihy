@@ -53,7 +53,12 @@ void write_ihy(const ihy_data *data, const char *filename)
     fwrite(&data->NbChunk, sizeof(uint32_t), 1, file);
     for (i = 0; i < data->NbChunk; i++)
     {
-	/* fix me */
+	fwrite(
+	    data->DataChunks[i].Values,
+	    sizeof(uint8_t),
+	    data->DataChunks[i].ChunkSize,
+	    file
+	);
     }
     /* Close file */
     fclose(file);
@@ -65,7 +70,7 @@ void destroy_ihy(ihy_data *data)
 
     for (i = 0; i < sizeof(data->NbChunk); i++)
     {
-	/* fix me */
+	free(data->DataChunks[i].Values);
     }
     free(data->DataChunks);
     free(data->Artist);
