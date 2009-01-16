@@ -26,6 +26,10 @@ typedef struct
     char		DataBlocID[4]; /* "data" */
     uint32_t		DataBlocSize;
     int8_t		*Data;
+    /* How to get sample at time T and in channel C :
+     * Data[(BitsPerSample/8)*NumChannels*T+C]
+     * This will point to a Sample
+     */
 } wav_data;
 
 wav_data *create_wav();
