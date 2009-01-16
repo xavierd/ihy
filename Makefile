@@ -1,4 +1,4 @@
-export DEBUG=true
+export DEBUG=false
 
 all:
 	${MAKE} -C src/compression
