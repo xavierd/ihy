@@ -6,6 +6,7 @@
 
 #include "wav.h"
 #include "ihy.h"
+#include "interface.h"
 
 int main(int argc, char ** argv)
 {
