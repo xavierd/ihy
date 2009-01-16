@@ -31,27 +31,27 @@ int main(int argc,char **argv)
     /* Ajout de la GtkVBox dans la fenetre */
     gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
 
-     /* Creation des boutons */
+    /* Creation des boutons */
     pGoodBtn = gtk_button_new_with_label("Rap music");
     pBadBtn = gtk_button_new_with_label("Rock");
 
     /* Ajout de Bouton 1 dans la GtkVBox */
     gtk_box_pack_start(GTK_BOX(pVBox), pGoodBtn, TRUE, FALSE, 0);
     g_signal_connect(
-	G_OBJECT(pGoodBtn),
-	"clicked",
-	G_CALLBACK(OnAboutBtn),
-	(GtkWidget*) pWindow
-    );
+	    G_OBJECT(pGoodBtn),
+	    "clicked",
+	    G_CALLBACK(OnAboutBtn),
+	    (GtkWidget*) pWindow
+	    );
 
     /* Ajout des boutons 2 dans la GtkVBox */
     gtk_box_pack_start(GTK_BOX(pVBox), pBadBtn, TRUE, FALSE, 0);
     g_signal_connect(
-	G_OBJECT(pBadBtn),
-	"clicked",
-	G_CALLBACK(OnQuitBtn),
-	(GtkWidget*) pWindow
-    );
+	    G_OBJECT(pBadBtn),
+	    "clicked",
+	    G_CALLBACK(OnQuitBtn),
+	    (GtkWidget*) pWindow
+	    );
 
     /* Affichage de la fenetre */
     gtk_widget_show_all(pWindow);
@@ -76,11 +76,11 @@ void OnAboutBtn(/* GtkWidget *pBtn, */ gpointer data)
     /* Creation de la boite de message */
     /* Bouton : 1 OK -> GTK_BUTTONS_OK */
     pGoodBtn = gtk_message_dialog_new (GTK_WINDOW(data),
-        GTK_DIALOG_MODAL,
-        GTK_MESSAGE_INFO,
-        GTK_BUTTONS_OK,
-        "Roi Heenok\n%s",
-        "Du rap dose");
+	    GTK_DIALOG_MODAL,
+	    GTK_MESSAGE_INFO,
+	    GTK_BUTTONS_OK,
+	    "Roi Heenok\n%s",
+	    "Du rap dose");
 
     /* Affichage de la boite de message */
     gtk_dialog_run(GTK_DIALOG(pGoodBtn));
@@ -97,21 +97,21 @@ void OnQuitBtn(/* GtkWidget* widget, */ gpointer data)
     /* Creation de la boite de message */
     /* Boutons : 1 OUI, 1 NON -> GTK_BUTTONS_YES_NO */
     pQuestion = gtk_message_dialog_new (GTK_WINDOW(data),
-        GTK_DIALOG_MODAL,
-        GTK_MESSAGE_QUESTION,
-        GTK_BUTTONS_YES_NO,
-        "Voulez vous vraiment\nécouter ce genre de musique?");
+	    GTK_DIALOG_MODAL,
+	    GTK_MESSAGE_QUESTION,
+	    GTK_BUTTONS_YES_NO,
+	    "Voulez vous vraiment\nécouter ce genre de musique?");
 
     /* Affichage et attente d une reponse */
     switch(gtk_dialog_run(GTK_DIALOG(pQuestion)))
     {
-        case GTK_RESPONSE_YES:
-            /* OUI -> on quitte l application */
-            gtk_main_quit();
-            break;
-        case GTK_RESPONSE_NO:
-            /* NON -> on detruit la boite de message */
-            gtk_widget_destroy(pQuestion);
-            break;
+	case GTK_RESPONSE_YES:
+	    /* OUI -> on quitte l application */
+	    gtk_main_quit();
+	    break;
+	case GTK_RESPONSE_NO:
+	    /* NON -> on detruit la boite de message */
+	    gtk_widget_destroy(pQuestion);
+	    break;
     }
 }
