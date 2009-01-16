@@ -38,8 +38,7 @@ void read_wav(const char *filename, wav_data *data)
     fread(data->DataBlocID, sizeof(char), 4, file);
     fread(&data->DataBlocSize, sizeof(uint32_t), 1, file);
     data->Data = malloc(data->DataBlocSize);
-    for (i = 0; i < data->DataBlocSize; i = i + (data->BitsPerSample / 8))
-	fread(&data->Data[i], (data->BitsPerSample / 8), sizeof(int8_t), file);
+    fread(data->Data, data->DataBlocSize, sizeof(int8_t), file);
 
     fclose(file);
 }
