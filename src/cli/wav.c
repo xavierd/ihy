@@ -17,6 +17,7 @@ void read_wav(const char *filename, wav_data *data)
 {
     FILE *file;
 
+    /* Open file for reading */
     file = fopen(filename, "rb");
     if (!file)
 	exit(1);
@@ -46,12 +47,15 @@ void write_wav(const wav_data *data, const char *filename)
 {
     FILE *file;
 
+    /* Open file for writing */
     file = fopen(filename,"wb");
     if (!file)
 	exit(1);
+    /* Write RIFF header */
     fwrite(data->ChunkID, sizeof(char), 4, file);
     fwrite(&data->ChunkSize, sizeof(uint32_t), 1, file);
     fwrite(data->Format, sizeof(char), 4, file);
+    /* Write fmt header */
     fwrite(data->FormatBlocID, sizeof(char), 4, file);
     fwrite(&data->FormatBlocSize, sizeof(uint32_t), 1, file);
     fwrite(&data->AudioFormat, sizeof(uint16_t), 1, file);
@@ -60,6 +64,7 @@ void write_wav(const wav_data *data, const char *filename)
     fwrite(&data->ByteRate, sizeof(uint32_t), 1, file);
     fwrite(&data->BlockAlign, sizeof(uint16_t), 1, file);
     fwrite(&data->BitsPerSample, sizeof(uint16_t), 1, file);
+    /* Write data */
     fwrite(data->DataBlocID, sizeof(char), 4, file);
     fwrite(&data->DataBlocSize, sizeof(uint32_t), 1, file);
     fwrite(data->Data, data->DataBlocSize, sizeof(int8_t), file);

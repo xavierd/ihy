@@ -23,14 +23,17 @@ void read_ihy(const char *filename, ihy_data *data)
     FILE *file;
     uint32_t i;
 
+    /* Open file for reading */
     file = fopen(filename,"rb");
     if (!file)
 	exit(1);
+    /* Read header */
     fread(data->FileID, sizeof(char), 4, file);
     fread(&data->FileSize, sizeof(uint64_t), 1, file);
     fread(&data->CompressionType, sizeof(uint16_t), 1, file);
     fread(&data->Channels, sizeof(uint8_t), 1, file);
     fread(&data->Frequency, sizeof(uint32_t), 1, file);
+    /* Read tags */
     fread(&data->ArtistLength, sizeof(uint16_t), 1, file);
     fread(data->Artist, sizeof(char), strlen(data->Artist), file);
     fread(&data->AlbumLength, sizeof(uint16_t), 1, file);
@@ -41,6 +44,7 @@ void read_ihy(const char *filename, ihy_data *data)
     fread(&data->Genre, sizeof(uint8_t), 1, file);
     fread(&data->CommentLength, sizeof(uint32_t), 1, file);
     fread(data->Comment, sizeof(char), strlen(data->Comment), file);
+    /* Read data */
     fread(&data->NbChunk, sizeof(uint32_t), 1, file);
     for (i = 0; i < data->NbChunk; i++)
     {

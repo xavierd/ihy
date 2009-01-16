@@ -14,7 +14,7 @@ LDFLAGS=`pkg-config --libs gtk+-2.0`
 SRC=main.c
 OBJ=${SRC:.c=.o}
 
-EXEC=ihyreader
+EXEC=ihyplayer
 
 all: ${EXEC}
 

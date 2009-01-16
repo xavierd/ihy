@@ -37,11 +37,6 @@ let next f longueur t =
     done; 
     res
 
-(* Je me demande VRAIMENT ce que ce truc fout ici ...
- *
- * 3 / 2 ;;
-*)
-
 (* Formule specifique a cette ondelette *)
 let next2 f longueur t = 
   let l2 = longueur / 2 in
@@ -75,19 +70,6 @@ let calculCoefs h l signal=
       l2 := !l2 / 2
     done;
     (!a, ds)
-
-(*
-let retrouveSignal h l (a, d) =
-  let g = g h in
-  let a = Array.create in
-  let ds = ref l in
-    for i=0 to l - 1 do
-      a := (prec h g (List.hd !ds) !a);
-      ds := List.tl !ds
-    done;
-    reapprox !a
-;;
- *)
 
 let ondelette = 
   let signal = echan (sin) (0.015625) (-.512.) (512.) in

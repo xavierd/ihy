@@ -23,7 +23,7 @@ CAMLCMI=${CAMLSRC:.ml=.cmx}
 CAMLCMX=${CAMLSRC:.ml=.cmi}
 CAMLO=${CAMLSRC:.ml=.o}
 
-EXEC=ihydeflate
+EXEC=ihyconvert
 
 all: ${EXEC}
 

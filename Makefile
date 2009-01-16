@@ -1,11 +1,9 @@
 export DEBUG=false
 
 all:
-	${MAKE} -C src/compression
-	${MAKE} -C src/decompression
-	${MAKE} -C src/reader
+	${MAKE} -C src/cli
+	${MAKE} -C src/gui
 
 clean:
-	${MAKE} -C src/compression clean
-	${MAKE} -C src/decompression clean
-	${MAKE} -C src/reader clean
+	${MAKE} -C src/cli clean
+	${MAKE} -C src/gui clean

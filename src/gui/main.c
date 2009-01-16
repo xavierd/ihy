@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-void OnDestroy(GtkWidget *pWidget, gpointer pData);
-void OnAboutBtn(GtkWidget *pBtn, gpointer data);
-void OnQuitBtn(GtkWidget *pBtn, gpointer data);
+void OnDestroy(/* GtkWidget *pWidget, gpointer pData */);
+void OnAboutBtn(/* GtkWidget *pBtn, */ gpointer data);
+void OnQuitBtn(/* GtkWidget *pBtn, */ gpointer data);
 
 int main(int argc,char **argv)
 {
@@ -37,11 +37,21 @@ int main(int argc,char **argv)
 
     /* Ajout de Bouton 1 dans la GtkVBox */
     gtk_box_pack_start(GTK_BOX(pVBox), pGoodBtn, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(pGoodBtn), "clicked", G_CALLBACK(OnAboutBtn), (GtkWidget*) pWindow);
+    g_signal_connect(
+	G_OBJECT(pGoodBtn),
+	"clicked",
+	G_CALLBACK(OnAboutBtn),
+	(GtkWidget*) pWindow
+    );
 
     /* Ajout des boutons 2 dans la GtkVBox */
     gtk_box_pack_start(GTK_BOX(pVBox), pBadBtn, TRUE, FALSE, 0);
-    g_signal_connect(G_OBJECT(pBadBtn), "clicked", G_CALLBACK(OnQuitBtn), (GtkWidget*) pWindow);
+    g_signal_connect(
+	G_OBJECT(pBadBtn),
+	"clicked",
+	G_CALLBACK(OnQuitBtn),
+	(GtkWidget*) pWindow
+    );
 
     /* Affichage de la fenetre */
     gtk_widget_show_all(pWindow);
@@ -52,13 +62,13 @@ int main(int argc,char **argv)
     return EXIT_SUCCESS;
 }
 
-void OnDestroy(GtkWidget *pWidget, gpointer pData)
+void OnDestroy(/* GtkWidget *pWidget, gpointer pData */)
 {
     /* Arret de la boucle evenementielle */
     gtk_main_quit();
 }
 
-void OnAboutBtn(GtkWidget *pBtn, gpointer data)
+void OnAboutBtn(/* GtkWidget *pBtn, */ gpointer data)
 
 {
     GtkWidget *pGoodBtn;
@@ -80,7 +90,7 @@ void OnAboutBtn(GtkWidget *pBtn, gpointer data)
 }
 
 
-void OnQuitBtn(GtkWidget* widget, gpointer data)
+void OnQuitBtn(/* GtkWidget* widget, */ gpointer data)
 {
     GtkWidget *pQuestion;
 
