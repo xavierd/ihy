@@ -19,6 +19,7 @@ int main(int argc, char ** argv)
     else
     {
 	wav_data *test;
+	test = create_wav();
 	read_wav(argv[1], test);
 	destroy_wav(test);
 
