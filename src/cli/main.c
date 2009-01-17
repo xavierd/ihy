@@ -7,6 +7,7 @@
 #include "wav.h"
 #include "ihy.h"
 #include "interface.h"
+#include "huffman.h"
 
 int main(int argc, char ** argv)
 {
@@ -22,6 +23,13 @@ int main(int argc, char ** argv)
 	test = create_wav();
 	read_wav(argv[1], test);
 	destroy_wav(test);
+
+	unsigned char array[4000];
+	int i;
+	huffman_tree *B;
+	for (i = 0; i < 4000; i++)
+	    array[i] = random() % 256;
+	B = build_huffman(array, 4000);
 
 	return 0;
     }
