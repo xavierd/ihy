@@ -13,4 +13,6 @@ typedef struct huffman_tree
 
 huffman_tree *build_huffman(const unsigned char *array, const size_t n);
 
+void destroy_huffman(huffman_tree *B);
+
 #endif
