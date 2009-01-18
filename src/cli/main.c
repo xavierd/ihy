@@ -31,7 +31,8 @@ int main(int argc, char ** argv)
 	read_wav(argv[1], test);
 
 	/* test ondelettes */
-	compressed = ondelette(test->Data, test->DataBlocSize);
+	compressed = ondelette(test->Data, test->BitsPerSample / 8,
+		test->DataBlocSize);
 	destroy_wav(test);
 
 	/* test huffman */

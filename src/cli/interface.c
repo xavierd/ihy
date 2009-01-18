@@ -17,15 +17,28 @@ static value c_array_to_caml(float *array, const size_t dim)
 		1, array, dim);
 }
 
-float *ondelette(const char *array, const size_t n)
+float *ondelette(const char *array, const size_t sampleSize, const size_t dim)
 {
-    unsigned int i;
-    float *arrayf = malloc (n * sizeof(float));
+    unsigned int i, j;
+    size_t array_size = dim / sampleSize;
+    float *arrayf = malloc (array_size * sizeof(float));
     value camlArray;
+    int32_t number;
 
-    for (i = 0; i < n; i++)
-	arrayf[i] = array[i];
-    camlArray = c_array_to_caml(arrayf, n);
+    for (i = 0; i < dim; i += sampleSize)
+    {
+	j = sampleSize - 1;
+	number = array[i];
+	/* converting a "reel" sample to float */
+	while (j > 0)
+	{
+	    number = number << 8;
+	    number += array[i + j];
+	    j--;
+	};
+	arrayf[i / 2] = number;
+    };
+    camlArray = c_array_to_caml(arrayf, array_size);
     camlArray = ondelette_fun(camlArray);
     return (float *) Data_bigarray_val(camlArray);
 }
