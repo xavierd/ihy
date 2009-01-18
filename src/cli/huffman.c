@@ -37,6 +37,7 @@ static void heap_rm(heap *heap, huffman_tree *out)
     out = heap->array[0];
     swap(to_rm, heap->array[0]);
     heap->size--;
+    free(heap->array[heap->size]);
     heap->array[heap->size] = NULL;
     while (i < heap->size)
     {
@@ -94,6 +95,7 @@ huffman_tree *build_huffman(const unsigned char *array, const size_t n)
 	father->frequency = d->frequency + g->frequency;
 	heap_add(heap, father);
     }
+    free(heap->array[0]);
     free(heap->array);
     free(heap);
     return father;
