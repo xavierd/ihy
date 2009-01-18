@@ -4,10 +4,8 @@ static void swap(huffman_tree *a, huffman_tree *b)
 {
     huffman_tree c;
     c = *a;
-    a->frequency = b->frequency;
-    a->letter = b->letter;
-    b->frequency = c.frequency;
-    b->letter = c.letter;
+    *a = *b;
+    *b = c;
 }
 
 typedef struct heap
@@ -19,7 +17,7 @@ typedef struct heap
 static void heap_add(heap *heap, huffman_tree *B)
 {
     unsigned int i = heap->size;
-    heap->array[heap->size + 1] = B;
+    heap->array[heap->size] = B;
     while (i > 0 && i < heap->size &&
 	    B->frequency < heap->array[(i - 1) / 2]->frequency)
     {
@@ -36,7 +34,6 @@ static void heap_rm(heap *heap, huffman_tree *out)
     unsigned int l, r;
     huffman_tree *to_rm = heap->array[heap->size - 1];
 
-    /* segfault here : heap->array[0] == NULL*/
     out = heap->array[0];
     swap(to_rm, heap->array[0]);
     heap->size--;
@@ -65,9 +62,9 @@ static void heap_rm(heap *heap, huffman_tree *out)
 huffman_tree *build_huffman(const unsigned char *array, const size_t n)
 {
     unsigned int i;
-    heap *heap = malloc(sizeof(heap));
-    huffman_tree **tree = malloc(256 * sizeof(huffman_tree *));
+    huffman_tree *tree[256];
     huffman_tree *d, *g, *father;
+    heap *heap = malloc(sizeof(heap));
 
     for (i = 0; i < 256; i++)
     {
@@ -89,8 +86,6 @@ huffman_tree *build_huffman(const unsigned char *array, const size_t n)
     /* build the huffman tree */
     while (heap->size > 1)
     {
-	d = malloc(sizeof(huffman_tree));
-	g = malloc(sizeof(huffman_tree));
 	heap_rm(heap, d);
 	heap_rm(heap, g);
 	father = malloc(sizeof(huffman_tree));
@@ -99,5 +94,7 @@ huffman_tree *build_huffman(const unsigned char *array, const size_t n)
 	father->frequency = d->frequency + g->frequency;
 	heap_add(heap, father);
     }
-    return heap->array[0];
+    free(heap->array);
+    free(heap);
+    return father;
 }
