@@ -11,6 +11,7 @@
 
 int main(int argc, char ** argv)
 {
+    caml_main(argv);
     if (argc <= 1)
     {
 	printf("%s: please specify filename\n", argv[0]);
@@ -22,11 +23,15 @@ int main(int argc, char ** argv)
 	wav_data *test;
 	unsigned char array[4000];
 	int i;
+	float *compressed;
 	huffman_tree *B;
 
 	/* wav */
 	test = create_wav();
 	read_wav(argv[1], test);
+
+	/* test ondelettes */
+	compressed = ondelette(test->Data, test->DataBlocSize);
 	destroy_wav(test);
 
 	/* test huffman */

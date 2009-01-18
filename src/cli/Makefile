@@ -4,7 +4,7 @@ OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
 CFLAGS=-Wall -W -pedantic -I${OCAMLPATH}
-LDFLAGS=${NATIVECCLIBS} -lasmrun -lbigarray
+LDFLAGS=-L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2
@@ -28,8 +28,7 @@ EXEC=ihyconvert
 all: ${EXEC}
 
 ${EXEC}: ${COBJ} ${CAMLOBJ}
-	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} \
-	    -L${OCAMLPATH} ${LDFLAGS}
+	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
 
 %.o: %.c
 	${CC} ${CFLAGS} -c $< -I${OCAMLPATH}

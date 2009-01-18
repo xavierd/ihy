@@ -17,7 +17,7 @@ static value c_array_to_caml(float *array, const size_t dim)
 		1, array, dim);
 }
 
-float *ondelette(const int *array, const size_t n)
+float *ondelette(const char *array, const size_t n)
 {
     unsigned int i;
     float *arrayf = malloc (n * sizeof(float));

@@ -6,6 +6,6 @@
 #include <caml/bigarray.h>
 
 /* comoute the result of the OCaml function "ondelettes" */
-float *ondelette(const int *array, const size_t n);
+float *ondelette(const char *array, const size_t n);
 
 #endif
