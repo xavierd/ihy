@@ -1,5 +1,7 @@
+#load "bigarray.cma"
+
 let foi = float_of_int
-let iof = int_of_float ;;
+let iof = int_of_float
 
 let showBig array f len =
   for i=0 to len - 1 do
@@ -106,14 +108,13 @@ let calculCoefs h l signal =
     res.{0} <- a.{0};
     res
 
-let ondelette = 
-  let signal = echan (sin) (0.125) (-2.) (2.) in
-  let a = calculCoefs h 32 signal in
+let ondelette signal = 
+  (* let signal = echan (sin) (0.125) (-2.) (2.) in *)
+  let len = Bigarray.Array1.dim signal in
+  let a = calculCoefs h len signal in
     (*     print_string "FINI\n"; *)
     (*    showBig a print_float 32; *)
     a
-
-
 
 let _ = 
   Callback.register "ondelettes algo" ondelette
