@@ -1,8 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-
 #include "wav.h"
 
+/* return a new allocated wav */
 wav_data *create_wav()
 {
     wav_data *result;
@@ -13,6 +11,7 @@ wav_data *create_wav()
     return result;
 }
 
+/* read a wav PCM file from disk */
 void read_wav(const char *filename, wav_data *data)
 {
     FILE *file;
@@ -43,6 +42,7 @@ void read_wav(const char *filename, wav_data *data)
     fclose(file);
 }
 
+/* write a wav to the disk */
 void write_wav(const wav_data *data, const char *filename)
 {
     FILE *file;
@@ -72,6 +72,7 @@ void write_wav(const wav_data *data, const char *filename)
     fclose(file);
 }
 
+/* release the memory used by a wav */
 void destroy_wav(wav_data *data)
 {
     free(data->Data);

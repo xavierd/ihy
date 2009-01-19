@@ -1,9 +1,6 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
 #include "ihy.h"
 
+/* alloc a ihy data and return it */
 ihy_data *create_ihy()
 {
     ihy_data *result;
@@ -18,6 +15,7 @@ ihy_data *create_ihy()
     return result;
 }
 
+/* read a ihy and put it on data */
 void read_ihy(const char *filename, ihy_data *data)
 {
     FILE *file;
@@ -59,6 +57,7 @@ void read_ihy(const char *filename, ihy_data *data)
     fclose(file);
 }
 
+/* write a ihy to a file */
 void write_ihy(const ihy_data *data, const char *filename)
 {
     FILE *file;
@@ -101,6 +100,7 @@ void write_ihy(const ihy_data *data, const char *filename)
     fclose(file);
 }
 
+/* release the memory used by a ihy */
 void destroy_ihy(ihy_data *data)
 {
     uint32_t i;

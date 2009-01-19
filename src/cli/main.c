@@ -21,25 +21,30 @@ int main(int argc, char ** argv)
     else
     {
 	wav_data *test;
-	unsigned char array[4000];
-	int i;
 	float *compressed;
 	huffman_tree *B;
 
 	/* wav */
+	printf("opening wav");
 	test = create_wav();
+	printf(".");
 	read_wav(argv[1], test);
+	if (argc >= 3)
+	    write_wav(test, argv[2]);
+	printf(".. DONE\n");
 
 	/* test ondelettes */
+	printf("using wavelets on wav");
 	compressed = ondelette(test->Data, test->BitsPerSample / 8,
 		test->DataBlocSize);
-	destroy_wav(test);
+	printf("... DONE\n");
 
 	/* test huffman */
-	for (i = 0; i < 4000; i++)
-	    array[i] = random() % 256;
-	B = build_huffman(array, 4000);
+	printf("applying Huffman algorithm");
+	B = build_huffman(test->Data, test->DataBlocSize);
+	printf("... DONE\n");
 	destroy_huffman(B);
+	destroy_wav(test);
 
 	return 0;
     }

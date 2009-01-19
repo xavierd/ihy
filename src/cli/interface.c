@@ -1,5 +1,6 @@
 #include "interface.h"
 
+/* just call the wavelets, defined in OCaml */
 static value ondelette_fun(const value array)
 {
     static value *func_ptr = NULL;
@@ -11,13 +12,15 @@ static value ondelette_fun(const value array)
     return res;
 }
 
+/* transform a C array to a OCaml bigarray */
 static value c_array_to_caml(float *array, const size_t dim)
 {
 	return alloc_bigarray_dims(BIGARRAY_FLOAT32 | BIGARRAY_C_LAYOUT,
 		1, array, dim);
 }
 
-float *ondelette(const char *array, const size_t sampleSize, const size_t dim)
+/* compute the result of the OCaml function "ondelettes" */
+float *ondelette(const int8_t *array, const size_t sampleSize, const size_t dim)
 {
     unsigned int i, j;
     size_t array_size = dim / sampleSize;

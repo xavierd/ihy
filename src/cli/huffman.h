@@ -11,8 +11,10 @@ typedef struct huffman_tree
     struct huffman_tree		*fd;
 } huffman_tree;
 
-huffman_tree *build_huffman(const unsigned char *array, const size_t n);
+/* build the huffman tree, and return it */
+huffman_tree *build_huffman(const int8_t *array, const size_t n);
 
+/* release the memory used by a huffman tree */
 void destroy_huffman(huffman_tree *B);
 
 #endif

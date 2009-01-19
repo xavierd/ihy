@@ -6,7 +6,7 @@
 #include <caml/callback.h>
 #include <caml/bigarray.h>
 
-/* comoute the result of the OCaml function "ondelettes" */
-float *ondelette(const char *array, const size_t sampleSize, const size_t dim);
+/* compute the result of the OCaml function "ondelettes" */
+float *ondelette(const int8_t *array, const size_t sampleSize, const size_t dim);
 
 #endif

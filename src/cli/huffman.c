@@ -1,5 +1,6 @@
 #include "huffman.h"
 
+/* just a simple swap */
 static void swap(huffman_tree *a, huffman_tree *b)
 {
     huffman_tree c;
@@ -8,12 +9,14 @@ static void swap(huffman_tree *a, huffman_tree *b)
     *b = c;
 }
 
+/* structure for a heap */
 typedef struct heap
 {
     size_t		size;
     huffman_tree	*array;
 } heap;
 
+/* add an element to the heap, on the right place */
 static void heap_add(heap *heap, huffman_tree *B)
 {
     unsigned int i = heap->size;
@@ -27,6 +30,7 @@ static void heap_add(heap *heap, huffman_tree *B)
     heap->size++;
 }
 
+/* remove the root of the heap, and put it on out */
 static void heap_rm(heap *heap, huffman_tree *out)
 {
     unsigned int i;
@@ -58,7 +62,8 @@ static void heap_rm(heap *heap, huffman_tree *out)
     }
 }
 
-huffman_tree *build_huffman(const unsigned char *array, const size_t n)
+/* build the huffman tree, and return it */
+huffman_tree *build_huffman(const int8_t *array, const size_t n)
 {
     unsigned int i;
     huffman_tree *tree[256];
@@ -74,7 +79,7 @@ huffman_tree *build_huffman(const unsigned char *array, const size_t n)
 	tree[i]->fg = NULL;
     };
     for (i = 0; i < n; i++)
-	tree[array[i]]->frequency++;
+	tree[(unsigned char) array[i]]->frequency++;
 
     /* put in the heap */
     H.size = 0;
@@ -100,6 +105,7 @@ huffman_tree *build_huffman(const unsigned char *array, const size_t n)
     return father;
 }
 
+/* release the memory used by a huffman tree */
 void destroy_huffman(huffman_tree *B)
 {
     if (B)
