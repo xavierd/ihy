@@ -26,8 +26,10 @@ int main(int argc, char ** argv)
 
 	/* wav */
 	printf("opening wav");
+	fflush(stdout);
 	test = create_wav();
 	printf(".");
+	fflush(stdout);
 	read_wav(argv[1], test);
 	if (argc >= 3)
 	    write_wav(test, argv[2]);
@@ -35,12 +37,14 @@ int main(int argc, char ** argv)
 
 	/* test ondelettes */
 	printf("using wavelets on wav");
+	fflush(stdout);
 	compressed = ondelette(test->Data, test->BitsPerSample / 8,
 		test->DataBlocSize);
 	printf("... DONE\n");
 
 	/* test huffman */
 	printf("applying Huffman algorithm");
+	fflush(stdout);
 	B = build_huffman(test->Data, test->DataBlocSize);
 	printf("... DONE\n");
 	destroy_huffman(B);
