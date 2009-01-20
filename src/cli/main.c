@@ -66,8 +66,24 @@ int main(int argc, char **argv)
 	output->NbChunk = 1;
 	output->DataChunks = malloc(1 * sizeof(ihy_chunk));
 	output->DataChunks[0].ChunkSize =
+	    /* this is not working : an float is not coded as Sample in
+	     * a wav ar
+	     * what it implies :
+	     * ihy.c : 56, we can write to an non malloced memory, so it
+	     * will crash here or on free */
 	    test->DataBlocSize / (test->BitsPerSample / 8);
 	output->DataChunks[0].Values = compressed;
+
+	write_ihy(output, "caca.ihy");
+	/*destroy_ihy(output);*/
+	output = create_ihy();
+	read_ihy("caca.ihy", output);
+	write_ihy(output, "prout.ihy");
+	/* segfault and I don't now why...
+	 * I'll see later
+	 *
+	destroy_ihy(output);
+	*/
 
 	/* test huffman */
 	printf("applying Huffman algorithm");
@@ -75,7 +91,7 @@ int main(int argc, char **argv)
 	B = build_huffman(test->Data, test->DataBlocSize);
 	printf("... DONE\n");
 	destroy_huffman(B);
-	
+
 	destroy_wav(test);
 
 	return 0;

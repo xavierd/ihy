@@ -33,20 +33,26 @@ void read_ihy(const char *filename, ihy_data *data)
     fread(&data->Frequency, sizeof(uint32_t), 1, file);
     /* Read tags */
     fread(&data->ArtistLength, sizeof(uint16_t), 1, file);
-    fread(data->Artist, sizeof(char), strlen(data->Artist), file);
+    data->Artist = malloc(data->ArtistLength * sizeof(char));
+    fread(data->Artist, sizeof(char), data->ArtistLength, file);
     fread(&data->AlbumLength, sizeof(uint16_t), 1, file);
-    fread(data->Album, sizeof(char), strlen(data->Album), file);
+    data->Album = malloc(data->AlbumLength * sizeof(char));
+    fread(data->Album, sizeof(char), data->AlbumLength, file);
     fread(&data->TrackLength, sizeof(uint16_t), 1, file);
-    fread(data->Track, sizeof(char), strlen(data->Track), file);
+    data->Track = malloc(data->TrackLength * sizeof(char));
+    fread(data->Track, sizeof(char), data->TrackLength, file);
     fread(&data->Year, sizeof(uint16_t), 1, file);
     fread(&data->Genre, sizeof(uint8_t), 1, file);
     fread(&data->CommentLength, sizeof(uint32_t), 1, file);
-    fread(data->Comment, sizeof(char), strlen(data->Comment), file);
+    data->Comment = malloc(data->CommentLength * sizeof(char));
+    fread(data->Comment, sizeof(char), data->CommentLength, file);
     /* Read data */
     fread(&data->NbChunk, sizeof(uint32_t), 1, file);
+    data->DataChunks = malloc(data->NbChunk * sizeof(ihy_chunk));
     for (i = 0; i < data->NbChunk; i++)
     {
 	fread(&data->DataChunks[i].ChunkSize, sizeof(uint32_t), 1, file);
+	data->DataChunks[i].Values = malloc(data->DataChunks[i].ChunkSize);
 	fread(
 	    data->DataChunks[i].Values,
 	    sizeof(float),
@@ -105,14 +111,16 @@ void destroy_ihy(ihy_data *data)
 {
     uint32_t i;
 
-    for (i = 0; i < sizeof(data->NbChunk); i++)
+    for (i = 0; i < data->NbChunk; i++)
     {
 	free(data->DataChunks[i].Values);
     }
     free(data->DataChunks);
+    /*
     free(data->Artist);
     free(data->Album);
     free(data->Track);
     free(data->Comment);
+    */
     free(data);
 }
