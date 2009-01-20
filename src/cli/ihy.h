@@ -9,7 +9,7 @@
 typedef struct ihy_chunk
 {
     uint32_t		ChunkSize;
-    uint8_t		*Values;
+    float		*Values;
 } ihy_chunk;
 
 typedef struct ihy_data
@@ -27,7 +27,7 @@ typedef struct ihy_data
     char		*Album;
     uint16_t		TrackLength;
     char		*Track;
-    uint8_t		Year;
+    uint16_t		Year;
     uint8_t		Genre;
     uint32_t		CommentLength;
     char		*Comment;

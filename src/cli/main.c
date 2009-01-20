@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include <caml/mlvalues.h>
 #include <caml/callback.h>
 #include <caml/bigarray.h>
@@ -9,7 +10,7 @@
 #include "interface.h"
 #include "huffman.h"
 
-int main(int argc, char ** argv)
+int main(int argc, char **argv)
 {
     caml_main(argv);
     if (argc <= 1)
@@ -21,6 +22,7 @@ int main(int argc, char ** argv)
     else
     {
 	wav_data *test;
+	ihy_data *output;
 	float *compressed;
 	huffman_tree *B;
 
@@ -42,12 +44,38 @@ int main(int argc, char ** argv)
 		test->DataBlocSize);
 	printf("... DONE\n");
 
+	output = create_ihy();
+	output->FileID[0] = 'S';
+	output->FileID[1] = 'N';
+	output->FileID[2] = 'X';
+	output->FileID[3] = 'T';
+	output->FileSize = 0;
+	output->CompressionType = 0;
+	output->Channels = test->NumChannels;
+	output->Frequency = test->SampleRate;
+	output->Artist = "Best Friend !";
+	output->ArtistLength = strlen(output->Artist);
+	output->Album = "My best album";
+	output->AlbumLength = strlen(output->Album);
+	output->Track = "You are my friend forevah";
+	output->TrackLength = strlen(output->Track);
+	output->Year = 2009;
+	output->Genre = 42;
+	output->Comment = "Oooooh you touch my tralala !";
+	output->CommentLength = strlen(output->Comment);
+	output->NbChunk = 1;
+	output->DataChunks = malloc(1 * sizeof(ihy_chunk));
+	output->DataChunks[0].ChunkSize =
+	    test->DataBlocSize / (test->BitsPerSample / 8);
+	output->DataChunks[0].Values = compressed;
+
 	/* test huffman */
 	printf("applying Huffman algorithm");
 	fflush(stdout);
 	B = build_huffman(test->Data, test->DataBlocSize);
 	printf("... DONE\n");
 	destroy_huffman(B);
+	
 	destroy_wav(test);
 
 	return 0;

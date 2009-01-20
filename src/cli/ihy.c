@@ -38,7 +38,7 @@ void read_ihy(const char *filename, ihy_data *data)
     fread(data->Album, sizeof(char), strlen(data->Album), file);
     fread(&data->TrackLength, sizeof(uint16_t), 1, file);
     fread(data->Track, sizeof(char), strlen(data->Track), file);
-    fread(&data->Year, sizeof(uint8_t), 1, file);
+    fread(&data->Year, sizeof(uint16_t), 1, file);
     fread(&data->Genre, sizeof(uint8_t), 1, file);
     fread(&data->CommentLength, sizeof(uint32_t), 1, file);
     fread(data->Comment, sizeof(char), strlen(data->Comment), file);
@@ -49,7 +49,7 @@ void read_ihy(const char *filename, ihy_data *data)
 	fread(&data->DataChunks[i].ChunkSize, sizeof(uint32_t), 1, file);
 	fread(
 	    data->DataChunks[i].Values,
-	    sizeof(uint8_t),
+	    sizeof(float),
 	    data->DataChunks[i].ChunkSize,
 	    file
 	);
@@ -80,7 +80,7 @@ void write_ihy(const ihy_data *data, const char *filename)
     fwrite(data->Album, sizeof(char), strlen(data->Album), file);
     fwrite(&data->TrackLength, sizeof(uint16_t), 1, file);
     fwrite(data->Track, sizeof(char), strlen(data->Track), file);
-    fwrite(&data->Year, sizeof(uint8_t), 1, file);
+    fwrite(&data->Year, sizeof(uint16_t), 1, file);
     fwrite(&data->Genre, sizeof(uint8_t), 1, file);
     fwrite(&data->CommentLength, sizeof(uint32_t), 1, file);
     fwrite(data->Comment, sizeof(char), strlen(data->Comment), file);
@@ -91,7 +91,7 @@ void write_ihy(const ihy_data *data, const char *filename)
 	fwrite(&data->DataChunks[i].ChunkSize, sizeof(uint32_t), 1, file);
 	fwrite(
 	    data->DataChunks[i].Values,
-	    sizeof(uint8_t),
+	    sizeof(float),
 	    data->DataChunks[i].ChunkSize,
 	    file
 	);
