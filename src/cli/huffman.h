@@ -2,6 +2,7 @@
 #define DEF_HUFFMAN
 
 #include <stdlib.h>
+#include <stdint.h>
 
 typedef struct huffman_tree
 {

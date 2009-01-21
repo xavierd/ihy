@@ -33,19 +33,23 @@ void read_ihy(const char *filename, ihy_data *data)
     fread(&data->Frequency, sizeof(uint32_t), 1, file);
     /* Read tags */
     fread(&data->ArtistLength, sizeof(uint16_t), 1, file);
-    data->Artist = malloc(data->ArtistLength * sizeof(char));
+    data->Artist = malloc((data->ArtistLength + 1) * sizeof(char));
     fread(data->Artist, sizeof(char), data->ArtistLength, file);
     fread(&data->AlbumLength, sizeof(uint16_t), 1, file);
-    data->Album = malloc(data->AlbumLength * sizeof(char));
+    data->Artist[data->ArtistLength] = '\0';
+    data->Album = malloc((data->AlbumLength + 1) * sizeof(char));
     fread(data->Album, sizeof(char), data->AlbumLength, file);
+    data->Album[data->AlbumLength] = '\0';
     fread(&data->TrackLength, sizeof(uint16_t), 1, file);
-    data->Track = malloc(data->TrackLength * sizeof(char));
+    data->Track = malloc((data->TrackLength + 1) * sizeof(char));
     fread(data->Track, sizeof(char), data->TrackLength, file);
+    data->Track[data->TrackLength] = '\0';
     fread(&data->Year, sizeof(uint16_t), 1, file);
     fread(&data->Genre, sizeof(uint8_t), 1, file);
     fread(&data->CommentLength, sizeof(uint32_t), 1, file);
-    data->Comment = malloc(data->CommentLength * sizeof(char));
+    data->Comment = malloc((data->CommentLength + 1) * sizeof(char));
     fread(data->Comment, sizeof(char), data->CommentLength, file);
+    data->Comment[data->CommentLength] = '\0';
     /* Read data */
     fread(&data->NbChunk, sizeof(uint32_t), 1, file);
     data->DataChunks = malloc(data->NbChunk * sizeof(ihy_chunk));
@@ -116,11 +120,9 @@ void destroy_ihy(ihy_data *data)
 	free(data->DataChunks[i].Values);
     }
     free(data->DataChunks);
-    /*
     free(data->Artist);
     free(data->Album);
     free(data->Track);
     free(data->Comment);
-    */
     free(data);
 }

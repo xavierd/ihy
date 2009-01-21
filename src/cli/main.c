@@ -66,7 +66,7 @@ int main(int argc, char **argv)
 	output->NbChunk = 1;
 	output->DataChunks = malloc(1 * sizeof(ihy_chunk));
 	output->DataChunks[0].ChunkSize =
-	    /* this is not working : an float is not coded as Sample in
+	    /* this is not working : a float is not coded as Sample in
 	     * a wav ar
 	     * what it implies :
 	     * ihy.c : 56, we can write to an non malloced memory, so it
@@ -75,11 +75,13 @@ int main(int argc, char **argv)
 	output->DataChunks[0].Values = compressed;
 
 	write_ihy(output, "caca.ihy");
-	/*destroy_ihy(output);*/
+	destroy_ihy(output);
+
+	/*
 	output = create_ihy();
 	read_ihy("caca.ihy", output);
 	write_ihy(output, "prout.ihy");
-	/* segfault and I don't now why...
+	 * segfault and I don't now why...
 	 * I'll see later
 	 *
 	destroy_ihy(output);
