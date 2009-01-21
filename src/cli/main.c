@@ -53,7 +53,8 @@ int main(int argc, char **argv)
 	output->CompressionType = 0;
 	output->Channels = test->NumChannels;
 	output->Frequency = test->SampleRate;
-	output->Artist = "Best Friend !";
+	/*output->Artist = "Best Friend !";*/
+	output->Artist = "lol";
 	output->ArtistLength = strlen(output->Artist);
 	output->Album = "My best album";
 	output->AlbumLength = strlen(output->Album);
@@ -72,15 +73,10 @@ int main(int argc, char **argv)
 	write_ihy(output, "caca.ihy");
 	destroy_ihy(output);
 
-	/*
 	output = create_ihy();
 	read_ihy("caca.ihy", output);
 	write_ihy(output, "prout.ihy");
-	 * segfault and I don't now why...
-	 * I'll see later
-	 *
 	destroy_ihy(output);
-	*/
 
 	/* test huffman */
 	printf("applying Huffman algorithm");

@@ -102,7 +102,7 @@ void write_ihy(const ihy_data *data, const char *filename)
 	fwrite(
 	    data->DataChunks[i].Values,
 	    sizeof(float),
-	    data->DataChunks[i].ChunkSize,
+	    data->DataChunks[i].ChunkSize / sizeof(float),
 	    file
 	);
     }
