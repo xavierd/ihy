@@ -60,7 +60,7 @@ void read_ihy(const char *filename, ihy_data *data)
 	fread(
 	    data->DataChunks[i].Values,
 	    sizeof(float),
-	    data->DataChunks[i].ChunkSize,
+	    data->DataChunks[i].ChunkSize / sizeof(float),
 	    file
 	);
     }

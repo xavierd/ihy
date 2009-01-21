@@ -27,6 +27,7 @@ int main(int argc, char **argv)
 	huffman_tree *B;
 
 	/* wav */
+	/*
 	printf("opening wav");
 	fflush(stdout);
 	test = create_wav();
@@ -36,14 +37,18 @@ int main(int argc, char **argv)
 	if (argc >= 3)
 	    write_wav(test, argv[2]);
 	printf(".. DONE\n");
+	*/
 
 	/* test ondelettes */
+	/*
 	printf("using wavelets on wav");
 	fflush(stdout);
 	compressed = ondelette(test->Data, test->BitsPerSample / 8,
 		test->DataBlocSize);
 	printf("... DONE\n");
+	*/
 
+	/*
 	output = create_ihy();
 	output->FileID[0] = 'S';
 	output->FileID[1] = 'N';
@@ -53,16 +58,19 @@ int main(int argc, char **argv)
 	output->CompressionType = 0;
 	output->Channels = test->NumChannels;
 	output->Frequency = test->SampleRate;
-	/*output->Artist = "Best Friend !";*/
-	output->Artist = "lol";
+	//output->Artist = "Best Friend !";
+	output->Artist = "";
 	output->ArtistLength = strlen(output->Artist);
-	output->Album = "My best album";
+	//output->Album = "My best album";
+	output->Album = "";
 	output->AlbumLength = strlen(output->Album);
-	output->Track = "You are my friend forevah";
+	//output->Track = "You are my friend forevah";
+	output->Track = "";
 	output->TrackLength = strlen(output->Track);
 	output->Year = 2009;
 	output->Genre = 42;
-	output->Comment = "Oooooh you touch my tralala !";
+	//output->Comment = "Oooooh you touch my tralala !";
+	output->Comment = "";
 	output->CommentLength = strlen(output->Comment);
 	output->NbChunk = 1;
 	output->DataChunks = malloc(1 * sizeof(ihy_chunk));
@@ -72,20 +80,25 @@ int main(int argc, char **argv)
 
 	write_ihy(output, "caca.ihy");
 	destroy_ihy(output);
+	*/
 
+	/*
 	output = create_ihy();
 	read_ihy("caca.ihy", output);
 	write_ihy(output, "prout.ihy");
 	destroy_ihy(output);
+	*/
 
 	/* test huffman */
+	/*
 	printf("applying Huffman algorithm");
 	fflush(stdout);
 	B = build_huffman(test->Data, test->DataBlocSize);
 	printf("... DONE\n");
 	destroy_huffman(B);
+	*/
 
-	destroy_wav(test);
+	//destroy_wav(test);
 
 	return 0;
     }
