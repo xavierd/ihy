@@ -6,10 +6,10 @@ ihy_data *create_ihy()
     ihy_data *result;
 
     result = malloc(sizeof(ihy_data));
-    result->Artist = "";
-    result->Album = "";
-    result->Track = "";
-    result->Comment = "";
+    result->Artist = NULL;
+    result->Album = NULL;
+    result->Track = NULL;
+    result->Comment = NULL;
     result->DataChunks = NULL;
 
     return result;
@@ -114,15 +114,16 @@ void write_ihy(const ihy_data *data, const char *filename)
 void destroy_ihy(ihy_data *data)
 {
     uint32_t i;
-
     for (i = 0; i < data->NbChunk; i++)
     {
 	free(data->DataChunks[i].Values);
     }
     free(data->DataChunks);
+    /*
     free(data->Artist);
     free(data->Album);
     free(data->Track);
     free(data->Comment);
+    */
     free(data);
 }
