@@ -119,11 +119,9 @@ void destroy_ihy(ihy_data *data)
 	free(data->DataChunks[i].Values);
     }
     free(data->DataChunks);
-    /*
     free(data->Artist);
     free(data->Album);
     free(data->Track);
     free(data->Comment);
-    */
     free(data);
 }

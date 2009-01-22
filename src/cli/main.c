@@ -13,42 +13,41 @@
 int main(int argc, char **argv)
 {
     caml_main(argv);
-    if (argc <= 1)
+    if (argc < 3)
     {
-	printf("%s: please specify filename\n", argv[0]);
+	printf("%s: please specify input and output filename\n", argv[0]);
 
 	return 1;
     }
     else
     {
-	wav_data *test;
+	wav_data *input;
 	ihy_data *output;
-	float *compressed;
+	float *compressed_samples;
 	huffman_tree *B;
 
-	/* wav */
-	/*
-	printf("opening wav");
+	/* wav reading */
+	printf("Loading wav file ... ");
 	fflush(stdout);
-	test = create_wav();
-	printf(".");
+	input = create_wav();
+	read_wav(argv[1], input);
+	printf("DONE\n");
 	fflush(stdout);
-	read_wav(argv[1], test);
-	if (argc >= 3)
-	    write_wav(test, argv[2]);
-	printf(".. DONE\n");
-	*/
 
-	/* test ondelettes */
-	/*
-	printf("using wavelets on wav");
+	/* waveletts */
+	printf("Using wavelets on data ... ");
 	fflush(stdout);
-	compressed = ondelette(test->Data, test->BitsPerSample / 8,
-		test->DataBlocSize);
-	printf("... DONE\n");
-	*/
+	compressed_samples = ondelette(
+	    input->Data,
+	    input->BitsPerSample / 8,
+	    input->DataBlocSize
+	);
+	printf("DONE\n");
+	fflush(stdout);
 
-	/*
+	/* ihy writing */
+	printf("Writing ihy file ... ");
+	fflush(stdout);
 	output = create_ihy();
 	output->FileID[0] = 'S';
 	output->FileID[1] = 'N';
@@ -56,49 +55,39 @@ int main(int argc, char **argv)
 	output->FileID[3] = 'T';
 	output->FileSize = 0;
 	output->CompressionType = 0;
-	output->Channels = test->NumChannels;
-	output->Frequency = test->SampleRate;
-	//output->Artist = "Best Friend !";
-	output->Artist = "";
+	output->Channels = input->NumChannels;
+	output->Frequency = input->SampleRate;
+	output->Artist = malloc(5 * sizeof(char));
+	output->Artist[4] = '\0';
 	output->ArtistLength = strlen(output->Artist);
-	//output->Album = "My best album";
-	output->Album = "";
+	output->Album = malloc(5 * sizeof(char));
+	output->Album[4] = '\0';
 	output->AlbumLength = strlen(output->Album);
-	//output->Track = "You are my friend forevah";
-	output->Track = "";
+	output->Track = malloc(5 * sizeof(char));
+	output->Track[4] = '\0';
 	output->TrackLength = strlen(output->Track);
 	output->Year = 2009;
 	output->Genre = 42;
-	//output->Comment = "Oooooh you touch my tralala !";
-	output->Comment = "";
+	output->Comment = malloc(25 * sizeof(char));
+	output->Comment[24] = '\0';
 	output->CommentLength = strlen(output->Comment);
 	output->NbChunk = 1;
 	output->DataChunks = malloc(1 * sizeof(ihy_chunk));
 	output->DataChunks[0].ChunkSize =
-	    (test->DataBlocSize / (test->BitsPerSample / 8)) * sizeof(float);
-	output->DataChunks[0].Values = compressed;
+	    (input->DataBlocSize / (input->BitsPerSample / 8)) * sizeof(float);
+	output->DataChunks[0].Values = compressed_samples;
+	write_ihy(output, argv[2]);
 
-	write_ihy(output, "caca.ihy");
-	destroy_ihy(output);
-	*/
-
-	/*
-	output = create_ihy();
-	read_ihy("caca.ihy", output);
-	write_ihy(output, "prout.ihy");
-	destroy_ihy(output);
-	*/
-
-	/* test huffman */
-	/*
-	printf("applying Huffman algorithm");
+	/* huffman tree */
+	printf("Creating Huffman tree ... ");
 	fflush(stdout);
-	B = build_huffman(test->Data, test->DataBlocSize);
-	printf("... DONE\n");
+	B = build_huffman(input->Data, input->DataBlocSize);
+	printf("DONE\n");
+	fflush(stdout);
 	destroy_huffman(B);
-	*/
 
-	//destroy_wav(test);
+	destroy_wav(input);
+	destroy_ihy(output);
 
 	return 0;
     }
