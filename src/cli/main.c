@@ -77,6 +77,7 @@ int main(int argc, char **argv)
 	    (input->DataBlocSize / (input->BitsPerSample / 8)) * sizeof(float);
 	output->DataChunks[0].Values = compressed_samples;
 	write_ihy(output, argv[2]);
+	printf("DONE\n");
 
 	/* huffman tree */
 	printf("Creating Huffman tree ... ");
