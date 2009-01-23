@@ -23,25 +23,16 @@ int main(int argc, char **argv)
     {
 	wav_data *input;
 	ihy_data *output;
+	int8_t *samples_to_compress;
 	float *compressed_samples;
 	huffman_tree *B;
+	uint32_t i;
 
 	/* wav reading */
 	printf("Loading wav file ... ");
 	fflush(stdout);
 	input = create_wav();
 	read_wav(argv[1], input);
-	printf("DONE\n");
-	fflush(stdout);
-
-	/* waveletts */
-	printf("Using wavelets on data ... ");
-	fflush(stdout);
-	compressed_samples = ondelette(
-	    input->Data,
-	    input->BitsPerSample / 8,
-	    input->DataBlocSize
-	);
 	printf("DONE\n");
 	fflush(stdout);
 
@@ -71,11 +62,28 @@ int main(int argc, char **argv)
 	output->Comment = malloc(25 * sizeof(char));
 	output->Comment[24] = '\0';
 	output->CommentLength = strlen(output->Comment);
+
+	/* waveletts */
+	printf("Using wavelets on data ... ");
+	fflush(stdout);
+
+	for (i = 0; i < input->DataBlocSize / (input->BitsPerSample / 8); i++)
+	{
+	};
+	compressed_samples = ondelette(
+	    input->Data,
+	    input->BitsPerSample / 8,
+	    input->DataBlocSize
+	);
+	printf("DONE\n");
+	fflush(stdout);
+
 	output->NbChunk = 1;
 	output->DataChunks = malloc(1 * sizeof(ihy_chunk));
 	output->DataChunks[0].ChunkSize =
 	    (input->DataBlocSize / (input->BitsPerSample / 8)) * sizeof(float);
 	output->DataChunks[0].Values = compressed_samples;
+
 	write_ihy(output, argv[2]);
 	printf("DONE\n");
 
