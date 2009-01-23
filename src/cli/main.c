@@ -36,6 +36,21 @@ int main(int argc, char **argv)
 	printf("DONE\n");
 	fflush(stdout);
 
+	/* waveletts */
+	printf("Using wavelets on data ... ");
+	fflush(stdout);
+
+	for (i = 0; i < input->DataBlocSize / (input->BitsPerSample / 8); i++)
+	{
+	};
+	compressed_samples = ondelette(
+	    input->Data,
+	    input->BitsPerSample / 8,
+	    input->DataBlocSize
+	);
+	printf("DONE\n");
+	fflush(stdout);
+
 	/* ihy writing */
 	printf("Writing ihy file ... ");
 	fflush(stdout);
@@ -62,22 +77,6 @@ int main(int argc, char **argv)
 	output->Comment = malloc(25 * sizeof(char));
 	output->Comment[24] = '\0';
 	output->CommentLength = strlen(output->Comment);
-
-	/* waveletts */
-	printf("Using wavelets on data ... ");
-	fflush(stdout);
-
-	for (i = 0; i < input->DataBlocSize / (input->BitsPerSample / 8); i++)
-	{
-	};
-	compressed_samples = ondelette(
-	    input->Data,
-	    input->BitsPerSample / 8,
-	    input->DataBlocSize
-	);
-	printf("DONE\n");
-	fflush(stdout);
-
 	output->NbChunk = 1;
 	output->DataChunks = malloc(1 * sizeof(ihy_chunk));
 	output->DataChunks[0].ChunkSize =
