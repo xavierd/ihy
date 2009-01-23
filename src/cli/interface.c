@@ -43,5 +43,6 @@ float *ondelette(const int8_t *array, const size_t sampleSize, const size_t dim)
     };
     camlArray = c_array_to_caml(arrayf, array_size);
     camlArray = ondelette_fun(camlArray);
+    free(arrayf);
     return (float *) Data_bigarray_val(camlArray);
 }

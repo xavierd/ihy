@@ -21,7 +21,7 @@ static void heap_add(heap *heap, huffman_tree *B)
 {
     unsigned int i = heap->size;
     heap->array[heap->size] = *B;
-    while (i > 0 && i < heap->size &&
+    while (i > 0 && i <= heap->size &&
 	    B->frequency < heap->array[(i - 1) / 2].frequency)
     {
 	swap(&heap->array[i], &heap->array[(i - 1) / 2]);
