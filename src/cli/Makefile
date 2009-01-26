@@ -15,19 +15,20 @@ else
 endif
 
 CSRC=wav.c ihy.c interface.c huffman.c main.c
+CINTERFACE=wav.h ihy.h interface.h huffman.h
 COBJ=${CSRC:.c=.o}
 CAMLSRC=ondelettes.ml
+CAMLINTERFACE=ondelettes.mli
 CAMLOBJ=${CAMLSRC:.ml=_ml.o}
-
-CAMLCMI=${CAMLSRC:.ml=.cmx}
-CAMLCMX=${CAMLSRC:.ml=.cmi}
+CAMLCMI=${CAMLINTERFACE:.mli=.cmi}
 CAMLO=${CAMLSRC:.ml=.o}
+CAMLCMX=${CAMLSRC:.ml=.cmi}
 
 EXEC=ihyconvert
 
 all: ${EXEC}
 
-${EXEC}: ${COBJ} ${CAMLOBJ}
+${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ} ${CINTERFACE}
 	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
 
 %.o: %.c
@@ -35,6 +36,9 @@ ${EXEC}: ${COBJ} ${CAMLOBJ}
 
 %_ml.o: %.ml
 	${CAMLC} ${CAMLFLAGS} $< -o $@
+
+%.cmi: %.mli
+	${CAMLC} $<
 
 clean:
 	rm -rf ${COBJ}
