@@ -6,3 +6,4 @@
 * Pour Huffman, il suffira de stocker non pas la frequence d'apparition
 caracteres mais "le classement" des caracteres en fonction de la
 frequence
+
