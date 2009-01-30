@@ -3,7 +3,7 @@ CAMLFLAGS=-output-obj bigarray.cmxa
 OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
-CFLAGS=-Wall -W -pedantic -I${OCAMLPATH}
+CFLAGS=-Wall -W -pedantic -Wlong-long -I${OCAMLPATH}
 LDFLAGS=-L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray
 
 ifeq (${DEBUG}, false)
@@ -22,7 +22,7 @@ CAMLINTERFACE=ondelettes.mli
 CAMLOBJ=${CAMLSRC:.ml=_ml.o}
 CAMLCMI=${CAMLINTERFACE:.mli=.cmi}
 CAMLO=${CAMLSRC:.ml=.o}
-CAMLCMX=${CAMLSRC:.ml=.cmi}
+CAMLCMX=${CAMLSRC:.ml=.cmx}
 
 EXEC=ihyconvert
 

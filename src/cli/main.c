@@ -23,10 +23,7 @@ int main(int argc, char **argv)
     {
 	wav_data *input;
 	ihy_data *output;
-	float **compressed_samples;
 	huffman_tree *B;
-	int i;
-	int size;
 
 	/* wav reading */
 	printf("Loading wav file ... ");
@@ -40,19 +37,17 @@ int main(int argc, char **argv)
 	printf("Using wavelets on data ... ");
 	fflush(stdout);
 
-	compressed_samples = ondelette(
-	    input->Data,
-	    input->BitsPerSample / 8,
-	    input->DataBlocSize,
-	    &size
-	);
+	output = create_ihy();
+	ondelette(input->Data,
+		  input->BitsPerSample / 8,
+		  input->DataBlocSize,
+		  output);
 	printf("DONE\n");
 	fflush(stdout);
 
 	/* ihy writing */
 	printf("Writing ihy file ... ");
 	fflush(stdout);
-	output = create_ihy();
 	output->FileID[0] = 'S';
 	output->FileID[1] = 'N';
 	output->FileID[2] = 'X';
@@ -75,14 +70,6 @@ int main(int argc, char **argv)
 	output->Comment = malloc(25 * sizeof(char));
 	output->Comment[24] = '\0';
 	output->CommentLength = strlen(output->Comment);
-	printf("%d\n", size);
-	output->NbChunk = size;
-	output->DataChunks = malloc(size * sizeof(ihy_chunk));
-	for (i = 0; i < size; i++)
-	{
-	    output->DataChunks[i].ChunkSize = 0xffff * sizeof(float);
-	    output->DataChunks[i].Values = compressed_samples[i];
-	}
 
 	write_ihy(output, argv[2]);
 	printf("DONE\n");
