@@ -4,7 +4,7 @@ OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
 CFLAGS=-Wall -W -pedantic -Wlong-long -I${OCAMLPATH}
-LDFLAGS=-L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray
+LDFLAGS=-L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray -lpthread
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2

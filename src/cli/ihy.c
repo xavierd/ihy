@@ -114,10 +114,9 @@ void write_ihy(const ihy_data *data, const char *filename)
 void destroy_ihy(ihy_data *data)
 {
     uint32_t i;
-    for (i = 0; i < data->NbChunk; i++)
-    {
+
+    for (i = 0; i < data->NbChunk + 1; i++)
 	free(data->DataChunks[i].Values);
-    }
     free(data->DataChunks);
     free(data->Artist);
     free(data->Album);
