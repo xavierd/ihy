@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-void OnDestroy(/* GtkWidget *pWidget, gpointer pData */);
-void OnAboutBtn(/* GtkWidget *pBtn, */ gpointer data);
-void OnQuitBtn(/* GtkWidget *pBtn, */ gpointer data);
+void OnDestroy(GtkWidget *pWidget, gpointer pData);
+void OnAboutBtn(GtkWidget *pBtn, gpointer data);
+void OnQuitBtn(GtkWidget *pBtn, gpointer data);
 
 int main(int argc,char **argv)
 {
@@ -62,13 +62,13 @@ int main(int argc,char **argv)
     return EXIT_SUCCESS;
 }
 
-void OnDestroy(/* GtkWidget *pWidget, gpointer pData */)
+void OnDestroy(GtkWidget *pWidget, gpointer pData)
 {
     /* Arret de la boucle evenementielle */
     gtk_main_quit();
 }
 
-void OnAboutBtn(/* GtkWidget *pBtn, */ gpointer data)
+void OnAboutBtn(GtkWidget *pBtn, gpointer data)
 
 {
     GtkWidget *pGoodBtn;
@@ -90,7 +90,7 @@ void OnAboutBtn(/* GtkWidget *pBtn, */ gpointer data)
 }
 
 
-void OnQuitBtn(/* GtkWidget* widget, */ gpointer data)
+void OnQuitBtn(GtkWidget* widget, gpointer data)
 {
     GtkWidget *pQuestion;
 
