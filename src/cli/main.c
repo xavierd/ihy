@@ -9,6 +9,7 @@
 #include "ihy.h"
 #include "interface.h"
 #include "huffman.h"
+#include "ao_test.h"
 
 int main(int argc, char **argv)
 {
@@ -30,6 +31,7 @@ int main(int argc, char **argv)
 	fflush(stdout);
 	input = create_wav();
 	read_wav(argv[1], input);
+	play_wav(input);
 	printf("DONE\n");
 	fflush(stdout);
 
