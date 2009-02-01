@@ -4,7 +4,7 @@ OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
 CFLAGS=-Wall -W -pedantic -Wlong-long -I${OCAMLPATH}
-LDFLAGS=-L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray -lpthread
+LDFLAGS=-L${OCAMLPATH} ${NATIVECCLIBS} -lao -lasmrun -lbigarray -lpthread
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2
@@ -14,8 +14,8 @@ else
 	OUTPUT=
 endif
 
-CSRC=wav.c ihy.c interface.c huffman.c main.c
-CINTERFACE=wav.h ihy.h interface.h huffman.h
+CSRC=wav.c ao_test.c ihy.c interface.c huffman.c main.c
+CINTERFACE=wav.h ao_test.h ihy.h interface.h huffman.h
 COBJ=${CSRC:.c=.o}
 CAMLSRC=ondelettes.ml
 CAMLINTERFACE=ondelettes.mli
