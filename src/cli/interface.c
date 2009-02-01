@@ -4,18 +4,11 @@
 static value ondelette_fun(const value array)
 {
     static value *func_ptr = NULL;
-    static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
     value res;
 
     if (!func_ptr)
-    {
-	pthread_mutex_lock(&mutex);
 	func_ptr = caml_named_value("ondelettes algo");
-	res = callback(*func_ptr, array);
-	pthread_mutex_unlock(&mutex);
-    }
-    else
-	res = callback(*func_ptr, array);
+    res = callback(*func_ptr, array);
     return res;
 }
 
@@ -80,44 +73,24 @@ static void *thread_function(void *thread_data)
  * memcpy is necessary because caml release, with the GC, the memory
  * used by camlArray
  */
-static void fill_data(const size_t size, float *arrayf, ihy_data *out)
+static void fill_data(const size_t size, ihy_data *out)
 {
     unsigned int max, i, nbChunk;
-    value camlArray;
 
     max = (size / NB_BY_O);
     nbChunk = ((size / NB_BY_O) + (size % NB_BY_O != 0));
     out->DataChunks = malloc(nbChunk * sizeof(ihy_chunk));
     for (i = 0; i < max; i++)
     {
-	/*
-	camlArray = c_array_to_caml(arrayf + (i * NB_BY_O), NB_BY_O);
-	camlArray = ondelette_fun(camlArray);
-	*/
 	out->DataChunks[i].ChunkSize = NB_BY_O * sizeof(float);
 	out->DataChunks[i].Values = malloc(NB_BY_O * sizeof(float));
-	/*
-	memcpy(out->DataChunks[i].Values,
-		Data_bigarray_val(camlArray),
-		NB_BY_O * sizeof(float));
-		*/
     };
     out->NbChunk = i - 1;
     if (nbChunk != out->NbChunk)
     {
-	/*
-	camlArray = c_array_to_caml(arrayf + (i * NB_BY_O),
-				    size - (i * NB_BY_O));
-	camlArray = ondelette_fun(camlArray);
-	*/
 	out->NbChunk = i;
 	out->DataChunks[i].ChunkSize = (size - (i * NB_BY_O)) * sizeof(float);
 	out->DataChunks[i].Values = malloc(out->DataChunks[i].ChunkSize);
-	/*
-	memcpy(out->DataChunks[i].Values,
-		Data_bigarray_val(camlArray),
-		out->DataChunks[i].ChunkSize);
-		*/
     }
 }
 
@@ -133,6 +106,7 @@ void ondelette(const int8_t *array,
     int32_t number;
     pthread_t *threads = malloc(NB_THREADS * sizeof(pthread_t));
     struct thread_data dat;
+    /*pid_t pid;*/
 
     for (i = 0; i < dim; i += sampleSize)
     {
@@ -147,12 +121,27 @@ void ondelette(const int8_t *array,
 	};
 	arrayf[i / 2] = number;
     };
-    fill_data(size, arrayf, out);
+    fill_data(size, out);
     dat.arrayf = arrayf;
     dat.ihy = out;
+    /*
+    pid = fork();
+    if (pid > 0)
+    {
+	thread_function(&dat);
+	wait(NULL);
+    }
+    else
+    {
+	thread_function(&dat);
+	free(arrayf);
+	exit(0);
+    }
+    */
     for(i = 0; i < NB_THREADS; i++)
 	pthread_create(&threads[i], NULL, thread_function, &dat);
     for (i = 0; i < NB_THREADS; i++)
 	pthread_join(threads[i], NULL);
     free(arrayf);
+    return;
 }
