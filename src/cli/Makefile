@@ -3,7 +3,7 @@ CAMLFLAGS=-output-obj bigarray.cmxa
 OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
-CFLAGS=-Wall -W -pedantic -Wlong-long -I${OCAMLPATH}
+CFLAGS=-Wall -W -pedantic -Wno-long-long -I${OCAMLPATH}
 LDFLAGS=-L${OCAMLPATH} -L/usr/local/lib ${NATIVECCLIBS} -lao -lasmrun -lbigarray -lpthread
 
 ifeq (${DEBUG}, false)
