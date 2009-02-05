@@ -9,7 +9,7 @@
 #include <caml/memory.h>
 #include <unistd.h>
 
-#include "ihy.h"
+#include <ihy.h>
 
 #define NB_BY_O 65536
 #define NB_THREADS 1

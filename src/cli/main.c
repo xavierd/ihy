@@ -5,11 +5,11 @@
 #include <caml/callback.h>
 #include <caml/bigarray.h>
 
-#include "wav.h"
-#include "ihy.h"
-#include "interface.h"
-#include "huffman.h"
-#include "ao_test.h"
+#include <input/wav.h>
+#include <ihy.h>
+#include <wavelet.h>
+#include <lossless/huffman.h>
+#include <output/ao.h>
 
 int main(int argc, char **argv)
 {
