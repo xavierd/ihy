@@ -1,4 +1,4 @@
-#include "interface.h"
+#include "wavelet.h"
 
 /* just call the wavelets, defined in OCaml */
 static value ondelette_fun(const value array)

@@ -1,4 +1,4 @@
-#include "ao_test.h"
+#include "ao.h"
 
 void play_wav(wav_data *wav)
 {

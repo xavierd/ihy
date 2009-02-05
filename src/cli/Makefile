@@ -3,7 +3,7 @@ CAMLFLAGS=-output-obj bigarray.cmxa
 OCAMLPATH=${shell ocamlc -where}
 
 CC=gcc
-CFLAGS=-Wall -W -pedantic -Wno-long-long -I${OCAMLPATH}
+CFLAGS=-Wall -W -pedantic -Wno-long-long -I${OCAMLPATH} -I./
 LDFLAGS=-L${OCAMLPATH} -L/usr/local/lib ${NATIVECCLIBS} -lao -lasmrun -lbigarray -lpthread
 
 ifeq (${DEBUG}, false)
@@ -14,11 +14,11 @@ else
 	OUTPUT=
 endif
 
-CSRC=wav.c ao_test.c ihy.c interface.c huffman.c main.c
-CINTERFACE=wav.h ao_test.h ihy.h interface.h huffman.h
+CSRC=input/wav.c output/ao.c ihy.c wavelet.c lossless/huffman.c main.c
+CINTERFACE=input/wav.h output/ao.h ihy.h wavelet.h lossless/huffman.h
 COBJ=${CSRC:.c=.o}
-CAMLSRC=ondelettes.ml
-CAMLINTERFACE=ondelettes.mli
+CAMLSRC=wavelets/haar.ml
+CAMLINTERFACE=wavelets/haar.mli
 CAMLOBJ=${CAMLSRC:.ml=_ml.o}
 CAMLCMI=${CAMLINTERFACE:.mli=.cmi}
 CAMLO=${CAMLSRC:.ml=.o}
@@ -32,7 +32,7 @@ ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ} ${CINTERFACE}
 	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
 
 %.o: %.c
-	${CC} ${CFLAGS} -c $< -I${OCAMLPATH}
+	${CC} ${CFLAGS} -c $< -o $@
 
 %_ml.o: %.ml
 	${CAMLC} ${CAMLFLAGS} $< -o $@
