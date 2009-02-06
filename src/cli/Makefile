@@ -38,7 +38,7 @@ ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ} ${CINTERFACE}
 	${CAMLC} ${CAMLFLAGS} $< -o $@
 
 %.cmi: %.mli
-	${CAMLC} $<
+	${CAMLC} $< -o $@
 
 clean:
 	rm -rf ${COBJ}
