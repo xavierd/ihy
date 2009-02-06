@@ -7,7 +7,7 @@ static value ondelette_fun(const value array)
     value res;
 
     if (!func_ptr)
-	func_ptr = caml_named_value("ondelettes algo");
+	func_ptr = caml_named_value("Haar_Direct");
     res = callback(*func_ptr, array);
     return res;
 }
