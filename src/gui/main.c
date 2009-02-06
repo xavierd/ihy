@@ -2,15 +2,22 @@
 #include <gtk/gtk.h>
 
 void OnDestroy(GtkWidget *pWidget, gpointer pData);
-void OnAboutBtn(GtkWidget *pBtn, gpointer data);
-void OnQuitBtn(GtkWidget *pBtn, gpointer data);
+void OnPlay(GtkWidget *pWidget, gpointer data);
+void OnPause(GtkWidget *pWidget, gpointer data);
+void OnStop(GtkWidget *pWidget, gpointer data);
+void OnRewind(GtkWidget *pWidget, gpointer data);
+void OnForward(GtkWidget *pWidget, gpointer data);
+
+
+
 
 int main(int argc,char **argv)
 {
     GtkWidget *pWindow;
     GtkWidget *pVBox;
-    GtkWidget *pGoodBtn;
-    GtkWidget *pBadBtn;
+    GtkWidget *pHBox;
+    GtkWidget *pButton[5];
+    GtkWidget *pProgress;
 
     gtk_init(&argc,&argv);
 
@@ -28,31 +35,40 @@ int main(int argc,char **argv)
 
     /* Creation de la GtkBox verticale */
     pVBox = gtk_vbox_new(TRUE, 0);
-    /* Ajout de la GtkVBox dans la fenetre */
+    /* Ajout de la GtkHBox dans la fenetre */
     gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
 
+    /* Creation de la GtkBox horizontale */
+    pHBox = gtk_hbox_new(TRUE, 0);
+    /* Ajout de la GtkHBox dans la GtkVBox */
+    gtk_box_pack_start(GTK_BOX(pVBox), pHBox, TRUE, FALSE, 0);
+
+    /* Creation de la barre de progression */
+    pProgress = gtk_progress_bar_new();
+    gtk_box_pack_start(GTK_BOX(pVBox), pProgress, TRUE, FALSE, 0);
+
     /* Creation des boutons */
-    pGoodBtn = gtk_button_new_with_label("Rap music");
-    pBadBtn = gtk_button_new_with_label("Rock");
+    pButton[0] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
+    pButton[1] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
+    pButton[2] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
+    pButton[3] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_REWIND);
+    pButton[4] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_FORWARD);
 
-    /* Ajout de Bouton 1 dans la GtkVBox */
-    gtk_box_pack_start(GTK_BOX(pVBox), pGoodBtn, TRUE, FALSE, 0);
-    g_signal_connect(
-	    G_OBJECT(pGoodBtn),
-	    "clicked",
-	    G_CALLBACK(OnAboutBtn),
-	    (GtkWidget*) pWindow
-	    );
 
-    /* Ajout des boutons 2 dans la GtkVBox */
-    gtk_box_pack_start(GTK_BOX(pVBox), pBadBtn, TRUE, FALSE, 0);
-    g_signal_connect(
-	    G_OBJECT(pBadBtn),
-	    "clicked",
-	    G_CALLBACK(OnQuitBtn),
-	    (GtkWidget*) pWindow
-	    );
+    /* Ajout des Boutons dans la GtkHBox */
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[0], FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[1], FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[2], FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[3], FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[4], FALSE, FALSE, 0);
 
+    /* Connection des boutons */
+    g_signal_connect_swapped(G_OBJECT(pButton[0]), "clicked", G_CALLBACK(OnPlay), pProgress);
+    g_signal_connect_swapped(G_OBJECT(pButton[1]), "clicked", G_CALLBACK(OnPause), pProgress);
+    g_signal_connect_swapped(G_OBJECT(pButton[2]), "clicked", G_CALLBACK(OnStop), pProgress);
+    g_signal_connect_swapped(G_OBJECT(pButton[3]), "clicked", G_CALLBACK(OnRewind), pProgress);
+    g_signal_connect_swapped(G_OBJECT(pButton[4]), "clicked", G_CALLBACK(OnForward), pProgress);
+    
     /* Affichage de la fenetre */
     gtk_widget_show_all(pWindow);
 
@@ -68,50 +84,49 @@ void OnDestroy(GtkWidget *pWidget, gpointer pData)
     gtk_main_quit();
 }
 
-void OnAboutBtn(GtkWidget *pBtn, gpointer data)
-
+void OnPlay(GtkWidget *pWidget, gpointer data)
 {
-    GtkWidget *pGoodBtn;
+   gdouble dFraction;
+   gint i;
+   gint iTotal = 2000;
 
-    /* Creation de la boite de message */
-    /* Bouton : 1 OK -> GTK_BUTTONS_OK */
-    pGoodBtn = gtk_message_dialog_new (GTK_WINDOW(data),
-	    GTK_DIALOG_MODAL,
-	    GTK_MESSAGE_INFO,
-	    GTK_BUTTONS_OK,
-	    "Roi Heenok\n%s",
-	    "Du rap dose");
+   /* Initialisation */
+   gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
-    /* Affichage de la boite de message */
-    gtk_dialog_run(GTK_DIALOG(pGoodBtn));
+   gtk_grab_add(pWidget);
 
-    /* Destruction de la boite de message */
-    gtk_widget_destroy(pGoodBtn);
+   for(i = 0 ; i < iTotal ; ++i)
+   {
+      dFraction = (gdouble)i / (gdouble)iTotal;
+
+      /* Modification de la valeur de la barre de progression */
+      gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
+
+      /* On donne la main a GTK+ */
+      gtk_main_iteration ();
+   }
+
+   /* On supprime le grab sur la barre de progression */
+   gtk_grab_remove(pWidget);
+} 
+
+void OnPause(GtkWidget *pWidget, gpointer data)
+{
+    /* Tu fixe la fonction de du bouton "pause" ici*/
 }
 
-
-void OnQuitBtn(GtkWidget* widget, gpointer data)
+void OnStop(GtkWidget *pWidget, gpointer data)
 {
-    GtkWidget *pQuestion;
-
-    /* Creation de la boite de message */
-    /* Boutons : 1 OUI, 1 NON -> GTK_BUTTONS_YES_NO */
-    pQuestion = gtk_message_dialog_new (GTK_WINDOW(data),
-	    GTK_DIALOG_MODAL,
-	    GTK_MESSAGE_QUESTION,
-	    GTK_BUTTONS_YES_NO,
-	    "Voulez vous vraiment\nécouter ce genre de musique?");
-
-    /* Affichage et attente d une reponse */
-    switch(gtk_dialog_run(GTK_DIALOG(pQuestion)))
-    {
-	case GTK_RESPONSE_YES:
-	    /* OUI -> on quitte l application */
-	    gtk_main_quit();
-	    break;
-	case GTK_RESPONSE_NO:
-	    /* NON -> on detruit la boite de message */
-	    gtk_widget_destroy(pQuestion);
-	    break;
-    }
+    /* Tu fixe la fonction de du bouton "stop" ici*/
 }
+
+void OnRewind(GtkWidget *pWidget, gpointer data)
+{
+    /* Tu fixe la fonction de du bouton "rewind" ici*/
+}
+
+void OnForward(GtkWidget *pWidget, gpointer data)
+{
+    /* Tu fixe la fonction de du bouton "forward" ici*/
+}
+

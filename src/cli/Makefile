@@ -15,7 +15,6 @@ else
 endif
 
 CSRC=input/wav.c output/ao.c ihy.c wavelet.c lossless/huffman.c main.c
-CINTERFACE=input/wav.h output/ao.h ihy.h wavelet.h lossless/huffman.h
 COBJ=${CSRC:.c=.o}
 CAMLSRC=wavelets/haar.ml
 CAMLINTERFACE=wavelets/haar.mli
@@ -28,17 +27,17 @@ EXEC=ihyconvert
 
 all: ${EXEC}
 
-${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ} ${CINTERFACE}
+${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
 	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
 
 %.o: %.c
 	${CC} ${CFLAGS} -c $< -o $@
 
 %_ml.o: %.ml
-	${CAMLC} ${CAMLFLAGS} $< -o $@
+	${CAMLC} ${CAMLFLAGS} -I ./wavelets $< -o $@
 
 %.cmi: %.mli
-	${CAMLC} $<
+	${CAMLC} $< -o $@
 
 clean:
 	rm -rf ${COBJ}
