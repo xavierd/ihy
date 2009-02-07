@@ -7,7 +7,7 @@
 
 typedef struct huffman_tree
 {
-    char			letter;
+    unsigned char		letter;
     int				occurrence;
     int				code;
     int				codelength;
