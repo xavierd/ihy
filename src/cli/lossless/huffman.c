@@ -93,8 +93,8 @@ void huffman_pretty(huffman_tree *B, int code, int code_size)
 	}
 	else
 	{
-	    huffman_pretty(B->fg, (code << 1) + 0, code_size++);
-	    huffman_pretty(B->fd, (code << 1) + 1, code_size++);
+	    huffman_pretty(B->fg, (code << 1) + 0, code_size + 1);
+	    huffman_pretty(B->fd, (code << 1) + 1, code_size + 1);
 	}
     }
 }
@@ -130,23 +130,81 @@ huffman_tree *build_huffman(const void *varray, const size_t n)
     while (H.size > 1)
     {
 	father = malloc(sizeof(huffman_tree));
-	/*
-	father->fd = malloc(sizeof(huffman_tree));
-	father->fg = malloc(sizeof(huffman_tree));
-	*/
 	father->fd = heap_rm(&H);
 	father->fg = heap_rm(&H);
 	father->occurrence = father->fd->occurrence + father->fg->occurrence;
 	heap_add(&H, father);
     }
     father = heap_rm(&H);
-    /*
-    for (i = 0; i < 256; i++)
-	free(tree[i]);
-	*/
     free(tree);
     free(H.array);
     return father;
+}
+
+static void parc_prof_huffman(huffman_tree *H, int code, int length)
+{
+    if (H)
+    {
+	H->code = code;
+	H->codelength = length;
+	parc_prof_huffman(H->fg, (code << 1), length + 1);
+	parc_prof_huffman(H->fd, (code << 1) + 1, length + 1);
+    }
+}
+
+struct huffman_code
+{
+    unsigned int	code;
+    unsigned int	length;
+};
+
+static void build_code(huffman_tree *H, struct huffman_code *code)
+{
+    if (H)
+    {
+	if (!H->fg)
+	{
+	    code[H->letter].code = H->code;
+	    code[H->letter].length = H->codelength;
+	};
+	build_code(H->fg, code);
+	build_code(H->fd, code);
+    }
+}
+
+/* encode the data
+ * n is the size of varray and will be, when the function returns, the
+ * size of the array returned
+ */
+int8_t *huffman_encode(const void *varray, size_t *n, huffman_tree *H)
+{
+    struct huffman_code code[256];
+    struct huffman_code letter_code;
+    int8_t *res = calloc(*n, 1);
+    int8_t *sentry = res;
+    uint8_t *array = (uint8_t *)varray;
+    unsigned int i, shift;
+    int tmp;
+
+    parc_prof_huffman(H, 0, 0);
+    build_code(H, code);
+    shift = 0;
+    for (i = 0; i < *n; i++)
+    {
+	letter_code = code[array[i]];
+	while (letter_code.length > 0)
+	{
+	    *sentry |= letter_code.code << (8 - shift - letter_code.length);
+	    tmp = shift;
+	    if (letter_code.length > (8 - shift))
+		sentry++;
+	    shift = shift + (letter_code.length % 8);
+	    letter_code.length -= (8 - tmp);
+	};
+    }
+    *n = (sentry - res) + (shift != 0);
+    res = realloc(res, *n);
+    return res;
 }
 
 /* release the memory used by a huffman tree */
