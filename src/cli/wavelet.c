@@ -54,7 +54,6 @@ static void compute_bucket(const int toCompute, float *arrayf, ihy_data *ihy)
 {
     value camlArray;
     int size;
-    int i;
 
     size = ihy->DataChunks[toCompute].ChunkSize / sizeof(float);
     camlArray = c_array_to_caml(arrayf + (toCompute * NB_BY_O),  size);
@@ -160,12 +159,10 @@ void wavelets_direct(const int8_t *array,
 	exit(0);
     }
     */
-    /*for(i = 0; i < NB_THREADS; i++)
+    for(i = 0; i < NB_THREADS; i++)
 	pthread_create(&threads[i], NULL, thread_function, &dat);
     for (i = 0; i < NB_THREADS; i++)
 	pthread_join(threads[i], NULL);
-	*/
-    thread_function(&dat);
     free(arrayf);
     return;
 }
