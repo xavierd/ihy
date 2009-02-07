@@ -1,13 +1,24 @@
 #include "wavelet.h"
 
 /* just call the wavelets, defined in OCaml */
-static value ondelette_fun(const value array)
+static value wavelets_direct_fun(const value array)
 {
     static value *func_ptr = NULL;
     value res;
 
     if (!func_ptr)
 	func_ptr = caml_named_value("Haar_Direct");
+    res = callback(*func_ptr, array);
+    return res;
+}
+
+static value wavelets_reverse_fun(const value array)
+{
+    static value *func_ptr = NULL;
+    value res;
+
+    if (!func_ptr)
+	func_ptr = caml_named_value("Haar_Reverse");
     res = callback(*func_ptr, array);
     return res;
 }
@@ -46,7 +57,7 @@ static void compute_bucket(const int toCompute, float *arrayf, ihy_data *ihy)
 
     size = ihy->DataChunks[toCompute].ChunkSize / sizeof(float);
     camlArray = c_array_to_caml(arrayf + (toCompute * NB_BY_O),  size);
-    camlArray = ondelette_fun(camlArray);
+    camlArray = wavelets_direct_fun(camlArray);
     memcpy(ihy->DataChunks[toCompute].Values,
 	    Data_bigarray_val(camlArray),
 	    size);
@@ -94,11 +105,13 @@ static void fill_data(const size_t size, ihy_data *out)
     }
 }
 
-/* compute the result of the OCaml function "ondelettes" */
-void ondelette(const int8_t *array,
-	       const size_t sampleSize,
-	       const size_t dim,
-	       ihy_data *out)
+/* compute the result of the OCaml function "Haar_Direct"
+ * compress the data and fill out
+ */
+void wavelets_direct(const int8_t *array,
+		     const size_t sampleSize,
+		     const size_t dim,
+		     ihy_data *out)
 {
     unsigned int i, j;
     size_t size = dim / sampleSize;
@@ -144,4 +157,29 @@ void ondelette(const int8_t *array,
 	pthread_join(threads[i], NULL);
     free(arrayf);
     return;
+}
+
+/* compute the result of the OCaml function "Haar_Reverse"
+ * uncompress the data and fill out
+ * assuming out->BitsPerSample == 16
+ */
+void wavelets_inverse(float *chunk,
+		      const size_t nbelmts,
+		      wav_data *out,
+		      const int offset)
+{
+    value camlArray;
+    int16_t val;
+    unsigned int i;
+
+    camlArray = c_array_to_caml(chunk, nbelmts);
+    camlArray = wavelets_reverse_fun(camlArray);
+
+    for (i = 0; i < nbelmts; i++)
+    {
+	val = ((float *)(Data_bigarray_val(camlArray)))[i];
+	out->Data[offset + (i / (16 / 8))] = val >> 8;
+	out->Data[offset + 1 + (i / (16 / 8))] = val;
+    }
+    /*out->DataBlocSize = out->DataBlocSize + nbelmts;*/
 }
