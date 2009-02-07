@@ -29,13 +29,15 @@ static void *master_thread(void *dat)
     struct thread_data *data = dat;
     ihy_data *output;
     huffman_tree *B;
+    wav_data *wav;
+    int i, offset;
 
     /* wavelets */
     printf("Using wavelets on data ... ");
     fflush(stdout);
 
     output = create_ihy();
-    ondelette(data->wav->Data,
+    wavelets_direct(data->wav->Data,
 	    data->wav->BitsPerSample / 8,
 	    data->wav->DataBlocSize,
 	    output);
@@ -75,10 +77,25 @@ static void *master_thread(void *dat)
     printf("Creating Huffman tree ... ");
     fflush(stdout);
     B = build_huffman(data->wav->Data, data->wav->DataBlocSize);
-    huffman_pretty(B, 0, 0);
+    /*huffman_pretty(B, 0, 0);*/
     printf("DONE\n");
     fflush(stdout);
     destroy_huffman(B);
+
+    wav = malloc(sizeof(wav_data));
+    /* warning hack !! */
+    memcpy(wav, data->wav, sizeof(wav_data));
+    offset = 0;
+    for (i = 0; i < output->NbChunk; i++)
+    {
+	wavelets_inverse(output->DataChunks[i].Values,
+		output->DataChunks[i].ChunkSize / sizeof(float),
+		wav,
+		offset);
+	offset += output->DataChunks[i].ChunkSize;
+    };
+
+    write_wav(wav, "prout.wav");
 
     destroy_ihy(output);
     return NULL;
