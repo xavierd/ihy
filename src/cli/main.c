@@ -139,10 +139,10 @@ int main(int argc, char **argv)
 
 	dat.argv = argv;
 	dat.wav = input;
-	/*pthread_create(&play, NULL, thread_play_wav, input);*/
+	pthread_create(&play, NULL, thread_play_wav, input);
 	pthread_create(&master, NULL, master_thread, &dat);
 
-	/*pthread_join(play, NULL);*/
+	pthread_join(play, NULL);
 	pthread_join(master, NULL);
 
 	destroy_wav(input);
