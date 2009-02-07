@@ -75,6 +75,7 @@ static void *master_thread(void *dat)
     printf("Creating Huffman tree ... ");
     fflush(stdout);
     B = build_huffman(data->wav->Data, data->wav->DataBlocSize);
+    huffman_pretty(B, 0, 0);
     printf("DONE\n");
     fflush(stdout);
     destroy_huffman(B);
