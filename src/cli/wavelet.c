@@ -55,6 +55,7 @@ static void compute_bucket(const int toCompute, float *arrayf, ihy_data *ihy)
     value camlArray;
     int size;
 
+    printf("%d\n", ihy->DataChunks[toCompute].ChunkSize);
     size = ihy->DataChunks[toCompute].ChunkSize / sizeof(float);
     camlArray = c_array_to_caml(arrayf + (toCompute * NB_BY_O),  size);
     camlArray = wavelets_direct_fun(camlArray);
@@ -89,20 +90,23 @@ static void fill_data(const size_t size, ihy_data *out)
     unsigned int max, i, nbChunk;
 
     max = (size / NB_BY_O);
-    nbChunk = ((size / NB_BY_O) + (size % NB_BY_O != 0));
+    nbChunk = (max + (size % NB_BY_O != 0));
     out->DataChunks = malloc(nbChunk * sizeof(ihy_chunk));
     for (i = 0; i < max; i++)
     {
 	out->DataChunks[i].ChunkSize = NB_BY_O * sizeof(float);
 	out->DataChunks[i].Values = malloc(NB_BY_O * sizeof(float));
+	out->NbChunk = i;
     };
-    out->NbChunk = i - 1;
+    /*
     if (nbChunk != out->NbChunk)
     {
 	out->NbChunk = i;
+	printf("%d\n", i);
 	out->DataChunks[i].ChunkSize = (size - (i * NB_BY_O)) * sizeof(float);
 	out->DataChunks[i].Values = malloc(out->DataChunks[i].ChunkSize);
     }
+    */
 }
 
 /* compute the result of the OCaml function "Haar_Direct"
@@ -151,10 +155,12 @@ void wavelets_direct(const int8_t *array,
 	exit(0);
     }
     */
-    for(i = 0; i < NB_THREADS; i++)
+    /*for(i = 0; i < NB_THREADS; i++)
 	pthread_create(&threads[i], NULL, thread_function, &dat);
     for (i = 0; i < NB_THREADS; i++)
 	pthread_join(threads[i], NULL);
+	*/
+    thread_function(&dat);
     free(arrayf);
     return;
 }
@@ -175,11 +181,16 @@ void wavelets_inverse(float *chunk,
     camlArray = c_array_to_caml(chunk, nbelmts);
     camlArray = wavelets_reverse_fun(camlArray);
 
+    printf("%d\n", nbelmts);
     for (i = 0; i < nbelmts; i++)
     {
 	val = ((float *)(Data_bigarray_val(camlArray)))[i];
+	printf("%f, %d\n", ((float *)Data_bigarray_val(camlArray))[i], val);
+	/*
 	out->Data[offset + (i / (16 / 8))] = val >> 8;
 	out->Data[offset + 1 + (i / (16 / 8))] = val;
+	*/
+	memcpy(out->Data + offset + i, &val, 2);
     }
     /*out->DataBlocSize = out->DataBlocSize + nbelmts;*/
 }
