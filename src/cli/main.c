@@ -30,7 +30,8 @@ static void *master_thread(void *dat)
     ihy_data *output;
     huffman_tree *B;
     wav_data *wav;
-    int i, offset;
+    unsigned int i;
+    int offset;
 
     /* wavelets */
     printf("Using wavelets on data ... ");
@@ -85,17 +86,25 @@ static void *master_thread(void *dat)
     wav = malloc(sizeof(wav_data));
     /* warning hack !! */
     memcpy(wav, data->wav, sizeof(wav_data));
+    wav->Data = NULL;
+    offset = 0;
+    for (i = 0; i <= output->NbChunk; i++)
+	offset += (output->DataChunks[i].ChunkSize / sizeof(float)) * 2;
+    printf("offset, DataBlocSize : %d, %d\n", offset, data->wav->DataBlocSize);
+    wav->Data = malloc(data->wav->DataBlocSize * sizeof(char));
     offset = 0;
     for (i = 0; i < output->NbChunk; i++)
     {
 	wavelets_inverse(output->DataChunks[i].Values,
-		output->DataChunks[i].ChunkSize / sizeof(float),
+		(output->DataChunks[i].ChunkSize / sizeof(float)) * 2,
 		wav,
 		offset);
-	offset += output->DataChunks[i].ChunkSize;
+	offset += (output->DataChunks[i].ChunkSize / sizeof(float)) * 2;
     };
 
+    printf("write wav...");
     write_wav(wav, "prout.wav");
+    printf("DONE\n");
 
     destroy_ihy(output);
     return NULL;
@@ -126,10 +135,10 @@ int main(int argc, char **argv)
 
 	dat.argv = argv;
 	dat.wav = input;
-	pthread_create(&play, NULL, thread_play_wav, input);
+	/*pthread_create(&play, NULL, thread_play_wav, input);*/
 	pthread_create(&master, NULL, master_thread, &dat);
 
-	pthread_join(play, NULL);
+	/*pthread_join(play, NULL);*/
 	pthread_join(master, NULL);
 
 	destroy_wav(input);
