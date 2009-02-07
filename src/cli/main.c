@@ -95,7 +95,7 @@ static void *master_thread(void *dat)
     printf("offset, DataBlocSize : %d, %d\n", offset, data->wav->DataBlocSize);
     wav->Data = malloc(data->wav->DataBlocSize * sizeof(char));
     offset = 0;
-    //printf("%d\n", output->NbChunk);
+    printf("%d\n", output->NbChunk);
     for (i = 0; i < output->NbChunk; i++)
     {
 	wavelets_inverse(output->DataChunks[i].Values,
