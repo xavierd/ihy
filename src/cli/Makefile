@@ -30,7 +30,7 @@ all: ${EXEC}
 ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
 	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
 
-%.o: %.c
+%.o: %.c %.h
 	${CC} ${CFLAGS} -c $< -o $@
 
 %_ml.o: %.ml
