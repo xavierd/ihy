@@ -100,11 +100,12 @@ void huffman_pretty(huffman_tree *B, int code, int code_size)
 }
 
 /* build the huffman tree, and return it */
-huffman_tree *build_huffman(const int8_t *array, const size_t n)
+huffman_tree *build_huffman(const void *varray, const size_t n)
 {
     unsigned int i;
     huffman_tree **tree;
     huffman_tree *father;
+    int8_t *array = (int8_t *)varray;
     heap H;
 
     tree = malloc(256 * sizeof(huffman_tree *));
