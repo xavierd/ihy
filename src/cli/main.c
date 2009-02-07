@@ -74,6 +74,7 @@ static void *master_thread(void *dat)
     write_ihy(output, data->argv[2]);
     printf("DONE\n");
 
+#if 0
     /* huffman tree */
     printf("Creating Huffman tree ... ");
     fflush(stdout);
@@ -82,7 +83,8 @@ static void *master_thread(void *dat)
     printf("DONE\n");
     fflush(stdout);
     destroy_huffman(B);
-
+#endif
+#if 0
     wav = malloc(sizeof(wav_data));
     /* warning hack !! */
     memcpy(wav, data->wav, sizeof(wav_data));
@@ -93,6 +95,7 @@ static void *master_thread(void *dat)
     printf("offset, DataBlocSize : %d, %d\n", offset, data->wav->DataBlocSize);
     wav->Data = malloc(data->wav->DataBlocSize * sizeof(char));
     offset = 0;
+    //printf("%d\n", output->NbChunk);
     for (i = 0; i < output->NbChunk; i++)
     {
 	wavelets_inverse(output->DataChunks[i].Values,
@@ -105,6 +108,7 @@ static void *master_thread(void *dat)
     printf("write wav...");
     write_wav(wav, "prout.wav");
     printf("DONE\n");
+#endif
 
     destroy_ihy(output);
     return NULL;

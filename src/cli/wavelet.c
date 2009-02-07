@@ -38,12 +38,12 @@ static int get_next_bucket(int *toCompute, ihy_data *ihy)
 {
     static int actualBucket = -1;
     static pthread_mutex_t mutex = PTHREAD_MUTEX_INITIALIZER;
+    int max_bucket = ihy->NbChunk;
     int res;
-    int max_bucket = ihy->NbChunk + 1;
 
     pthread_mutex_lock(&mutex);
     actualBucket++;
-    res = actualBucket < max_bucket;
+    res = actualBucket <= max_bucket;
     *toCompute = actualBucket;
     pthread_mutex_unlock(&mutex);
     return res;
@@ -54,8 +54,8 @@ static void compute_bucket(const int toCompute, float *arrayf, ihy_data *ihy)
 {
     value camlArray;
     int size;
+    int i;
 
-    printf("%d\n", ihy->DataChunks[toCompute].ChunkSize);
     size = ihy->DataChunks[toCompute].ChunkSize / sizeof(float);
     camlArray = c_array_to_caml(arrayf + (toCompute * NB_BY_O),  size);
     camlArray = wavelets_direct_fun(camlArray);
@@ -92,12 +92,12 @@ static void fill_data(const size_t size, ihy_data *out)
     max = (size / NB_BY_O);
     nbChunk = (max + (size % NB_BY_O != 0));
     out->DataChunks = malloc(nbChunk * sizeof(ihy_chunk));
-    for (i = 0; i < max; i++)
+    for (i = 0; i < nbChunk; i++)
     {
 	out->DataChunks[i].ChunkSize = NB_BY_O * sizeof(float);
 	out->DataChunks[i].Values = malloc(NB_BY_O * sizeof(float));
-	out->NbChunk = i;
     };
+    out->NbChunk = nbChunk;
     /*
     if (nbChunk != out->NbChunk)
     {
@@ -109,6 +109,11 @@ static void fill_data(const size_t size, ihy_data *out)
     */
 }
 
+static size_t next_multiple(const size_t nb)
+{
+    return ((nb / NB_BY_O) + (nb % NB_BY_O != 0)) * NB_BY_O;
+}
+
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
  */
@@ -118,8 +123,8 @@ void wavelets_direct(const int8_t *array,
 		     ihy_data *out)
 {
     unsigned int i, j;
-    size_t size = dim / sampleSize;
-    float *arrayf = malloc (size * sizeof(float));
+    size_t size = next_multiple(dim / sampleSize);
+    float *arrayf = malloc(size * sizeof(float));
     int32_t number;
     pthread_t *threads = malloc(NB_THREADS * sizeof(pthread_t));
     struct thread_data dat;

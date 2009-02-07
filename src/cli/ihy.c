@@ -115,7 +115,7 @@ void destroy_ihy(ihy_data *data)
 {
     uint32_t i;
 
-    for (i = 0; i < data->NbChunk + 1; i++)
+    for (i = 0; i < data->NbChunk; i++)
 	free(data->DataChunks[i].Values);
     free(data->DataChunks);
     free(data->Artist);
