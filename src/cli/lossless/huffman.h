@@ -3,14 +3,18 @@
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <stdio.h>
 
 typedef struct huffman_tree
 {
     char			letter;
-    int				frequency;
+    int				occurrence;
     struct huffman_tree		*fg;
     struct huffman_tree		*fd;
 } huffman_tree;
+
+/* pretty print huffman */
+void huffman_pretty(huffman_tree *B, int code, int code_size);
 
 /* build the huffman tree, and return it */
 huffman_tree *build_huffman(const int8_t *array, const size_t n);
