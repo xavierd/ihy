@@ -124,7 +124,7 @@ void wavelets_direct(const int8_t *array,
     unsigned int i, j;
     size_t size = next_multiple(dim / sampleSize);
     float *arrayf = malloc(size * sizeof(float));
-    int32_t number;
+    int16_t number;
     pthread_t *threads = malloc(NB_THREADS * sizeof(pthread_t));
     struct thread_data dat;
     /*pid_t pid;*/
@@ -195,10 +195,6 @@ void wavelets_inverse(float *chunk,
     {
 	valf = ((float *)(Data_bigarray_val(camlArray)))[i];
 	val = valf;
-	/*
-	out->Data[offset + j] = val >> 8;
-	out->Data[offset + 1 + j] = val;
-	*/
 	/*
 	printf("val : %d, data : %d\n", val,
 		out->Data[i + offset] + (out->Data[i + 1 + offset] << 8));
