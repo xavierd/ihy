@@ -101,8 +101,10 @@ static void *master_thread(void *dat)
 	offset += (output->DataChunks[i].ChunkSize / sizeof(float)) * 2;
     };
 
+    /*
     for (i = 0; i < data->wav->DataBlocSize; i++)
 	printf("org : %d, compr : %d\n", data->wav->Data[i], wav->Data[i]);
+	*/
 
     printf("write wav...");
     write_wav(wav, "prout.wav");
