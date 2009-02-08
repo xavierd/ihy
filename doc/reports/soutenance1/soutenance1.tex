@@ -26,22 +26,23 @@ wagnac\_t (Teddy Wagnac)
 \newpage
 
 \section*{Introduction}
-Nous avons decidé cette année de nous atteler à la réalisation d'un codec audio.
-L'orientation principale des projets de spé de cette année étant la recherche et
-le développement, nous avons choisi de nous tourner vers les ondelettes qui
-seront notre base de travail. En effet, les ondelettes étant un outil
-mathématique relativement récent (elles datent du XXème siècle), elles ne sont
-pas encore largement utilisées. Il existe actuellement certains algorithmes de
-compression vidéo, par exemple Dirac, leur implémentation par la BBC, mais rien
-de probant pour le traitement du signal audio.\\
-Notre nouveau codec révolutionnaire (du moins nous l'espérons) se nomme donc le
-ihy, pour deux raisons. Premièrement parce qu'"ihy" est le nom d'un dieu
-egyptien de la musique, et deuxièmement parce que ce mot est compliqué à
-prononcer.\\
-Ceci étant dit, entrons dans le vif du sujet. Nous présenterons dans ce rapport
-le travail accompli depuis la validation du cahier des charges, les problèmes
-rencontrés et leurs solutions, ainsi que le travail à accomplir pour la
-prochaine soutenance.
+Nous avons  décidé cette  année de  nous atteler  à la  réalisation d'un
+codec audio.  L'orientation principale des projets de spé de cette année
+étant  la recherche  et le  développement,  nous  avons  choisi  de nous
+tourner vers les ondelettes qui seront notre base de travail.  En effet,
+les ondelettes  étant un outil  mathématique relativement  récent (elles
+datent du XXème siècle),  elles ne  sont pas encore largement utilisées.
+Il existe  actuellement certains algorithmes  de compression vidéo,  par
+exemple Dirac, leur implémentation par la BBC, mais rien de probant pour
+le traitement du signal audio.\\
+Notre nouveau codec révolutionnaire (du  moins nous l'espérons) se nomme
+donc le  ihy,  pour deux raisons.  Premièrement parce  qu'``ihy'' est le
+nom d'un dieu égyptien de la  musique,  et deuxièmement parce que ce mot
+est compliqué à prononcer.\\
+Ceci étant dit, entrons dans le vif du sujet.  Nous présenterons dans ce
+rapport le travail accompli depuis  la validation du cahier des charges,
+les problèmes  rencontrés et  leurs solutions,  ainsi  que le  travail à
+accomplir pour la prochaine soutenance.
 
 \newpage
 
@@ -56,6 +57,71 @@ prochaine soutenance.
 	\subsection{Ondelette de Haar}
 
 	\subsection{Interfaçage Caml/C}
+Les ondelettes  étant faites  en Caml,  et  l'écriture ainsi  que divers
+traitement réalisés en  C,  il nous fallait faire  transiter des données
+entre le  C et le Caml.  Il  y eut plusieurs  étapes,  envoie de données
+simple  au  Caml,   puis  envois  de  données  plus  complexe  et  enfin
+récupération de ces données.\\
+
+		\subsubsection{Envois de données simple}
+Il s'agissait de  la première étape,  pour comprendre  comment on devait
+pour interfacer le C et le  Caml.  Notre premier programme fût un simple
+envoie de chaine  de caractères,  et affichage dans la  console de cette
+chaine de caractère.\\
+Le plus  dur fût de trouver  comment envoyer cette  chaine a Caml.  Pour
+cela,  il  fallu  avant  tout  déclarer  la  fonction  Caml  comme étant
+utilisable via un ``callback'' :
+\begin{verbatim}
+let _ =
+  Callback.register "print_string" print
+\end{verbatim}
+Comme vous  pouvez le voir,  rien de  bien difficile à  mettre en place,
+``print\_string''  était l'identifiant  extérieur  de  la  fonction Caml
+``print''.   La  fonction   ``print''  était  désormais   utilisable  de
+l'extérieur.\\
+Il  fallait désormais  pouvoir l'utiliser  à partir  du C.  Heureusement
+Caml fournit des fonctions pour nous aider.  Notamment les fonctions :
+\begin{verbatim}
+CAMLextern value * caml_named_value (char const * name);
+CAMLextern value caml_callback (value closure, value arg);
+\end{verbatim}
+La première  renvoie un  pointeur sur la  fonction Caml  correspondant a
+``name'',   la  seconde  appelle  la  fonction  ``closure''  avec  comme
+paramètre ``arg''.  Mais  avant  de  pouvoir  utiliser ces fonction,  il
+fallut ``initialiser'' Caml,  à l  l'aide de la fonction ``caml\_main'',
+indispensable pour pouvoir exécuter du Caml.\\
+La dernière  chose à  faire avant de  pouvoir appeler  le Caml  était de
+transformer  les types  C en  type  Caml.  Cela  est  géré  par  le type
+``value''  et  les  fonctions  associées.   Après  cela,  la  chaine  de
+caractère était bien affichée par Caml.\\
+Comme on peut le voir,  la mise en place de l'interface du coté Caml est
+bien plus simple que du coté du C.\\
+
+		\subsubsection{Envois et récupération de données complexes}
+Maintenant que nous avions envoyer  une chaine de caractère,  il fallait
+essayer d'envoyer des données plus intéressantes pour nous, c'est-à-dire
+un tableau de  données.  Les ``ennuis'' commencèrent.  Premièrement,  le
+type ``array'' de Caml n'est pas  compatible avec les tableaux de C,  il
+nous  fallu  utiliser  le  module  ``Bigarray''  de  Caml,  qui  lui est
+compatible avec  les tableaux du  C (il fallait  néanmoins convertir ces
+derniers en ``value'').  Deuxièmement,  dès que l'on touchait au tableau
+du coté de Caml, cela segfaultait,  plutôt gênant\ldots En fait, dans le
+cas des entiers (plus précisément,  de tout sauf des nombres flottants),
+Caml les  code sur 31bits (sur  une architecture 32bits) et  non pas sur
+32bits comme le C,  il y avait  donc un soucis à l'écriture.  Il fallait
+donc utiliser  le type  ``Int32'' de  Caml pour  modifier le  contenu du
+tableau,  le code  devient très moche  et quasi illisible.  Heureusement
+pour nous,  les ondelettes travaillent sur des nombres flottants qui est
+codé de la même façon en C et en Caml.\\
+Nous pouvions  désormais envoyer des  tableaux de flottants  à Caml,  et
+Caml pouvait modifier à sa  guise le contenu du tableau.  Étape suivante
+: récupérer le tableau modifié.  Pour cela,  rien de bien compliqué,  la
+fonction ``caml\_callback'' vue précédemment  nous renvoie sous forme de
+``value'' le résultat de la fonction appelée.  Il suffisait désormais de
+récupérer le tableau contenu dans le ``value'',  et encore une fois Caml
+fournit une fonction (ou plutôt une macro ici) : ``Data\_bigarray\_val''
+qui  renvois  le  tableau  contenu  dans  un  ``value''  représentant un
+``bigarray''.
 
 	\subsection{Algorithme de Huffman}
 
