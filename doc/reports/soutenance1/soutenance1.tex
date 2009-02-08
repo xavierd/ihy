@@ -105,14 +105,14 @@ type ``array'' de Caml n'est pas  compatible avec les tableaux de C,  il
 nous  fallu  utiliser  le  module  ``Bigarray''  de  Caml,  qui  lui est
 compatible avec  les tableaux du  C (il fallait  néanmoins convertir ces
 derniers en ``value'').  Deuxièmement,  dès que l'on touchait au tableau
-du coté de Caml, cela segfaultait,  plutôt gênant\ldots En fait, dans le
-cas des entiers (plus précisément,  de tout sauf des nombres flottants),
-Caml les  code sur 31bits (sur  une architecture 32bits) et  non pas sur
-32bits comme le C,  il y avait  donc un soucis à l'écriture.  Il fallait
-donc utiliser  le type  ``Int32'' de  Caml pour  modifier le  contenu du
-tableau,  le code  devient très moche  et quasi illisible.  Heureusement
-pour nous,  les ondelettes travaillent sur des nombres flottants qui est
-codé de la même façon en C et en Caml.\\
+du coté de Caml,  le programme avait une ``segmentation fault'',  plutôt
+gênant\ldots En fait, dans le cas des entiers (plus précisément, de tout
+sauf  des  nombres  flottants),  Caml  les  code  sur  31bits  (sur  une
+architecture 32bits) et non pas sur  32bits comme le C,  il y avait donc
+un soucis à  l'écriture.  Il fallait donc utiliser le  type ``Int32'' de
+Caml pour modifier le contenu du tableau,  le code devient très moche et
+quasi illisible.  Heureusement pour nous, les ondelettes travaillent sur
+des nombres flottants qui est codé de la même façon en C et en Caml.\\
 Nous pouvions  désormais envoyer des  tableaux de flottants  à Caml,  et
 Caml pouvait modifier à sa  guise le contenu du tableau.  Étape suivante
 : récupérer le tableau modifié.  Pour cela,  rien de bien compliqué,  la
@@ -125,9 +125,72 @@ qui  renvois  le  tableau  contenu  dans  un  ``value''  représentant un
 
 	\subsection{Algorithme de Huffman}
 
+	\subsection{Lecture de son}
+
 	\subsection{Premières étapes de threading}
+De nos jours,  les processeurs ont de plus de plus de cœurs, ils peuvent
+donc exécuter de plus en plus de tâches simultanément, et donc faire des
+traitements  plus  rapides  si   cette  exécution  simultanée  est  bien
+pensée.\\
+La compression audio est particulièrement bien adaptée à cette exécution
+simultanée,  dites ``concurrentielle''.  En  effet la  compression d'une
+partie de la  musique ne dépend pas du  résultat d'une partie précédente
+(dans notre  cas).  On peut  donc mettre  en place  des ``threads'',  un
+thread  permettant   cette  execution  simultanée  au   sein  d'un  même
+programme,  chaque thread  calculant une partie de  la musique.  Dans la
+pratique,  un thread ne calcule pas uniquement une partie mais plusieurs
+petites  parties,  ceci pour  réduire encore  la durée  d'un traitement.
+Pour  illustrer  cela,  prenons un  exemple  :  utilisons  2  threads et
+considérons que la  première partie de la musique met  deux fois plus de
+temps  que  la deuxième  partie.  Le  premier  thread  va  compresser la
+première partie,  et le deuxième la deuxième, comme on peut s'en douter,
+le deuxième  thread mettre deux fois  moins de temps pour  finir et sera
+inactif pendant le reste de la compression.\\
+Pour pallier à  ce problème,  il faut découper la  musique en un certain
+nombre  de morceaux,  puis  écrire une  fonction qui  va permettre  a un
+thread de récupérer le prochain morceau à calculer.  Cette fonction doit
+bien  évidement  être  ``thread-safe'',  c'est-à-dire  que  si  elle est
+appelée au même moment par plusieurs threads,  elle ne doit pas renvoyer
+deux  fois  le  même  morceaux  à  calculer,  ou  avoir  un comportement
+indéfini.  Ceci  est  réalisé  en  utilisant  ce  que  l'on  appelle des
+``mutex'',  un mutex  possède deux états  : libre  ou bloqué.  Lorsqu'un
+thread tente de bloquer un mutex  déjà bloqué,  il attend jusqu'à ce que
+ce dernier  devienne  libre.  Leur  utilisation  dans  notre cas devient
+alors assez  évidente.  Lorsque la fonction  est appelée,  un  mutex est
+bloqué et est libéré lorsque  la fonction se termine,  assurant ainsi le
+``thread-safe''.\\
+On  pouvait désormais  compresser une  musique de  façon parallèle.  Une
+autre utilisation, totalement différente cette fois-ci, était de pouvoir
+lire la musique alors que l'on compressait les données.  On a alors deux
+threads, totalement séparés, un thread jouant de la musique, et un autre
+compressant cette même musique.\\
 
 		\subsubsection{Problèmes rencontrés}
+Mais voila,  tout n'est  pas aussi rose dans la  pratique,  si la partie
+``thread de lecture et  thread de compression'' fonctionne parfaitement,
+il  n'en  est   pas  de  même  pour  la   partie  ``multiple  thread  de
+compression''.  Comme dit  précédemment,  la compression est  faites par
+Caml et Caml  utilise ce que l'on appelle  un ``Garbage Collector'' pour
+gérer la mémoire sans que l'utilisateur  n'ait à se soucier de pointeurs
+et autres joyeusetés du genre.  Seulement ce ``Garbage Collector'' n'est
+pas  ``thread-safe''\footnote{voir  ci-dessus},   ce  qui  implique  que
+lorsque un thread  fait des calculs sur  un une partie de  la musique et
+que  l'autre réorganise  la mémoire  à  l'aide  de  ce  fameux ``Garbage
+Collector'',  le  premier  va  soudainement  vouloir  écrire  au mauvais
+endroit  de   la  mémoire,   en   résulte  une   ``segmentation  fault''
+insolvables.\\
+Il y a néanmoins une solution pour résoudre ce problème,  que nous avons
+partiellement  explorée.  Il s'agit  du  concept  de  ``fork'',  dans un
+thread  classique,  chaque thread  partage la  même mémoire,  facilitant
+ainsi  les  manipulation  de  la  mémoire,  alors  qu'un  fork  est tout
+simplement  un clonage  intégral du  programme.  Les deux  programmes ne
+partagent plus la  même zone de mémoire,  ils  sont séparés.  Cela règle
+notre problème,  mais ajoute un autre problème, également assez génant :
+comment faire  pour partager  une zone  de mémoire?  Car  n'oublions pas
+notre but est de partager le  travail sur plusieurs coeur du processeur,
+non de faire deux fois le  même travail.  La solution se nomme ``pipe''.
+Pour  le moment  cela reste  extrêmement  théorique,  et  par  soucis de
+clarté, non implémentée.\\
 
 	\subsection{Interface graphique en GTK}
 
