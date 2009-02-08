@@ -183,7 +183,6 @@ void wavelets_inverse(float *chunk,
     camlArray = c_array_to_caml(chunk, nbelmts);
     camlArray = wavelets_reverse_fun(camlArray);
 
-    printf("%d\n", nbelmts);
     j = 0;
     valf = (float *)(Data_bigarray_val(camlArray));
     for (i = 0; i < nbelmts; i++)

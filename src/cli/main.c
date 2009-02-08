@@ -32,6 +32,8 @@ static void *master_thread(void *dat)
     wav_data *wav;
     unsigned int i;
     int offset;
+    size_t size;
+    int8_t *encoded;
 
     /* wavelets */
     printf("Using wavelets on data ... ");
@@ -78,11 +80,17 @@ static void *master_thread(void *dat)
     printf("Creating Huffman tree ... ");
     fflush(stdout);
     B = build_huffman(data->wav->Data, data->wav->DataBlocSize);
+    size = data->wav->DataBlocSize;
+    encoded = huffman_encode(data->wav->Data, &size, B);
+    printf("size : %d, orig : %d ", size, data->wav->DataBlocSize);
+    free(encoded);
     /*huffman_pretty(B, 0, 0);*/
     printf("DONE\n");
     fflush(stdout);
     destroy_huffman(B);
 
+    printf("doing inverse wavelets...");
+    fflush(stdout);
     wav = malloc(sizeof(wav_data));
     /* warning hack !! */
     memcpy(wav, data->wav, sizeof(wav_data));
@@ -90,7 +98,7 @@ static void *master_thread(void *dat)
     offset = 0;
     for (i = 0; i < output->NbChunk; i++)
 	offset += (output->DataChunks[i].ChunkSize / sizeof(float)) * 2;
-    wav->Data = calloc(offset, sizeof(char));
+    wav->Data = malloc(offset * sizeof(char));
     offset = 0;
     for (i = 0; i < output->NbChunk; i++)
     {
@@ -100,6 +108,7 @@ static void *master_thread(void *dat)
 		offset);
 	offset += (output->DataChunks[i].ChunkSize / sizeof(float)) * 2;
     };
+    printf("DONE\n");
 
     /*
     for (i = 0; i < data->wav->DataBlocSize; i++)
@@ -107,6 +116,7 @@ static void *master_thread(void *dat)
 	*/
 
     printf("write wav...");
+    fflush(stdout);
     write_wav(wav, "prout.wav");
     destroy_wav(wav);
     printf("DONE\n");
