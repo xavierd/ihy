@@ -26,6 +26,7 @@ static value wavelets_reverse_fun(const value array)
 /* transform a C array to a OCaml bigarray */
 static value c_array_to_caml(float *array, const size_t dim)
 {
+    printf("dim : %d\n", dim);
     return alloc_bigarray_dims(BIGARRAY_FLOAT32 | BIGARRAY_C_LAYOUT,
 	    1, array, dim);
 }
@@ -43,7 +44,7 @@ static int get_next_bucket(int *toCompute, ihy_data *ihy)
 
     pthread_mutex_lock(&mutex);
     actualBucket++;
-    res = actualBucket <= max_bucket;
+    res = actualBucket < max_bucket;
     *toCompute = actualBucket;
     pthread_mutex_unlock(&mutex);
     return res;
