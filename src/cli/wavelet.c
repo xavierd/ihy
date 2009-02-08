@@ -26,7 +26,6 @@ static value wavelets_reverse_fun(const value array)
 /* transform a C array to a OCaml bigarray */
 static value c_array_to_caml(float *array, const size_t dim)
 {
-    printf("dim : %d\n", dim);
     return alloc_bigarray_dims(BIGARRAY_FLOAT32 | BIGARRAY_C_LAYOUT,
 	    1, array, dim);
 }
@@ -179,21 +178,28 @@ void wavelets_inverse(float *chunk,
 {
     value camlArray;
     int16_t val;
-    unsigned int i;
+    float valf;
+    unsigned int i, j;
 
     camlArray = c_array_to_caml(chunk, nbelmts);
     camlArray = wavelets_reverse_fun(camlArray);
 
     printf("%d\n", nbelmts);
+    printf("offset : %d\n", offset);
+    j = 0;
     for (i = 0; i < nbelmts; i++)
     {
-	val = ((float *)(Data_bigarray_val(camlArray)))[i];
-	printf("%f, %d\n", ((float *)Data_bigarray_val(camlArray))[i], val);
+	valf = ((float *)(Data_bigarray_val(camlArray)))[i];
+	val = valf;
 	/*
-	out->Data[offset + (i / (16 / 8))] = val >> 8;
-	out->Data[offset + 1 + (i / (16 / 8))] = val;
+	out->Data[offset + j] = val >> 8;
+	out->Data[offset + 1 + j] = val;
 	*/
-	memcpy(out->Data + offset + i, &val, 2);
+	/*
+	printf("val : %d, data : %d\n", val,
+		out->Data[i + offset] + (out->Data[i + 1 + offset] << 8));
+		*/
+	memcpy(out->Data + offset + j, &val, 2);
+	j = j + 2;
     }
-    /*out->DataBlocSize = out->DataBlocSize + nbelmts;*/
 }
