@@ -97,15 +97,6 @@ static void fill_data(const size_t size, ihy_data *out)
 	out->DataChunks[i].Values = malloc(NB_BY_O * sizeof(float));
     };
     out->NbChunk = nbChunk;
-    /*
-    if (nbChunk != out->NbChunk)
-    {
-	out->NbChunk = i;
-	printf("%d\n", i);
-	out->DataChunks[i].ChunkSize = (size - (i * NB_BY_O)) * sizeof(float);
-	out->DataChunks[i].Values = malloc(out->DataChunks[i].ChunkSize);
-    }
-    */
 }
 
 static size_t next_multiple(const size_t nb)
@@ -134,16 +125,6 @@ void wavelets_direct(const int8_t *array,
 	j = sampleSize - 1;
 	*(int32_t *)number = 0;
 	memcpy(number, &array[i], sampleSize);
-	/*number = array[i + sampleSize];*/
-	/* converting a "reel" sample to float */
-	/*
-	while (j > 0)
-	{
-	    number = number << 8;
-	    number += array[i + j];
-	    j--;
-	};
-	*/
 	switch (sampleSize)
 	{
 	    case 1:
@@ -196,24 +177,19 @@ void wavelets_inverse(float *chunk,
 {
     value camlArray;
     int16_t val;
-    float valf;
+    float *valf;
     unsigned int i, j;
 
     camlArray = c_array_to_caml(chunk, nbelmts);
     camlArray = wavelets_reverse_fun(camlArray);
 
     printf("%d\n", nbelmts);
-    printf("offset : %d\n", offset);
     j = 0;
+    valf = (float *)(Data_bigarray_val(camlArray));
     for (i = 0; i < nbelmts; i++)
     {
-	valf = ((float *)(Data_bigarray_val(camlArray)))[i];
-	val = valf;
-	/*
-	printf("val : %d, data : %d\n", val,
-		out->Data[i + offset] + (out->Data[i + 1 + offset] << 8));
-		*/
-	memcpy(out->Data + offset + j, &val, 2);
+	val = valf[i];
+	*(int16_t *)(out->Data + offset + j) = val;
 	j = j + 2;
     }
 }
