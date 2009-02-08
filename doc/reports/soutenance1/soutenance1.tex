@@ -1,0 +1,87 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{pslatex}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{lscape}
+\selectlanguage{francais}
+
+
+\title{Rapport de Soutenance 1}
+\author{
+Ihy Group : \\
+deguil\_x (Xavier Deguillard)\\
+genite\_n (Nicolas Geniteau)\\
+sezer\_s (Stephane Sezer)\\
+wagnac\_t (Teddy Wagnac)
+}
+\date{10 f\'evrier 2009}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\section*{Introduction}
+Nous avons decidé cette année de nous atteler à la réalisation d'un codec audio.
+L'orientation principale des projets de spé de cette année étant la recherche et
+le développement, nous avons choisi de nous tourner vers les ondelettes qui
+seront notre base de travail. En effet, les ondelettes étant un outil
+mathématique relativement récent (elles datent du XXème siècle), elles ne sont
+pas encore largement utilisées. Il existe actuellement certains algorithmes de
+compression vidéo, par exemple Dirac, leur implémentation par la BBC, mais rien
+de probant pour le traitement du signal audio.\\
+Notre nouveau codec révolutionnaire (du moins nous l'espérons) se nomme donc le
+ihy, pour deux raisons. Premièrement parce qu'"ihy" est le nom d'un dieu
+egyptien de la musique, et deuxièmement parce que ce mot est compliqué à
+prononcer.\\
+Ceci étant dit, entrons dans le vif du sujet. Nous présenterons dans ce rapport
+le travail accompli depuis la validation du cahier des charges, les problèmes
+rencontrés et leurs solutions, ainsi que le travail à accomplir pour la
+prochaine soutenance.
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Travail accompli}
+
+	\subsection{Spécifications du format ihy}
+
+	\subsection{Ondelette de Haar}
+
+	\subsection{Interfaçage Caml/C}
+
+	\subsection{Algorithme de Huffman}
+
+	\subsection{Premières étapes de threading}
+
+		\subsubsection{Problèmes rencontrés}
+
+	\subsection{Interface graphique en GTK}
+
+		\subsubsection{Contrôles utilisateur}
+
+		\subsubsection{Lecture de fichiers ihy}
+
+\section{Tâches prévues}
+
+	\subsection{Ajout du type half}
+
+	\subsection{Utilisation d'autres ondelettes}
+
+	\subsection{Threading total de la compression/décompression}
+
+	\subsection{Amélioration de l'UI}
+
+\newpage
+
+\section*{Conclusion}
+Blabla il fait beau ...
+
+\end{document}
