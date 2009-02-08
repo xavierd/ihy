@@ -17,11 +17,14 @@ void queue_enqueue(void *elem, t_queue queue)
 
     new_elem = malloc(sizeof(struct s_queue_elem));
     new_elem->content = elem;
-    if (queue->nb_elem == 0) {
+    if (queue->nb_elem == 0)
+    {
 	queue->rear = new_elem;
 	queue->rear->next = queue->rear;
 	queue->nb_elem = 1;
-    } else {
+    }
+    else
+    {
 	new_elem->next = queue->rear->next;
 	queue->rear->next = new_elem;
 	queue->rear = new_elem;
@@ -33,9 +36,12 @@ void *queue_dequeue(t_queue queue)
 {
     void *result;
 
-    if (queue->nb_elem == 0) {
+    if (queue->nb_elem == 0)
+    {
 	result = NULL;
-    } else {
+    }
+    else
+    {
 	struct s_queue_elem *head_save;
 
 	head_save = queue->rear->next;
@@ -47,14 +53,15 @@ void *queue_dequeue(t_queue queue)
     return result;
 }
 
-int queue_isempty(t_queue queue)
+int queue_isempty(const t_queue queue)
 {
     return (queue->nb_elem == 0);
 }
 
 void queue_destroy(t_queue queue)
 {
-    while (!queue_isempty(queue)) {
+    while (!queue_isempty(queue))
+    {
 	queue_dequeue(queue);
     }
     free(queue);
