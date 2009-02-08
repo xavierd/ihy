@@ -23,7 +23,7 @@ let echan signal p bInf bSup =
       x := !x +. p
     done;
     res
-      
+
 let compare t1 t2 =
   let res = Bigarray.Array1.create (Bigarray.float32)
     Bigarray.c_layout (Bigarray.Array1.dim t1) in
@@ -40,7 +40,7 @@ let main () =
       showBig (compare signal a) print_float
 ;;
 
-main () ;;      
+main () ;;
 filter_directD signal.{0} signal.{1} ;;
 (* FIN TESTS *)
 *)
@@ -48,7 +48,7 @@ filter_directD signal.{0} signal.{1} ;;
 let filter_direct x y =
   let coef = (2. ** (-.(1.)/.(2.))) in
     coef *. (x +. y)
-    
+
 let filter_directD x y =
   let coef = (2. ** (-.(1.)/.(2.))) in
     coef *. (y -. x)
@@ -71,8 +71,7 @@ let haar_direct a =
 	posInit := len - stepInit;
 	for j=1 to (len / stepInit) do
 	  res.{!posRes} <- (filter_directD a.{!posInit} a.{!posInit + stepVal});
-	  a.{!posInit} <- (filter_direct a.{!posInit} a.{!posInit +
-							  stepVal});
+	  a.{!posInit} <- (filter_direct a.{!posInit} a.{!posInit + stepVal});
 	  posRes := !posRes - 1;
 	  posInit := !posInit - stepInit;
 	done;
@@ -90,7 +89,7 @@ let haar_reverse a =
     Bigarray.c_layout len in
     t1.{0} <- a.{0};
     for i=1 to nbrRow do
-      let (prev, next) = 
+      let (prev, next) =
 	if (i mod 2 = 1) then
 	  (t1, t2)
 	else
