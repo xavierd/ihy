@@ -124,6 +124,35 @@ qui  renvois  le  tableau  contenu  dans  un  ``value''  représentant un
 ``bigarray''.
 
 	\subsection{Algorithme de Huffman}
+Algorithme extrêmement utilisé dans le monde de la compression,  il doit
+sa popularité à  son  efficacité  quelques  soit  le  type  de données à
+compresser.  Son principe  est simple,  un caractère  classique est codé
+sur un octet ou huit bits, Huffman considère que les caractères les plus
+fréquents doivent être codés avec le moins de bits possible.\\
+Dans la pratique, il faut créer ce qu'on appelle un arbre de Huffman,
+qui est un arbre binaire localement complet (chaque noeud a soit deux
+fils soit aucuns), non équilibré, les caractères sont dans les feuilles
+de l'arbre et leur nouveau codage est tout simplement est leur
+représentation par occurence (on ajoute un 1 a droite du code lorsqu'on
+part à droite et un 0 lorsqu'on part à gauche, tout ceci de façon
+récursive).\\
+Au niveau implémentation, il nous a fallu procédé à un comptage des
+occurrences de chaque caractère, puis création d'une file de priorités,
+implémentée grâce à un tas, ce qui nous assure un ajout et un retrait en
+temps logarithmique. Lorsque la file de priorités est créer, il nous
+faut ensuite construire l'arbre en tant que tel. Cela se passe en
+plusieurs étapes :
+\begin{enumerate}
+\item tant qu'il y a plus d'un élément dans la file :
+\begin{enumerate}
+\item récupérer les deux élements de plus haute priorité (fréquence la
+plus basse).
+\item créer un noeud qui a pour fils les deux élements précédent et qui
+a pour fréquence la somme de ses deux fils.
+\item ajouter ce noeud à la file
+\end{enumerate}
+\item le dernier noeud est la racine de l'arbre d'Huffman
+\end{enumerate}
 
 	\subsection{Lecture de son}
 La lecture du son, un indispensable lors de la création d'un codec
