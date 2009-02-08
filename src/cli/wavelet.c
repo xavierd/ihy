@@ -132,15 +132,19 @@ void wavelets_direct(const int8_t *array,
     for (i = 0; i < dim; i += sampleSize)
     {
 	j = sampleSize - 1;
-	number = array[i];
+	memcpy(&number, &array[i], sampleSize);
+	//number = array[i + sampleSize];
 	/* converting a "reel" sample to float */
+	/*
 	while (j > 0)
 	{
 	    number = number << 8;
 	    number += array[i + j];
 	    j--;
 	};
+	*/
 	arrayf[i / 2] = number;
+	//printf("%d, %f\n", number, arrayf[i/2]);
     };
     fill_data(size, out);
     dat.arrayf = arrayf;
