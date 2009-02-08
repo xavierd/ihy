@@ -8,4 +8,6 @@
 
 typedef uint16_t t_half;
 
+t_half float_to_half(float f);
+
 #endif
