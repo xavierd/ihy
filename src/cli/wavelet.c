@@ -124,7 +124,7 @@ void wavelets_direct(const int8_t *array,
     unsigned int i, j;
     size_t size = next_multiple(dim / sampleSize);
     float *arrayf = malloc(size * sizeof(float));
-    int16_t number;
+    void *number = malloc(sampleSize);
     pthread_t *threads = malloc(NB_THREADS * sizeof(pthread_t));
     struct thread_data dat;
     /*pid_t pid;*/
@@ -132,8 +132,9 @@ void wavelets_direct(const int8_t *array,
     for (i = 0; i < dim; i += sampleSize)
     {
 	j = sampleSize - 1;
-	memcpy(&number, &array[i], sampleSize);
-	//number = array[i + sampleSize];
+	*(int32_t *)number = 0;
+	memcpy(number, &array[i], sampleSize);
+	/*number = array[i + sampleSize];*/
 	/* converting a "reel" sample to float */
 	/*
 	while (j > 0)
@@ -143,8 +144,21 @@ void wavelets_direct(const int8_t *array,
 	    j--;
 	};
 	*/
-	arrayf[i / 2] = number;
-	//printf("%d, %f\n", number, arrayf[i/2]);
+	switch (sampleSize)
+	{
+	    case 1:
+		arrayf[i / sampleSize] = *(int8_t *)number;
+		break;
+	    case 2:
+		arrayf[i / sampleSize] = *(int16_t *)number;
+		break;
+	    case 4:
+		arrayf[i / sampleSize] = *(int32_t *)number;
+		break;
+	    default:
+		arrayf[i / sampleSize] = *(int32_t *)number;
+		break;
+	}
     };
     fill_data(size, out);
     dat.arrayf = arrayf;
