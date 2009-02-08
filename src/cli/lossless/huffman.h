@@ -5,6 +5,8 @@
 #include <stdint.h>
 #include <stdio.h>
 
+#include <utils/queue.h>
+
 typedef struct huffman_tree
 {
     unsigned char		letter;

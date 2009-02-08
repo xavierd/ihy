@@ -155,7 +155,7 @@ static void parc_prof_huffman(huffman_tree *H, int code, int length)
 struct huffman_code
 {
     unsigned int	code;
-    unsigned int	length;
+    int			length;
 };
 
 static void build_code(huffman_tree *H, struct huffman_code *code)
@@ -172,6 +172,37 @@ static void build_code(huffman_tree *H, struct huffman_code *code)
     }
 }
 
+/* write the huffman tree, before the encoded values */
+static void huffman_write_tree(huffman_tree *H, int8_t **pos)
+{
+    t_queue F;
+    huffman_tree *tmp;
+
+    F = queue_create();
+    queue_enqueue(H, F);
+    while (!queue_isempty(F))
+    {
+	tmp = (huffman_tree *)queue_dequeue(F);
+	if (!tmp->fg)
+	{
+	    **pos = 0; /* this is not a leaf */
+	    (*pos)++;
+	    **pos = 0;
+	    (*pos)++;
+	    queue_enqueue(tmp->fg, F);
+	    queue_enqueue(tmp->fd, F);
+	}
+	else
+	{
+	    **pos = 1; /* this is a leaf */
+	    (*pos)++;
+	    **pos = tmp->letter;
+	    (*pos)++;
+	}
+    }
+    queue_destroy(F);
+}
+
 /* encode the data
  * n is the size of varray and will be, when the function returns, the
  * size of the array returned
@@ -183,22 +214,34 @@ int8_t *huffman_encode(const void *varray, size_t *n, huffman_tree *H)
     int8_t *res = calloc(*n, 1);
     int8_t *sentry = res;
     uint8_t *array = (uint8_t *)varray;
-    unsigned int i, shift;
+    int shift;
+    unsigned int i;
     int tmp;
 
     parc_prof_huffman(H, 0, 0);
     build_code(H, code);
+    huffman_write_tree(H, &sentry);
     shift = 0;
     for (i = 0; i < *n; i++)
     {
+	/*printf("i : %d\n", i);*/
 	letter_code = code[array[i]];
 	while (letter_code.length > 0)
 	{
+	    /*printf("length : %d\n", letter_code.length);*/
 	    *sentry |= letter_code.code << (8 - shift - letter_code.length);
 	    tmp = shift;
 	    if (letter_code.length > (8 - shift))
+	    {
 		sentry++;
-	    shift = shift + (letter_code.length % 8);
+		shift = 0;
+	    }
+	    else
+		shift = (shift + letter_code.length) % 8;
+	    /*
+	    printf("shift : %d\n", shift);
+	    printf("8 - tmp : %d\n", 8 - tmp);
+	    */
 	    letter_code.length -= (8 - tmp);
 	};
     }
