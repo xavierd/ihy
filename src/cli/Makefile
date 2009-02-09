@@ -14,7 +14,7 @@ else
 	OUTPUT=
 endif
 
-CSRC=input/wav.c output/ao.c ihy.c wavelet.c lossless/huffman.c utils/queue.c main.c
+CSRC=input/wav.c output/ao.c utils/half.c ihy.c wavelet.c lossless/huffman.c utils/queue.c main.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=wavelets/haar.ml
 CAMLINTERFACE=wavelets/haar.mli
