@@ -136,7 +136,7 @@ de l'arbre et leur nouveau codage est tout simplement est leur
 représentation par occurence (on ajoute un 1 a droite du code lorsqu'on
 part à droite et un 0 lorsqu'on part à gauche, tout ceci de façon
 récursive).\\
-Au niveau implémentation, il nous a fallu procédé à un comptage des
+Au niveau implémentation, il nous a fallu procéder à un comptage des
 occurrences de chaque caractère, puis création d'une file de priorités,
 implémentée grâce à un tas, ce qui nous assure un ajout et un retrait en
 temps logarithmique. Lorsque la file de priorités est créer, il nous
@@ -153,6 +153,26 @@ a pour fréquence la somme de ses deux fils.
 \end{enumerate}
 \item le dernier noeud est la racine de l'arbre d'Huffman
 \end{enumerate}
+À partir de cet arbre, on peut déterminer le nouveau codage de chaque
+caractère, à l'aide d'un simple parcours profondeur de l'arbre, et à
+partir du nouveau codage, on peut déterminer le nouveau fichier
+compressé.\\
+Nous devions régler un dernier soucis : comment lors de la décompression
+récupérer le flux original? Il suffit dans la théorie de stocker l'arbre
+de Huffman, ou du moins suffisamment de données pour pouvoir le
+retrouver. La technique employée ici est assez simple (et peut-être pas
+optimale) et a le mérite de marcher. Chaque nœud de l'arbre sera codé
+sur 2 octets, un octet indiquant s'il s'agit d'une feuille ou d'un nœud
+internet, le second octet sert uniquement pour les feuilles, il indique
+le caractère correspondant à la feuille. Ces informations sont écrites
+suivant leur ordre d'un parcours largeur, on peut ainsi facilement
+détecter les changements de niveaux lors de la décompression.\\
+Nous avons réalisé quelques tests, pour évaluer la capacité pour Huffman
+de compresser des données. Sur la musique Black Sabbath du groupe
+éponyme, qui fait 66méga-octets en wav, après passage dans l'algorithme
+de Huffman, celle-ci ne fait plus que 55méga-octets, soit 11méga-octets,
+ou en terme de pourcentage, un peu moins de 20\%. En sommes, plutôt
+intéressant.\\
 
 	\subsection{Lecture de son}
 La lecture du son, un indispensable lors de la création d'un codec
