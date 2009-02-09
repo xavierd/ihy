@@ -38,4 +38,5 @@ t_half float_to_half(float f)
       h = h + (m >> 13);
 
       return h;
+    }
 }

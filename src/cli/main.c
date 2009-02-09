@@ -117,7 +117,7 @@ static void *master_thread(void *dat)
 
     printf("write wav...");
     fflush(stdout);
-    write_wav(wav, "prout.wav");
+    write_wav(wav, data->argv[3]);
     destroy_wav(wav);
     printf("DONE\n");
 
@@ -128,9 +128,10 @@ static void *master_thread(void *dat)
 int main(int argc, char **argv)
 {
     caml_main(argv);
-    if (argc < 3)
+    if (argc < 4)
     {
-	printf("%s: please specify input and output filename\n", argv[0]);
+	printf("%s: please specify input and 2 output filename(ihy and wav)\n",
+		argv[0]);
 
 	return 1;
     }
