@@ -55,7 +55,7 @@ prochaine soutenance.
 La création d'un nouveau codec passe entre autres par l'écriture des
 spécifications du format. Le ihy n'échappe donc pas à la règle.\\
 Chaque fichier
-ihy contient donc un header composé des quatres lettres SNXT qui sont le FourCC
+ihy contient donc un header composé des quatre lettres SNXT qui sont le FourCC
 des fichiers ihy, la taille totale du fichier, le type de compression utilisé
 (qui sera utile plus tard lorsque nous aurons plusieurs algorithmes adaptatifs),
 le nombre de canaux ainsi que la fréquence.\\
@@ -323,8 +323,8 @@ GTK+ de mieux placer les widgets dans les Box afin d'avoir plus de précision.
 	\subsection{Ajout du type half}
 Un des gros problèmes que nous avons actuellement réside dans le fait que la
 plupart des échantillons dans un fichier pcm sont codés sur 16 bits, et qu'un
-floattant, par défaut est codé sur 32 bits. Sachant que nous n'utilisons
-actuellement aucune méthode d'éliminitation des données, nous obtenons un
+flottant, par défaut est codé sur 32 bits. Sachant que nous n'utilisons
+actuellement aucune méthode d'élimination des données, nous obtenons un
 fichier ihy qui fait précisément deux fois la taille du fichier pcm original
 (modulo la taille des headers).\\
 Il est aisé de comprendre que c'est un petit peu embêtant pour un format de
@@ -332,13 +332,13 @@ compression audio\ldots\\
 Un format qui est actuellement dans un draft de la prochaine spécification
 IEEE754 est le half precision floating point number. En effet, comme son nom
 l'indique, ce type de données utilise 16bits pour stocker un nombre à virgule
-flotante. Le resultat obtenu lors d'un traitement avec les ondelettes n'ayant
+flottante. Le résultat obtenu lors d'un traitement avec les ondelettes n'ayant
 pas besoin de la précision apportée par les flottants 32bits, ce format est
 farpaitement\footnote{Voir Asterix \& Obélix, les lauriers de César} adapté à nos
 besoins.\\
 Le souci réside dans le fait que ce format n'est ni utilisé dans les processeurs
 x86 actuels (il le sera probablement avec les instructions SSE5), ni utilisable
-en C. ll nous faudra donc l'implémenter nous même et écrire les fonctions de
+en C. Il nous faudra donc l'implémenter nous même et écrire les fonctions de
 conversions half\_to\_float et float\_to\_half correspondantes.
 
 	\subsection{Utilisation d'autres ondelettes}
