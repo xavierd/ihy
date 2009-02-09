@@ -124,8 +124,84 @@ qui  renvois  le  tableau  contenu  dans  un  ``value''  représentant un
 ``bigarray''.
 
 	\subsection{Algorithme de Huffman}
+Algorithme extrêmement utilisé dans le monde de la compression,  il doit
+sa popularité à  son  efficacité  quelques  soit  le  type  de données à
+compresser.  Son principe  est simple,  un caractère  classique est codé
+sur un octet ou huit bits, Huffman considère que les caractères les plus
+fréquents doivent être codés avec le moins de bits possible.\\
+Dans la pratique, il faut créer ce qu'on appelle un arbre de Huffman,
+qui est un arbre binaire localement complet (chaque noeud a soit deux
+fils soit aucuns), non équilibré, les caractères sont dans les feuilles
+de l'arbre et leur nouveau codage est tout simplement est leur
+représentation par occurence (on ajoute un 1 a droite du code lorsqu'on
+part à droite et un 0 lorsqu'on part à gauche, tout ceci de façon
+récursive).\\
+Au niveau implémentation, il nous a fallu procéder à un comptage des
+occurrences de chaque caractère, puis création d'une file de priorités,
+implémentée grâce à un tas, ce qui nous assure un ajout et un retrait en
+temps logarithmique. Lorsque la file de priorités est créer, il nous
+faut ensuite construire l'arbre en tant que tel. Cela se passe en
+plusieurs étapes :
+\begin{enumerate}
+\item tant qu'il y a plus d'un élément dans la file :
+\begin{enumerate}
+\item récupérer les deux élements de plus haute priorité (fréquence la
+plus basse).
+\item créer un noeud qui a pour fils les deux élements précédent et qui
+a pour fréquence la somme de ses deux fils.
+\item ajouter ce noeud à la file
+\end{enumerate}
+\item le dernier noeud est la racine de l'arbre d'Huffman
+\end{enumerate}
+À partir de cet arbre, on peut déterminer le nouveau codage de chaque
+caractère, à l'aide d'un simple parcours profondeur de l'arbre, et à
+partir du nouveau codage, on peut déterminer le nouveau fichier
+compressé.\\
+Nous devions régler un dernier soucis : comment lors de la décompression
+récupérer le flux original? Il suffit dans la théorie de stocker l'arbre
+de Huffman, ou du moins suffisamment de données pour pouvoir le
+retrouver. La technique employée ici est assez simple (et peut-être pas
+optimale) et a le mérite de marcher. Chaque nœud de l'arbre sera codé
+sur 2 octets, un octet indiquant s'il s'agit d'une feuille ou d'un nœud
+internet, le second octet sert uniquement pour les feuilles, il indique
+le caractère correspondant à la feuille. Ces informations sont écrites
+suivant leur ordre d'un parcours largeur, on peut ainsi facilement
+détecter les changements de niveaux lors de la décompression.\\
+Nous avons réalisé quelques tests, pour évaluer la capacité pour Huffman
+de compresser des données. Sur la musique Black Sabbath du groupe
+éponyme, qui fait 66méga-octets en wav, après passage dans l'algorithme
+de Huffman, celle-ci ne fait plus que 55méga-octets, soit 11méga-octets,
+ou en terme de pourcentage, un peu moins de 20\%. En sommes, plutôt
+intéressant.\\
 
 	\subsection{Lecture de son}
+La lecture du son, un indispensable lors de la création d'un codec
+audio, pour au moins comparer le morceaux initial et celui compressé.\\
+Pour cela nous utilisons une bibliothèque extrêmement simple : libao.
+Elle est de plus multi plateformes et fonctionne donc sur tous les UNIX.
+Son fonctionnement est simple, on récupère le ``device'' audio,
+correspondant à la sortie audio de l'ordinateur, puis on indique la
+taille d'un échantillon, sa fréquence d'échantillonnage, le nombre de
+canal\ldots, tout ce qui est nécessaire à la lecture d'un son. Puis on
+construit un tableau de caractère, qui est identique dans sa structure
+que les données dans un fichier wav, et on peut le jouer. Tout ça grâce
+à ces trois fonctions :
+\newpage
+\begin{verbatim}
+void ao_initialize(void);
+ao_device* ao_open_live(int driver_id,
+                        ao_sample_format *format,
+                        ao_option *option);
+int ao_play(ao_device *device,
+            char *output_samples,
+            uint_32 num_bytes);
+\end{verbatim}
+Qui servent respectivement à : initialiser le système, ouvrir la carte
+son pour pouvoir y lire de la musique, et finalement, lire du son. Rien
+de plus simple, bien sur cela impose d'avoir le ``output\_samples''
+correctement formé.\\
+Grâce à cela, on peut lire un fichier wav sans problèmes, la lecture
+d'un fichier ihy n'étant pas encore opérationnelle.\\
 
 	\subsection{Premières étapes de threading}
 De nos jours,  les processeurs ont de plus de plus de cœurs, ils peuvent
@@ -191,6 +267,19 @@ notre but est de partager le  travail sur plusieurs coeur du processeur,
 non de faire deux fois le  même travail.  La solution se nomme ``pipe''.
 Pour  le moment  cela reste  extrêmement  théorique,  et  par  soucis de
 clarté, non implémentée.\\
+
+	\subsection{Ce que notre programme fait}
+Pour le moment, notre programme réalise plusieurs choses. Premièrement,
+il lit un fichier wav et le place en mémoire, il s'agit du premier
+argument de notre programme. À partir de ce fichier wav, il le joue en
+arrière plan. Il applique ensuite les ondelettes sur ce fichier et
+l'écrit dans un fichier passé en deuxième paramètre. Nous appliquons
+ensuite l'algorithme de Huffman sur le fichier wav et mesurons la
+différence entre le fichier original et le fichier ``compressé'', ceci
+pour évaluer la performance de cet algorithme. Puis, à partir du fichier
+ihy précédemment créer, nous appliquons les ``ondelettes inverses'' et
+écrivons le fichier wav ainsi obtenu dans le troisième argument du
+programme.\\
 
 	\subsection{Interface graphique en GTK}
 
