@@ -194,9 +194,15 @@ clarté, non implémentée.\\
 
 	\subsection{Interface graphique en GTK}
 
-		\subsubsection{Contrôles utilisateur}
+		\subsubsection{Petite présentation de GTK+}
+La bibliothèque GTK+ permet de créer des interfaces graphiques (GUI) assez simplement. C'est pour cela que nous avons choisi cette librairie, afin de développer une interface graphique intéractive et attrayante. A l'origine, GTK+ a été développé pour donner des bases solides au logiciel de traitement d'images GIMP (GNU Image Manipulation Program). Aujourd'hui, le domaine d'application de cette bibliothèque ne se limite pas à GIMP : elle est utilisée dans d'autres projets. Le développement phare est l'environnement  GNOME (GNU Network Object Model Environment).
 
-		\subsubsection{Lecture de fichiers ihy}
+		\subsubsection{Notre lecteur Ihy}
+Tout d'abord, avant de développer l'interface idéale  il fallait nous familiariser avec GTK et son principe de widget (Window Gadget) qui sont les objets graphique de GTK+. Un widget est en fait une structure définissant les propriétés d'un objet associé à une large panoplie de fonctions permettant de manipuler ces objets. Donc, nous avons décidé de commencer en développant une fenêtre de base qui représente notre futur lecteur audio. En effet, nous avons une fenêtre de dimension 620x400 pouvant apparaitre à un endroit aléatoire sur le bureau avec les trois icones de base qui permettes de fermer, réduire et restaure la fenêtre. De plus, la fenêtre contient un titre « Lecteur Ihy ».
+La fenêtre contient deux box. Une Box permet d'inclure plusieurs widgets à l'intérieur d'une fenêtre, sans ça il est strictement impossible de le faire. Pour notre part, nous détenons 2 Box. Une Box verticale (GtkVBox) qui permet de disposer les widgets verticalement, qui elle contient une Box horizontale (GtkHBox) qui dispose les widgets horizontalement. 
+La Box horizontale contient cinq boutons. Les cinq boutons indispensable pour un lecteur audio, c'est-à-dire PLAY, STOP, PAUSE, AVANCE et RETOUR. Chacun de ces boutons viennent du stock direct de GTK+ qui est pour sa part plutôt vaste. Les cinq boutons sont positionnés horizontalement comme dis précédemment, de même dimension et ce partage l'espace équitablement selon le principe de la Box dans GTK. 
+Tandis que, la Box verticale, en plus de détenir la Box horizontale, détient une barre de progression, qui se remplit à l'aide d'un click sur le bouton PLAY. Pour cela, on utilise une fonction de GTK+ qui permet de faire une seul itération. Donc à ce moment là GTK+ va reprendre la main puis la rendre aussitôt, si bien qu’il pourra mettre à jour les widgets.        
+Voilà en quelques termes ce que nous avons pour notre première ébauche. Pour la prochaine fois, nous comptons rendre notre lecteur plus attractif et tenter de le faire paraitre plus comme un lecteur audio. Pour cela, nous comptons utiliser des tables qui permettes dans GTK+ de mieu placer les widgets dans les Box afin d'avoir plus de précision. 
 
 \section{Tâches prévues}
 
@@ -211,6 +217,6 @@ clarté, non implémentée.\\
 \newpage
 
 \section*{Conclusion}
-Blabla il fait beau ...
+Blabla il fait beau... (trop pas mec !)
 
 \end{document}
