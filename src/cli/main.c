@@ -111,6 +111,16 @@ static void compress_wav(char *input_filename, char *output_filename)
     destroy_wav(input);
 }
 
+static void print_help()
+{
+    printf("help mode of ihyconvert :\n");
+    printf("-c filename.wav filename.ihy : compress filename.wav and\n");
+    printf("                               put it to the filename.ihy\n");
+    printf("-x filename.ihy filename.wav : extract filename.ihy to filename.wav\n");
+    printf("-r filename.wav : play filename.wav on a separate thread\n");
+    printf("-h : display this help\n");
+}
+
 int main(int argc, char **argv)
 {
     pthread_t play;
@@ -118,13 +128,18 @@ int main(int argc, char **argv)
     int is_thread_playing_wav = 0;
     wav_data *input_to_play;
 
+    if (argc == 1)
+    {
+	print_help();
+	return 1;
+    };
     caml_main(argv);
     i = argc - 1;
     while (i > 0)
     {
 	if (!strcmp(argv[argc - i],"-h"))
 	{
-	    printf("help\n");
+	    print_help();
 	    return 1;
 	}
 	else if (!strcmp(argv[argc - i], "-x"))
@@ -150,7 +165,13 @@ int main(int argc, char **argv)
 	    read_wav(argv[argc - i + 1], input_to_play);
 	    pthread_create(&play, NULL, thread_play_wav, input_to_play);
 	    i -= 2;
-	};
+	}
+	else
+	{
+	    printf("Not a valid argument.\n");
+	    print_help();
+	    return 1;
+	}
     };
     if (is_thread_playing_wav)
     {

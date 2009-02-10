@@ -211,13 +211,13 @@ principe est simple, un caractère classique est codé sur un octet ou huit bits
 Huffman considère que les caractères les plus fréquents doivent être codés avec
 le moins de bits possible.\\
 Dans la pratique, il faut créer ce qu'on appelle un arbre de Huffman, qui est un
-arbre binaire localement complet (chaque noeud a soit deux fils soit aucun),
+arbre binaire localement complet (chaque nœud a soit deux fils soit aucun),
 non équilibré, les caractères sont dans les feuilles de l'arbre et leur nouveau
-codage est tout simplement est leur représentation par occurence (on ajoute un 1
+codage est tout simplement est leur représentation par occurrence (on ajoute un 1
 a droite du code lorsqu'on part à droite et un 0 lorsqu'on part à gauche, tout
 ceci de façon récursive).\\
 Au niveau implémentation, il nous a fallu procéder à un comptage des occurrences
-de chaque caractère, puis création d'une file de prioritées, implémentée grâce à
+de chaque caractère, puis création d'une file de priorités, implémentée grâce à
 un tas, ce qui nous assure un ajout et un retrait en temps logarithmique.
 Lorsque la file de prioritées est créee, il nous faut ensuite construire l'arbre
 en tant que tel. Cela se passe en plusieurs étapes :
@@ -238,39 +238,39 @@ codage, on peut déterminer le nouveau fichier compressé.\\
 Nous devions régler un dernier soucis : comment lors de la décompression
 récupérer le flux original? Il suffit dans la théorie de stocker l'arbre de
 Huffman, ou du moins suffisamment de données pour pouvoir le retrouver. La
-technique employée ici est assez simple (et peut-être pas optimale) et a le
-mérite de marcher. Chaque nœud de l'arbre sera codé sur 2 octets, un octet
-indiquant s'il s'agit d'une feuille ou d'un nœud internet, le second octet sert
+technique employée ici est assez simple (mais peut-être pas optimale) et a le
+mérite de fonctionner correctement. Chaque nœud de l'arbre sera codé sur 2 octets, un octet
+indiquant s'il s'agit d'une feuille ou d'un nœud interne, le second octet sert
 uniquement pour les feuilles, il indique le caractère correspondant à la
 feuille. Ces informations sont écrites suivant leur ordre d'un parcours largeur,
 on peut ainsi facilement détecter les changements de niveaux lors de la
 décompression.\\
 Nous avons réalisé quelques tests, pour évaluer la capacité pour Huffman de
 compresser des données. Sur la musique Black Sabbath du groupe éponyme, qui fait
-66méga-octets en wav, après passage dans l'algorithme de Huffman, celle-ci ne
-fait plus que 55méga-octets, soit 11méga-octets, ou en terme de pourcentage, un
-peu moins de 20\%. En sommes, plutôt intéressant.\\
+66méga-octets en wav, après passage dans l'algorithme de Huffman, on obtient un
+fichier qui ne
+fait plus que 55méga-octets, soit un gain 11méga-octets, ou en terme de pourcentage, un
+peu moins de 20\%. En somme, plutôt intéressant.\\
 
 	\subsection{Lecture de son}
-La lecture du son, un indispensable lors de la création d'un codec audio, pour
+La lecture du son est un indispensable lors de la création d'un codec audio, pour
 au moins comparer le morceaux initial et celui compressé.\\ Pour cela nous
 utilisons une bibliothèque extrêmement simple : libao.  Elle est de plus multi
 plateformes et fonctionne donc sur tous les UNIX.  Son fonctionnement est
-simple, on récupère le ``device'' audio, correspondant à la sortie audio de
-l'ordinateur, puis on indique la taille d'un échantillon, sa fréquence
-d'échantillonnage, le nombre de canal\ldots, tout ce qui est nécessaire à la
+simple, on récupère le ``device'' audio, correspondant à la sortie audio du
+périphérique, puis on indique la taille d'un échantillon, sa fréquence
+d'échantillonnage, le nombre de canaux\ldots, tout ce qui est nécessaire à la
 lecture d'un son. Puis on construit un tableau de caractère, qui est identique
 dans sa structure que les données dans un fichier wav, et on peut le jouer. Tout
 ça grâce à ces trois fonctions :
-\newpage
 \begin{verbatim}
 void ao_initialize(void);
 ao_device* ao_open_live(int driver_id,
- ao_sample_format *format,
- ao_option *option);
+                        ao_sample_format *format,
+                        ao_option *option);
 int ao_play(ao_device *device,
- char *output_samples,
- uint_32 num_bytes);
+            char *output_samples,
+            uint_32 num_bytes);
 \end{verbatim}
 Qui servent respectivement à : initialiser le système, ouvrir la carte son pour
 pouvoir y lire de la musique, et finalement, lire du son. Rien de plus simple,
@@ -284,22 +284,23 @@ exécuter de plus en plus de tâches simultanément, et donc faire des traitemen
 plus rapides si cette exécution simultanée est bien pensée.\\
 La compression audio est particulièrement bien adaptée à cette exécution
 simultanée, dites ``concurrentielle''. En effet la compression d'une partie de
-la musique ne dépend pas du résultat d'une partie précédente (dans notre cas).
-On peut donc mettre en place des ``threads'', un thread permettant cette
-execution simultanée au sein d'un même programme, chaque thread calculant une
-partie de la musique. Dans la pratique, un thread ne calcule pas uniquement une
+la musique ne dépend pas de la compression d'une partie précédente (dans notre cas).
+On peut donc mettre en place des ``threads'', aussi appelés processus léger,  ils  permettent cette
+exécution simultanée au sein d'un même programme, tout en gardant le même espace
+mémoire, chaque processus calculant une
+partie de la musique. Dans la pratique, chaque thread ne calcule pas uniquement une
 partie mais plusieurs petites parties, ceci pour réduire encore la durée d'un
-traitement.  Pour illustrer cela, prenons un exemple : utilisons 2 threads et
+traitement.  Pour illustrer cela, prenons un exemple : utilisons deux processus et
 considérons que la première partie de la musique met deux fois plus de temps que
-la deuxième partie. Le premier thread va compresser la première partie, et le
-deuxième la deuxième, comme on peut s'en douter, le deuxième thread mettre deux
+la deuxième partie à se compresser. Le premier thread va compresser la première partie, et le
+deuxième la deuxième, comme on peut s'en douter, le deuxième celui-ci va  mettre deux
 fois moins de temps pour finir et sera inactif pendant le reste de la
 compression.\\
 Pour pallier à ce problème, il faut découper la musique en un certain nombre de
-morceaux, puis écrire une fonction qui va permettre a un thread de récupérer le
+morceaux, puis écrire une fonction qui va permettre à un thread de récupérer le
 prochain morceau à calculer. Cette fonction doit bien évidement être
 ``thread-safe'', c'est-à-dire que si elle est appelée au même moment par
-plusieurs threads, elle ne doit pas renvoyer deux fois le même morceaux à
+plusieurs threads, elle ne doit pas renvoyer deux fois le même morceau à
 calculer, ou avoir un comportement indéfini. Ceci est réalisé en utilisant ce
 que l'on appelle des ``mutex'', un mutex possède deux états : libre ou bloqué.
 Lorsqu'un thread tente de bloquer un mutex déjà bloqué, il attend jusqu'à ce que
@@ -316,39 +317,43 @@ cette même musique.\\
 Mais voila, tout n'est pas aussi rose dans la pratique, si la partie ``thread de
 lecture et thread de compression'' fonctionne parfaitement, il n'en est pas de
 même pour la partie ``multiple thread de compression''. Comme dit précédemment,
-la compression est faites par Caml et Caml utilise ce que l'on appelle un
+la compression est faites par Caml et ce dernier utilise ce que l'on appelle un
 ``Garbage Collector'' pour gérer la mémoire sans que l'utilisateur n'ait à se
 soucier de pointeurs et autres joyeusetés du genre. Seulement ce ``Garbage
 Collector'' n'est pas ``thread-safe''\footnote{voir ci-dessus}, ce qui implique
 que lorsque un thread fait des calculs sur un une partie de la musique et que
 l'autre réorganise la mémoire à l'aide de ce fameux ``Garbage Collector'', le
 premier va soudainement vouloir écrire au mauvais endroit de la mémoire, en
-résulte une ``segmentation fault'' insolvables.\\
+résulte une ``segmentation fault'' insolvable.\\
 Il y a néanmoins une solution pour résoudre ce problème, que nous avons
-partiellement explorée. Il s'agit du concept de ``fork'', dans un thread
+partiellement explorée. Il s'agit du concept de ``fork''. Dans un thread
 classique, chaque thread partage la même mémoire, facilitant ainsi les
-manipulation de la mémoire, alors qu'un fork est tout simplement un clonage
+manipulation de données, alors qu'un fork est tout simplement un clonage
 intégral du programme. Les deux programmes ne partagent plus la même zone de
 mémoire, ils sont séparés. Cela règle notre problème, mais ajoute un autre
-problème, également assez génant : comment faire pour partager une zone de
+, également assez gênant : comment faire pour partager une zone de
 mémoire? Car n'oublions pas notre but est de partager le travail sur plusieurs
-coeur du processeur, non de faire deux fois le même travail. La solution se
+coeur du processeur, non de faire deux fois la même chose. La solution se
 nomme ``pipe''.  Pour le moment cela reste extrêmement théorique, et par soucis
 de clarté, non implémentée.\\
 
 \newpage
 
 	\subsection{Ce que notre programme fait}
-Pour le moment, notre programme réalise plusieurs choses. Premièrement, il lit
-un fichier wav et le place en mémoire, il s'agit du premier argument de notre
-programme. À partir de ce fichier wav, il le joue en arrière plan. Il applique
-ensuite les ondelettes sur ce fichier et l'écrit dans un fichier passé en
-deuxième paramètre. Nous appliquons ensuite l'algorithme de Huffman sur le
-fichier wav et mesurons la différence entre le fichier original et le fichier
-``compressé'', ceci pour évaluer la performance de cet algorithme. Puis, à
-partir du fichier ihy précédemment créer, nous appliquons les ``ondelettes
-inverses'' et écrivons le fichier wav ainsi obtenu dans le troisième argument du
-programme.\\
+Notre programme en ligne de commande est actuellement capable de faire de
+nombreuses choses. Plusieurs arguments peuvent lui être passés, le premier
+d'entre eux est le classique, mais très efficace ``-h'', qui donne l'aide du
+programme. Le second argument que l'on peut lui passer est ``-r'' qui va lire le
+fichier wav passé comme argument suivant, cette lecture est effectuée dans un
+thread séparé. Enfin, les deux arguments les
+plus importants, ``-c'', qui va servir à compresser en ihy, notre programme
+s'attend à ce que les deux arguments suivant soit, dans
+l'ordre : un fichier wav d'entrée et un fichier ihy de sortie. De la même façon,
+l'argument ``-x'', va lui décompresser un fichier ihy prends deux paramètres :
+un fichier ihy d'entrée à décompresser et à écrire dans le paramètre suivant.\\
+Bien entendu, ces différentes actions peuvent être combinées pour faire des
+actions plus complexe, comme par exemple lire un fichier wav et le
+compresser.
 
 	\subsection{Interface graphique en GTK}
 
@@ -359,19 +364,21 @@ développer une interface graphique interactive et attrayante. A l'origine, GTK+
 a été développée pour donner des bases solides au logiciel de traitement
 d'images GIMP (GNU Image Manipulation Program). Aujourd'hui, le domaine
 d'application de cette bibliothèque ne se limite pas à GIMP : elle est utilisée
-dans d'autres projets. Le développement phare est l'environnement  GNOME (GNU
-Network Object Model Environment).
+dans d'autres projets. Son utilisation principale se fait dans l'environnement
+de bureau GNOME (GNU
+Network Object Model Environment), ainsi que dans les projets qui y sont
+associés.
 
 		\subsubsection{Notre lecteur Ihy}
 Tout d'abord, avant de développer l'interface idéale il fallait nous
 familiariser avec GTK et son principe de widget (Window Gadget) qui sont les
-objets graphique de GTK+. Un widget est en fait une structure définissant les
+objets graphiques de GTK+. Un widget est en fait une structure définissant les
 propriétés d'un objet associé à une large panoplie de fonctions permettant de
 manipuler ces objets. Donc, nous avons décidé de commencer en développant une
 fenêtre de base qui représente notre futur lecteur audio. En effet, nous avons
 une fenêtre de dimension 620x400 pouvant apparaitre à un endroit aléatoire sur
 le bureau avec les trois icônes de base qui permettent de fermer, réduire et
-restaurer la fenêtre. De plus, la fenêtre contient un titre « Lecteur Ihy ».  La
+restaurer la fenêtre. De plus, la fenêtre a pour titre « Lecteur Ihy ».  La
 fenêtre contient deux box. Une Box permet d'inclure plusieurs widgets à
 l'intérieur d'une fenêtre, sans ça il est strictement impossible de le faire.
 Pour notre part, nous détenons 2 Box. Une Box verticale (GtkVBox) qui permet de
@@ -380,8 +387,8 @@ disposer les widgets verticalement, qui elle contient une Box horizontale
 cinq boutons. Les cinq boutons indispensable pour un lecteur audio, c'est-à-dire
 PLAY, STOP, PAUSE, AVANCE et RETOUR. Chacun de ces boutons viennent du stock
 direct de GTK+ qui est pour sa part plutôt vaste. Les cinq boutons sont
-positionnés horizontalement comme dis précédemment, de même dimension et ce
-partage l'espace équitablement selon le principe de la Box dans GTK.  Tandis
+positionnés horizontalement comme dis précédemment, son de même dimension et se
+partagent l'espace équitablement selon le principe de la Box dans GTK.  Tandis
 que, la Box verticale, en plus de détenir la Box horizontale, détient une barre
 de progression, qui se remplit à l'aide d'un clic sur le bouton PLAY. Pour
 cela, on utilise une fonction de GTK+ qui permet de faire une seul itération.
@@ -393,10 +400,10 @@ nous avons pour notre première ébauche.
 \end{center}
 	\subsection{Site web}
 Disponible à l'adresse suivante : \url{http://rip-rip.github.com/ihy/}, le site
-web est des plus basiques, il présente succinctement le projet, les auteurs du
+web est des plus basiques, il présente succinctement le projet ainsi que  les auteurs du
 projet. Le projet est également téléchargeable, dans une version mise à jour
-dynamiquement via deux icônes présentes en haut à droite de la page, permettant
-de télécharger la dernière mise à jour du git dans le format zip ou tar.
+dynamiquement à l'aide de deux icônes présentent en haut à droite de la page, permettant
+de télécharger la dernière mise à jour du repository git dans le format zip ou tar.
 
 \newpage
 
@@ -420,7 +427,7 @@ farpaitement\footnote{Voir Asterix \& Obélix, les lauriers de César} adapté �
 besoins.\\
 Le souci réside dans le fait que ce format n'est ni utilisé dans les processeurs
 x86 actuels (il le sera probablement avec les instructions SSE5), ni utilisable
-en C. Il nous faudra donc l'implémenter nous même et écrire les fonctions de
+de façon native en C. Il nous faudra donc l'implémenter nous même et écrire les fonctions de
 conversions half\_to\_float et float\_to\_half correspondantes.
 
 \newpage
@@ -443,10 +450,11 @@ une meilleure compression. On hésite encore entre deux solutions.\\
   l'ondelette la plus adaptée. Cette méthode donnerait les meilleurs
   résultats mais engendrent de nombreux problèmes. En effet, il est
   très difficile de trouver la (ou l'une des) meilleure ondelette qui
-  respectent toutes les propriétés mathématiques nécessaires. De plus,
+  respecte toutes les propriétés mathématiques nécessaires. De plus,
   l'algorithme actuel est optimisé pour une ondelette spécifique (ici,
-  Haar) mais l'algoritme géneral a une complexité en o(N carre log N).
-  Ce qui ne pourrais pas être utilisable avec un fichier son, du
+  Haar) mais l'algorithme général a une complexité en $O\left(N^2 log\left
+  (N\right)\right)$.
+  Ce qui ne pourrai pas être utilisable avec un fichier son, du
   moins en temps réel. Le dernier soucis serait de trouver une façon
   de stocker dans le fichier ihy l'ondelette, qui est une fonction
   mathématique.
@@ -456,25 +464,36 @@ Maintenant que l'on a tout les coefficients grâce à la transformée en
 ondelette, il va falloir trouver un moyen pour réellement faire de la
 compression (avec perte). Nous devrons modifier les coefficients qui
 influent peu sur la perception du son par l'oreille humaine. Nous
-savons par exemple que l'on peut supprimer les fréquences supérieurs à
-20KHz et inférieurs à 20Hz. On peut également supprimer les fréquences
-masqués (une onde avec un amplitude très élevée masque une autre onde
+savons par exemple que l'on peut supprimer les fréquences supérieures à
+20KHz et inférieures à 20Hz. On peut également supprimer les fréquences
+masquées (une onde avec un amplitude très élevée masque une autre onde
 avec une amplitude beaucoup plus faible). Pour avoir les meilleurs
-resultats, de nombreux tests et recherches seront necessaires.
+résultats, de nombreux tests et recherches seront nécessaires.
 
 \newpage
 
 	\subsection{Threading total de la compression/décompression}
-La tendence depuis quelques ann\'ees \'etant \`a la multiplication du nombre de processeurs/coeurs dans chaque machine, il serait judicieux de s'en servir pour accelerer les operations de compression decompression dans notre logiciel.\\
-En effet, les compressions/decompressions sont des operations hautement parralelisables. Il suffit de creer autant de processus que de coeurs disponibles pour utiliser au maximum le processeur, et d'assigner a chaque processus un bloc de donnees a traiter. L'utilisation d'une file de priorite pour ce genre de taches est tres utile, et nous ferons probablement de meme.\\
-Le seul souci sera probablement le garbage collector de caml qui s'associe mal avec les pthreads. Nous utiliserons donc des forks qui cloisonnent bien l'etendue de la memoire de chaque processus.
+La tendance depuis quelques années étant à la multiplication du nombre de
+processeurs/cœurs dans chaque machine, il serait judicieux de s'en servir pour
+accélérer les opérations de compression décompression dans notre logiciel.\\
+En
+effet, les compressions/décompressions sont des opérations hautement
+parallélisables. Il suffit de créer autant de processus que de cœurs
+disponibles pour utiliser au maximum le processeur, et d'assigner à chaque
+processus des données à traiter. L'utilisation d'une file de priorité
+pour ce genre de taches est très utile, et nous ferons probablement de même.\\
+Le seul souci sera probablement le garbage collector de caml qui s'associe mal
+avec les pthreads\footnote{posix thread, une implémentation posix des threads}.
+Nous utiliserons donc des forks qui cloisonnent bien
+l'étendue de la mémoire de chaque processus.
 
 	\subsection{Amélioration de l'UI}
 Pour la prochaine fois, nous comptons
-rendre notre lecteur plus attractif et tenter de le faire paraitre plus comme un
+rendre notre lecteur plus attractif et tenter de le faire paraître plus comme un
 lecteur audio. Pour cela, nous comptons utiliser des tables qui permettent dans
 GTK+ de mieux placer les widgets dans les Box afin d'avoir plus de précision. \\
-Nous commencerons aussi \`a nous interesser au spectrographe qui permettra d'obtenir un resultat plus interessant.
+Nous commencerons aussi à nous intéresser au spectrographe qui permettra
+d'obtenir un résultat plus intéressant.
 \begin{center}
 \includegraphics[scale=0.50]{img/spectre.png}
 \end{center}
@@ -498,12 +517,12 @@ temps et en heure et tout va pour le mieux.\\
 
 \section{Annexe}
 	\subsection{Représentation graphique des coefficients d'ondellette}
-En parallèle de l'éxecutable géneral, nous avons également développé
+En parallèle de l'exécutable général, nous avons également développé
 un petit programme qui, à partir d'un fichier wav, calcule les
 coefficients d'ondelette et les affiche sous forme d'image.\\
-Les coefficients donnent trois informations simultanéments :
+Les coefficients donnent trois informations simultanément :
 l'échelle, le temps et l'amplitude. Nous avons représenter ces trois
-informations sur une image en deux dimenssions de la manière suivante
+informations sur une image en deux dimensions de la manière suivante
 : l'axe des abscisse correspond au temps, l'axe des ordonnée à
 l'échelle (ici en logarithme de 2) et le degrés de gris à l'amplitude. Plus
 l'amplitude est élevée, plus le niveau de gris se rapproche du noir.
@@ -512,7 +531,7 @@ Voici le résultat obtenu avec quelques secondes de musique :\\
 \includegraphics[scale=0.50]{img/coeffs.png}
 \end{center}
 Ce schéma nous apporte plusieurs informations. Tout d'abord, ce schéma
-montre bien le principe d'incertitide d'Heisenberg. En effet, on
+montre bien le principe d'incertitude d'Heisenberg. En effet, on
 remarque que pour avoir une précision de plus en plus importante sur
 la fréquence, on perd la précision sur le temps. Et inversement, pour
 avoir une précision sur le temps, on perd en précision sur la
