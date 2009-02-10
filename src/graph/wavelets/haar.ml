@@ -273,7 +273,7 @@ let main s =
   let t = haar_direct s in 
     Graphics.open_graph "";
     createGraph t t;
-    wait 9999999;
+    wait 999990;
     t
 
 let _ =
