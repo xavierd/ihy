@@ -459,7 +459,11 @@ savons par exemple que l'on peut supprimer les fréquences supérieurs à
 masqués (une onde avec un amplitude très élevée masque une autre onde
 avec une amplitude beaucoup plus faible). Pour avoir les meilleurs
 resultats, de nombreux tests et recherches seront necessaires.
+
 	\subsection{Threading total de la compression/décompression}
+La tendence depuis quelques ann\'ees \'etant \`a la multiplication du nombre de processeurs/coeurs dans chaque machine, il serait judicieux de s'en servir pour accelerer les operations de compression decompression dans notre logiciel.\\
+En effet, les compressions/decompressions sont des operations hautement parralelisables. Il suffit de creer autant de processus que de coeurs disponibles pour utiliser au maximum le processeur, et d'assigner a chaque processus un bloc de donnees a traiter. L'utilisation d'une file de priorite pour ce genre de taches est tres utile, et nous ferons probablement de meme.\\
+Le seul souci sera probablement le garbage collector de caml qui s'associe mal avec les pthreads. Nous utiliserons donc des forks qui cloisonnent bien l'etendue de la memoire de chaque processus.
 
 	\subsection{Amélioration de l'UI}
 
