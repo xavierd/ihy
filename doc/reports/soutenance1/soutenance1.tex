@@ -34,7 +34,7 @@ mathématique relativement récent (elles datent du XXème siècle), elles ne so
 pas encore largement utilisées.  Il existe actuellement certains algorithmes de
 compression vidéo, par exemple Dirac, leur implémentation par la BBC, mais rien
 de probant pour le traitement du signal audio.\\
-Notre nouveau codec révolutionnaire (du moins nous l'espérons) se nomme donc le
+Notre nouveau codec révolutionnaire (du moins nous l'espérons) se nomme donc
 ihy, pour deux raisons. Premièrement parce qu'``ihy'' est le nom d'un dieu
 égyptien de la musique, et deuxièmement parce que ce mot est compliqué à
 prononcer.\\
@@ -55,7 +55,7 @@ prochaine soutenance.
 La création d'un nouveau codec passe entre autres par l'écriture des
 spécifications du format. Le ihy n'échappe donc pas à la règle.\\
 Chaque fichier
-ihy contient donc un header composé des quatre lettres SNXT qui sont le FourCC
+ihy contient un header composé des quatre lettres SNXT qui sont le FourCC
 des fichiers ihy, la taille totale du fichier, le type de compression utilisé
 (qui sera utile plus tard lorsque nous aurons plusieurs algorithmes adaptatifs),
 le nombre de canaux ainsi que la fréquence.\\
@@ -78,11 +78,11 @@ Elle permet de convertir une fonction (pas forcément périodique) en somme de
 fonctions trigonométriques grâce à un algorithme relativement simple. La
 fonction d'origine est donc caractérisée uniquement par des coefficients correspondants à
 la fréquence de chaque sinusoide ainsi que son déphasage. A partir de ceux-ci,
-il est possible de retrouver éxactement la fonction d'origine.\\
+il est possible de retrouver exactement la fonction d'origine.\\
 Ces coefficients permettent de traiter le signal. Si l'on veut par exemple
 supprimer toutes les hautes frequences d'un signal, il suffit de supprimer les
 coefficients correspondants à ces fréquences.\\
-La transformée de Fourier marche très bien pour les signaux relativement simple.
+La transformée de Fourier s'applique très bien pour les signaux relativement simple.
 En effet, si le signal d'entrée contient une irrégularité localisée, il va
 falloir des coefficients importants pour les hautes fréquences et il en faudra
 également d'autres à des fréquences plus faible pour compenser. On aura donc de
@@ -97,17 +97,17 @@ fréquence.\\
 		\subsubsection{Application sur un son}
 
 Le principe mathématique des ondelettes est basé sur des fonctions continues
-mais en informatique il est impossible de stocké un flux continue de données. On
+mais en informatique il est impossible de stocker un flux continu de données. On
 est d'abord obligé de passer par un échantillonage du signal. Le principe doit
-donc etre modifié pour utiliser des valeurs discretes. Cela complique certains
+donc \^etre modifié pour utiliser des valeurs discr\`etes. Cela complique certains
 aspects (basés sur la continuité) mais heuresement certains mathématiciens ont
 trouvé des théorèmes anologues pour des valeurs discrètes. \footnote{il fallait bien que
 tout leurs théorèmes soient utilisables}\\\\
 Contrairement à la transformée de Fourier où l'on utilise des fonctions
 sinusoidales idéalement infinies, on utilise une ``ondelette''. Il s'agit d'une
 fonction définie sur un court intervalle et réspectant certaines propriétés
-mathématiques.Il fallait encore choisir l'ondelette que l'on allait utliser dans
-notre projet.  Pour la premiere soutenance, nous nous sommes contenter de
+mathématiques. Il fallait encore choisir l'ondelette que l'on allait utliser dans
+notre projet. Pour la premiere soutenance, nous nous sommes contenter de
 l'ondelette de Haar, la plus simple a mettre en oeuvre. Elle est caractérisée de
 la manière suivante :
 
@@ -118,7 +118,7 @@ coefficients d'ondelette correspondants aux niveaux de détails à toutes les
 échelles.\\
 Prenons l'exemple d'une image car c'est ici plus représentatif qu'un signal
 audio. Supposons que l'image fasse 4x4 pixels. Dans une première étape, on va
-pour chaque bloc de 4 pixel calculé le pixel ``moyen'' (cela dépend de
+pour chaque bloc de 4 pixel calculer le pixel ``moyen'' (cela dépend de
 l'ondelette utilisée) puis on va garder l'information perdu. On aura donc 3
 coefficients par bloc de 4 pixels plus le pixel ``moyen''. A la fin du
 traitement on aura une image de 2x2 pixels et 12 coefficients de détails
@@ -134,26 +134,26 @@ En applicant cet algorithme sur un signal sonore (à 1 dimenssion,
 contrairement à l'exemple précedent), on obtient des tableaux de
 coefficients caractérisant exactement le son d'origine. Mais ceux la
 pourront être traités car ils ont un véritable ``sens''. Par exemple
-les premierers valeurs calculés correspondent aux hautes frequences en
+les premi\`eres valeurs calculés correspondent aux hautes frequences en
 fonction du temps (deux valeurs que l'on ne pouvait avoir en meme
-temps avec la transformée de Fourier) alors que les derniers valeurs
+temps avec la transformée de Fourier) alors que les derni\`eres valeurs
 correspondent plus a des changements beaucoup plus lent. Avec ces
-informations multi-echelles ou multirésolutions, il sera possible de
+informations multi-echelles ou multi-résolutions, il sera possible de
 réellement commencer la compression (avec perte) du signal audio.
 
 
 	\subsection{Interfaçage Caml/C}
-Les ondelettes étant faites en Caml, et l'écriture ainsi que divers traitement
+Les ondelettes étant faites en Caml, et l'écriture ainsi que divers
+autres traitements
 réalisés en C, il nous fallait faire transiter des données entre le C et le
-Caml. Il y eut plusieurs étapes, envoie de données simple au Caml, puis envois
+Caml. Il y eut plusieurs étapes, envoi de données simple au Caml, puis envoi
 de données plus complexe et enfin récupération de ces données.\\
 
 		\subsubsection{Envois de données simple}
 Il s'agissait de la première étape, pour comprendre comment on devait pour
-interfacer le C et le Caml. Notre premier programme fût un simple envoie de
-chaine de caractères, et affichage dans la console de cette chaine de
-caractère.\\
-Le plus dur fût de trouver comment envoyer cette chaine a Caml. Pour cela, il
+interfacer le C et le Caml. Notre premier programme fût un simple envoi de
+chaine de caractères, et affichage dans la console de celle-ci.\\
+Le plus dur fût de trouver comment envoyer celle-ci a Caml. Pour cela, il
 fallu avant tout déclarer la fonction Caml comme étant utilisable via un
 ``callback'' :
 \begin{verbatim}
@@ -163,28 +163,28 @@ let _ =
 Comme vous pouvez le voir, rien de bien difficile à mettre en place,
 ``print\_string'' était l'identifiant extérieur de la fonction Caml ``print''.
 La fonction ``print'' était désormais utilisable de l'extérieur.\\
-Il fallait désormais pouvoir l'utiliser à partir du C. Heureusement Caml fournit
+Il fallait apr\'e pouvoir l'utiliser à partir du C. Heureusement Caml fournit
 des fonctions pour nous aider. Notamment les fonctions :
 \begin{verbatim}
-CAMLextern value * caml_named_value (char const * name);
+CAMLextern value *caml_named_value (char const *name);
 CAMLextern value caml_callback (value closure, value arg);
 \end{verbatim}
-La première renvoie un pointeur sur la fonction Caml correspondant a ``name'',
+La première renvoie un pointeur sur la fonction Caml correspondant \`a ``name'',
 la seconde appelle la fonction ``closure'' avec comme paramètre ``arg''. Mais
-avant de pouvoir utiliser ces fonction, il fallut ``initialiser'' Caml, à l
+avant de pouvoir utiliser ces fonction, il fallut ``initialiser'' Caml, à
 l'aide de la fonction ``caml\_main'', indispensable pour pouvoir exécuter du
-Caml.\\
+code Caml.\\
 La dernière chose à faire avant de pouvoir appeler le Caml était de transformer
 les types C en type Caml. Cela est géré par le type ``value'' et les fonctions
-associées. Après cela, la chaine de caractère était bien affichée par Caml.\\
+associées. Après cela, la chaine de caractères était bien affichée par Caml.\\
 Comme on peut le voir, la mise en place de l'interface du coté Caml est bien
 plus simple que du coté du C.\\
 
 		\subsubsection{Envois et récupération de données complexes}
-Maintenant que nous avions envoyer une chaine de caractère, il fallait essayer
+Maintenant que nous pouvions envoyer une cha\^ine de caractère, il fallait essayer
 d'envoyer des données plus intéressantes pour nous, c'est-à-dire un tableau de
 données. Les ``ennuis'' commencèrent. Premièrement, le type ``array'' de Caml
-n'est pas compatible avec les tableaux de C, il nous fallu utiliser le module
+n'est pas compatible avec les tableaux de C, il nous fallut utiliser le module
 ``Bigarray'' de Caml, qui lui est compatible avec les tableaux du C (il fallait
 néanmoins convertir ces derniers en ``value''). Deuxièmement, dès que l'on
 touchait au tableau du coté de Caml, le programme avait une ``segmentation
@@ -201,7 +201,7 @@ tableau modifié. Pour cela, rien de bien compliqué, la fonction
 ``caml\_callback'' vue précédemment nous renvoie sous forme de ``value'' le
 résultat de la fonction appelée. Il suffisait désormais de récupérer le tableau
 contenu dans le ``value'', et encore une fois Caml fournit une fonction (ou
-plutôt une macro ici) : ``Data\_bigarray\_val'' qui renvois le tableau contenu
+plutôt une macro ici) : ``Data\_bigarray\_val'' qui renvoit le tableau contenu
 dans un ``value'' représentant un ``bigarray''.
 
 	\subsection{Algorithme de Huffman}
@@ -211,15 +211,15 @@ principe est simple, un caractère classique est codé sur un octet ou huit bits
 Huffman considère que les caractères les plus fréquents doivent être codés avec
 le moins de bits possible.\\
 Dans la pratique, il faut créer ce qu'on appelle un arbre de Huffman, qui est un
-arbre binaire localement complet (chaque noeud a soit deux fils soit aucuns),
+arbre binaire localement complet (chaque noeud a soit deux fils soit aucun),
 non équilibré, les caractères sont dans les feuilles de l'arbre et leur nouveau
 codage est tout simplement est leur représentation par occurence (on ajoute un 1
 a droite du code lorsqu'on part à droite et un 0 lorsqu'on part à gauche, tout
 ceci de façon récursive).\\
 Au niveau implémentation, il nous a fallu procéder à un comptage des occurrences
-de chaque caractère, puis création d'une file de priorités, implémentée grâce à
+de chaque caractère, puis création d'une file de prioritées, implémentée grâce à
 un tas, ce qui nous assure un ajout et un retrait en temps logarithmique.
-Lorsque la file de priorités est créer, il nous faut ensuite construire l'arbre
+Lorsque la file de prioritées est créee, il nous faut ensuite construire l'arbre
 en tant que tel. Cela se passe en plusieurs étapes :
 \begin{enumerate}
 \item tant qu'il y a plus d'un élément dans la file :
@@ -227,7 +227,7 @@ en tant que tel. Cela se passe en plusieurs étapes :
 \item récupérer les deux élements de plus haute priorité (fréquence la
 plus basse).
 \item créer un noeud qui a pour fils les deux élements précédent et qui
-a pour fréquence la somme de ses deux fils.
+a pour fréquence la somme des fr\'equences de ses deux fils.
 \item ajouter ce noeud à la file
 \end{enumerate}
 \item le dernier noeud est la racine de l'arbre d'Huffman
