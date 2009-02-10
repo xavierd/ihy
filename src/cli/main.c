@@ -18,13 +18,7 @@ static void *thread_play_wav(void *wav)
     return NULL;
 }
 
-struct thread_data
-{
-    char	**argv;
-    wav_data	*wav;
-};
-
-static void uncompress_ihy(char *input_filename, char *output_filename)
+static void extract_ihy(char *input_filename, char *output_filename)
 {
     ihy_data *input;
     wav_data *output;
@@ -117,56 +111,12 @@ static void compress_wav(char *input_filename, char *output_filename)
     destroy_wav(input);
 }
 
-#if 0
-static void *master_thread(void *dat)
-{
-    struct thread_data *data = dat;
-    ihy_data *output;
-    huffman_tree *B;
-    wav_data *wav;
-    size_t size;
-    int8_t *encoded;
-
-    /* wavelets */
-    printf("Using wavelets on data ... ");
-    fflush(stdout);
-
-    output = create_ihy();
-    wavelets_direct(data->wav->Data,
-	    data->wav->BitsPerSample / 8,
-	    data->wav->DataBlocSize,
-	    output);
-    printf("DONE\n");
-    fflush(stdout);
-
-    /* huffman tree */
-    printf("Creating Huffman tree ... ");
-    fflush(stdout);
-    B = build_huffman(data->wav->Data, data->wav->DataBlocSize);
-    size = data->wav->DataBlocSize;
-    encoded = huffman_encode(data->wav->Data, &size, B);
-    printf("size : %d, orig : %d ", size, data->wav->DataBlocSize);
-    free(encoded);
-    /*huffman_pretty(B, 0, 0);*/
-    printf("DONE\n");
-    fflush(stdout);
-    destroy_huffman(B);
-
-    printf("write wav...");
-    fflush(stdout);
-    write_wav(wav, data->argv[3]);
-    destroy_wav(wav);
-    printf("DONE\n");
-
-    destroy_ihy(output);
-    return NULL;
-}
-#endif
-
 int main(int argc, char **argv)
 {
     pthread_t play;
     int i;
+    int is_thread_playing_wav = 0;
+    wav_data *input_to_play;
 
     caml_main(argv);
     i = argc - 1;
@@ -179,25 +129,35 @@ int main(int argc, char **argv)
 	}
 	else if (!strcmp(argv[argc - i], "-x"))
 	{
-	    uncompress_ihy(argv[argc - i + 1], argv[argc - i + 2]);
+	    printf("Extracting data ... ");
+	    fflush(stdout);
+	    extract_ihy(argv[argc - i + 1], argv[argc - i + 2]);
 	    i -= 3;
+	    printf("DONE\n");
 	}
 	else if (!strcmp(argv[argc - i], "-c"))
 	{
+	    printf("Compressing data ... ");
+	    fflush(stdout);
 	    compress_wav(argv[argc - i + 1], argv[argc - i + 2]);
 	    i -= 3;
+	    printf("DONE\n");
 	}
 	else if (!strcmp(argv[argc - i], "-r"))
 	{
-	    wav_data *input;
-
-	    input = create_wav();
-	    read_wav(argv[argc - i + 1], input);
-	    pthread_create(&play, NULL, thread_play_wav, input);
-	    destroy_wav(input);
+	    is_thread_playing_wav = 1;
+	    input_to_play = create_wav();
+	    read_wav(argv[argc - i + 1], input_to_play);
+	    pthread_create(&play, NULL, thread_play_wav, input_to_play);
 	    i -= 2;
 	};
     };
-    pthread_join(play, NULL);
+    if (is_thread_playing_wav)
+    {
+	printf("Waiting for the reader to stop ... ");
+	pthread_join(play, NULL);
+	destroy_wav(input_to_play);
+	printf("DONE\n");
+    }
     return 0;
 }
