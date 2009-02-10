@@ -21,7 +21,7 @@ all: ${EXEC}
 ${EXEC}: ${OBJ}
 	${CC} -o ${OUTPUT}${EXEC} ${OBJ} ${LDFLAGS}
 
-%.o: %.c
+%.o: %.c %.h
 	${CC} -o $@ -c $< ${CFLAGS}
 
 clean:
