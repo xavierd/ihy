@@ -74,19 +74,19 @@ probablement étendues d'ici la fin de l'année.
 
 Le traitement du signal est indispensable dans de nombreux domaines. La
 transformée de Fourier en est la base et est encore très utilisée.\\
-Elle permet de convertir une fonction (pas forcement périodique) en somme de
+Elle permet de convertir une fonction (pas forcément périodique) en somme de
 fonctions trigonométriques grâce à un algorithme relativement simple. La
-fonction est donc caractérisée uniquement par des coefficients correspondants à
+fonction d'origine est donc caractérisée uniquement par des coefficients correspondants à
 la fréquence de chaque sinusoide ainsi que son déphasage. A partir de ceux-ci,
-il est possible de retrouver exactement la fonction d'origine.\\
+il est possible de retrouver éxactement la fonction d'origine.\\
 Ces coefficients permettent de traiter le signal. Si l'on veut par exemple
 supprimer toutes les hautes frequences d'un signal, il suffit de supprimer les
-coefficients correspondants à ces frequences.\\
+coefficients correspondants à ces fréquences.\\
 La transformée de Fourier marche très bien pour les signaux relativement simple.
-En effet, si le signal d'entré contient une irrégularité localisée, il va
+En effet, si le signal d'entrée contient une irrégularité localisée, il va
 falloir des coefficients importants pour les hautes fréquences et il en faudra
 également d'autres à des fréquences plus faible pour compenser. On aura donc de
-nombreux coefficients à cause d'une simple irrégularité très localisé. Le
+nombreux coefficients à cause d'une simple irrégularité très localisée. Le
 problème vient du fait que la transformée de Fourier donne une information
 uniquement sur les fréquences et non sur le temps. Pour palier ce problème, il
 existe de nombreuses ameliorations tel que la transformée de Fourier à fenêtres
@@ -98,11 +98,11 @@ fréquence.\\
 
 Le principe mathématique des ondelettes est basé sur des fonctions continues
 mais en informatique il est impossible de stocké un flux continue de données. On
-est d'abord obligé de passer par un echantillonage du signal. Le principe doit
+est d'abord obligé de passer par un échantillonage du signal. Le principe doit
 donc etre modifié pour utiliser des valeurs discretes. Cela complique certains
 aspects (basés sur la continuité) mais heuresement certains mathématiciens ont
-trouvé des théorèmes anologues pour des valeurs discrètes. (il fallait bien que
-tout leurs théorèmes servent à quelque chose)\\
+trouvé des théorèmes anologues pour des valeurs discrètes. \footnote{il fallait bien que
+tout leurs théorèmes soient utilisables}\\\\
 Contrairement à la transformée de Fourier où l'on utilise des fonctions
 sinusoidales idéalement infinies, on utilise une ``ondelette''. Il s'agit d'une
 fonction définie sur un court intervalle et réspectant certaines propriétés
@@ -131,9 +131,19 @@ nous restera donc plus qu'un pixel (correspondant a la couleur ``moyenne'')
 ainsi que 3 nouveaux coefficients. A l'aide du pixel moyen ainsi que des 17
 coefficients (sur deux echelles différentes), il est tout à fait possible de
 récuperer l'image d'origine avec un algorithme inverse.\\
-
 SUPER IMAGE DE LA MORT QUI TUE (WIKIPEDIA ???)
-\\\\
+\\
+En applicant cet algorithme sur un signal sonore (à 1 dimenssion,
+contrairement à l'exemple précedent), on obtient des tableaux de
+coefficients caractérisant exactement le son d'origine. Mais ceux la
+pourront être traités car ils ont un véritable ``sens''. Par exemple
+les premierers valeurs calculés correspondent aux hautes frequences en
+fonction du temps (deux valeurs que l'on ne pouvait avoir en meme
+temps avec la transformée de Fourier) alors que les derniers valeurs
+correspondent plus a des changements beaucoup plus lent. Avec ces
+informations multi-echelles ou multirésolutions, il sera possible de
+réellement commencer la compression (avec perte) du signal audio.
+
 
 	\subsection{Interfaçage Caml/C}
 Les ondelettes étant faites en Caml, et l'écriture ainsi que divers traitement
@@ -413,8 +423,42 @@ x86 actuels (il le sera probablement avec les instructions SSE5), ni utilisable
 en C. Il nous faudra donc l'implémenter nous même et écrire les fonctions de
 conversions half\_to\_float et float\_to\_half correspondantes.
 
-	\subsection{Utilisation d'autres ondelettes}
-
+	\subsection{Ondelettes}
+\subsubsection{Changement d'ondelette}
+Nous utilisons pour le moment l'ondelette de Haar car son
+implémentation est très simple mais celle-ci n'est pas réelement
+adapté au traitement d'un signal audio. En effet, il faudrait trouver
+une ondelette qui engendrerait plus de coefficients nuls pour avoir
+une meilleure compression. On hésite encore entre deux solutions.\\
+\begin{enumerate}
+\item 
+  Une première solution serait de trouver une ondelette génerale qui
+  donnent de bons résultats sur la plupart des signaux audios. Il va
+  donc falloir en implémenter plusieurs puis faire de nombreux tests
+  (qui pourront être automatisés).  
+\item 
+  Une autre solution serait d'analyser le signal audio et de créer
+  l'ondelette la plus adaptée. Cette méthode donnerait les meilleurs
+  résultats mais engendrent de nombreux problèmes. En effet, il est
+  très difficile de trouver la (ou l'une des) meilleure ondelette qui
+  respectent toutes les propriétés mathématiques nécessaires. De plus,
+  l'algorithme actuel est optimisé pour une ondelette spécifique (ici,
+  Haar) mais l'algoritme géneral a une complexité en o(N carre log N).
+  Ce qui ne pourrais pas être utilisable avec un fichier son, du
+  moins en temps réel. Le dernier soucis serait de trouver une façon
+  de stocker dans le fichier ihy l'ondelette, qui est une fonction
+  mathématique.
+\end{enumerate}
+\subsubsection{Traitement des coefficients, psychoacoustique}
+Maintenant que l'on a tout les coefficients grâce à la transformée en
+ondelette, il va falloir trouver un moyen pour réellement faire de la
+compression (avec perte). Nous devrons modifier les coefficients qui
+influent peu sur la perception du son par l'oreille humaine. Nous
+savons par exemple que l'on peut supprimer les fréquences supérieurs à
+20KHz et inférieurs à 20Hz. On peut également supprimer les fréquences
+masqués (une onde avec un amplitude très élevée masque une autre onde
+avec une amplitude beaucoup plus faible). Pour avoir les meilleurs
+resultats, de nombreux tests et recherches seront necessaires.
 	\subsection{Threading total de la compression/décompression}
 
 	\subsection{Amélioration de l'UI}
@@ -434,4 +478,32 @@ En ce qui concerne le groupe, rien à signaler, chacun fait ce qu'il a à faire 
 temps et en heure et tout va pour le mieux.\\
 ``Un dernier mot pour la fin? Carotte''\footnote{merci Kamoulox}\\
 
+\newpage
+\appendix
+\section{Représentation graphique des coefficients d'ondellette}
+En parallèle de l'éxecutable géneral, nous avons également développé
+un petit programme qui, à partir d'un fichier wav, calcule les
+coefficients d'ondelette et les affiche sous forme d'image.\\
+Les coefficients donnent trois informations simultanéments :
+l'échelle, le temps et l'amplitude. Nous avons représenter ces trois
+informations sur une image en deux dimenssions de la manière suivante
+: l'axe des abscisse correspond au temps, l'axe des ordonnée à
+l'échelle (ici en logarithme de 2) et le degrés de gris à l'amplitude. Plus
+l'amplitude est élevée, plus le niveau de gris se rapproche du noir.
+Voici le résultat obtenu avec quelques secondes de musique :\\
+SCHEMA !!!!
+\\
+Ce schéma nous apporte plusieurs informations. Tout d'abord, ce schéma
+montre bien le principe d'incertitide d'Heisenberg. En effet, on
+remarque que pour avoir une précision de plus en plus importante sur
+la fréquence, on perd la précision sur le temps. Et inversement, pour
+avoir une précision sur le temps, on perd en précision sur la
+fréquence. Cela pourrait être encore plus représentatif avec une
+échelle non logarithmique pour l'axe des ordonnée, mais le schéma
+serait moins lisible.\\
+On voit également de forts contrastes aux échelles moyennes. Cela nous
+apprend qu'une majorité de l'information se trouve à ces échelles.
+\\
+Cette petite application devrait nous aider pour le traitement des
+coefficients.
 \end{document}
