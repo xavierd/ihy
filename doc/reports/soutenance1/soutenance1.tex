@@ -336,6 +336,8 @@ coeur du processeur, non de faire deux fois le même travail. La solution se
 nomme ``pipe''.  Pour le moment cela reste extrêmement théorique, et par soucis
 de clarté, non implémentée.\\
 
+\newpage
+
 	\subsection{Ce que notre programme fait}
 Pour le moment, notre programme réalise plusieurs choses. Premièrement, il lit
 un fichier wav et le place en mémoire, il s'agit du premier argument de notre
@@ -396,6 +398,8 @@ projet. Le projet est également téléchargeable, dans une version mise à jour
 dynamiquement via deux icônes présentes en haut à droite de la page, permettant
 de télécharger la dernière mise à jour du git dans le format zip ou tar.
 
+\newpage
+
 \section{Tâches prévues}
 
 	\subsection{Ajout du type half}
@@ -418,6 +422,8 @@ Le souci réside dans le fait que ce format n'est ni utilisé dans les processeu
 x86 actuels (il le sera probablement avec les instructions SSE5), ni utilisable
 en C. Il nous faudra donc l'implémenter nous même et écrire les fonctions de
 conversions half\_to\_float et float\_to\_half correspondantes.
+
+\newpage
 
 	\subsection{Ondelettes}
 \subsubsection{Changement d'ondelette}
@@ -456,6 +462,8 @@ masqués (une onde avec un amplitude très élevée masque une autre onde
 avec une amplitude beaucoup plus faible). Pour avoir les meilleurs
 resultats, de nombreux tests et recherches seront necessaires.
 
+\newpage
+
 	\subsection{Threading total de la compression/décompression}
 La tendence depuis quelques ann\'ees \'etant \`a la multiplication du nombre de processeurs/coeurs dans chaque machine, il serait judicieux de s'en servir pour accelerer les operations de compression decompression dans notre logiciel.\\
 En effet, les compressions/decompressions sont des operations hautement parralelisables. Il suffit de creer autant de processus que de coeurs disponibles pour utiliser au maximum le processeur, et d'assigner a chaque processus un bloc de donnees a traiter. L'utilisation d'une file de priorite pour ce genre de taches est tres utile, et nous ferons probablement de meme.\\
@@ -467,7 +475,9 @@ rendre notre lecteur plus attractif et tenter de le faire paraitre plus comme un
 lecteur audio. Pour cela, nous comptons utiliser des tables qui permettent dans
 GTK+ de mieux placer les widgets dans les Box afin d'avoir plus de précision. \\
 Nous commencerons aussi \`a nous interesser au spectrographe qui permettra d'obtenir un resultat plus interessant.
-
+\begin{center}
+\includegraphics[scale=0.50]{img/spectre.png}
+\end{center}
 
 \newpage
 
