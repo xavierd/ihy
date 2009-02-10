@@ -109,13 +109,9 @@ fonction définie sur un court intervalle et réspectant certaines propriétés
 mathématiques.Il fallait encore choisir l'ondelette que l'on allait utliser dans
 notre projet.  Pour la premiere soutenance, nous nous sommes contenter de
 l'ondelette de Haar, la plus simple a mettre en oeuvre. Elle est caractérisée de
-la manière suivante :\\
+la manière suivante :
 
-f(t) = 
-- 1 pour 0 <= t < 1/2
-1 pour 1/2 <= t < 1
-0 sinon
-\\\\
+$$ f(t) = \left\{\begin{array}{rcl} -1 & pour & 0 \leq t < 1/2 \\ 1 & pour & 1/2 \leq t < 1 \\ 0 & sinon & \end{array} \right.$$
 
 Par un algorithme analogue à la transformée de Fourier, on calcule les
 coefficients d'ondelette correspondants aux niveaux de détails à toutes les
@@ -130,9 +126,10 @@ permettant de revenir à l'étape précedente. On réapplique le même traitemen
 nous restera donc plus qu'un pixel (correspondant a la couleur ``moyenne'')
 ainsi que 3 nouveaux coefficients. A l'aide du pixel moyen ainsi que des 17
 coefficients (sur deux echelles différentes), il est tout à fait possible de
-récuperer l'image d'origine avec un algorithme inverse.\\
-SUPER IMAGE DE LA MORT QUI TUE (WIKIPEDIA ???)
-\\
+récuperer l'image d'origine avec un algorithme inverse.
+\begin{center}
+\includegraphics[scale=0.50]{img/ondelettes.jpg}
+\end{center}
 En applicant cet algorithme sur un signal sonore (à 1 dimenssion,
 contrairement à l'exemple précedent), on obtient des tableaux de
 coefficients caractérisant exactement le son d'origine. Mais ceux la
@@ -339,6 +336,8 @@ coeur du processeur, non de faire deux fois le même travail. La solution se
 nomme ``pipe''.  Pour le moment cela reste extrêmement théorique, et par soucis
 de clarté, non implémentée.\\
 
+\newpage
+
 	\subsection{Ce que notre programme fait}
 Pour le moment, notre programme réalise plusieurs choses. Premièrement, il lit
 un fichier wav et le place en mémoire, il s'agit du premier argument de notre
@@ -388,17 +387,18 @@ de progression, qui se remplit à l'aide d'un clic sur le bouton PLAY. Pour
 cela, on utilise une fonction de GTK+ qui permet de faire une seul itération.
 Donc à ce moment là GTK+ va reprendre la main puis la rendre aussitôt, si bien
 qu’il pourra mettre à jour les widgets.  Voilà en quelques termes ce que
-nous avons pour notre première ébauche. Pour la prochaine fois, nous comptons
-rendre notre lecteur plus attractif et tenter de le faire paraitre plus comme un
-lecteur audio. Pour cela, nous comptons utiliser des tables qui permettes dans
-GTK+ de mieux placer les widgets dans les Box afin d'avoir plus de précision. 
-
-		\subsubsection{Site web}
+nous avons pour notre première ébauche.
+\begin{center}
+\includegraphics[scale=0.50]{img/gtk.png}
+\end{center}
+	\subsection{Site web}
 Disponible à l'adresse suivante : \url{http://rip-rip.github.com/ihy/}, le site
 web est des plus basiques, il présente succinctement le projet, les auteurs du
 projet. Le projet est également téléchargeable, dans une version mise à jour
 dynamiquement via deux icônes présentes en haut à droite de la page, permettant
 de télécharger la dernière mise à jour du git dans le format zip ou tar.
+
+\newpage
 
 \section{Tâches prévues}
 
@@ -422,6 +422,8 @@ Le souci réside dans le fait que ce format n'est ni utilisé dans les processeu
 x86 actuels (il le sera probablement avec les instructions SSE5), ni utilisable
 en C. Il nous faudra donc l'implémenter nous même et écrire les fonctions de
 conversions half\_to\_float et float\_to\_half correspondantes.
+
+\newpage
 
 	\subsection{Ondelettes}
 \subsubsection{Changement d'ondelette}
@@ -460,12 +462,22 @@ masqués (une onde avec un amplitude très élevée masque une autre onde
 avec une amplitude beaucoup plus faible). Pour avoir les meilleurs
 resultats, de nombreux tests et recherches seront necessaires.
 
+\newpage
+
 	\subsection{Threading total de la compression/décompression}
 La tendence depuis quelques ann\'ees \'etant \`a la multiplication du nombre de processeurs/coeurs dans chaque machine, il serait judicieux de s'en servir pour accelerer les operations de compression decompression dans notre logiciel.\\
 En effet, les compressions/decompressions sont des operations hautement parralelisables. Il suffit de creer autant de processus que de coeurs disponibles pour utiliser au maximum le processeur, et d'assigner a chaque processus un bloc de donnees a traiter. L'utilisation d'une file de priorite pour ce genre de taches est tres utile, et nous ferons probablement de meme.\\
 Le seul souci sera probablement le garbage collector de caml qui s'associe mal avec les pthreads. Nous utiliserons donc des forks qui cloisonnent bien l'etendue de la memoire de chaque processus.
 
 	\subsection{Amélioration de l'UI}
+Pour la prochaine fois, nous comptons
+rendre notre lecteur plus attractif et tenter de le faire paraitre plus comme un
+lecteur audio. Pour cela, nous comptons utiliser des tables qui permettent dans
+GTK+ de mieux placer les widgets dans les Box afin d'avoir plus de précision. \\
+Nous commencerons aussi \`a nous interesser au spectrographe qui permettra d'obtenir un resultat plus interessant.
+\begin{center}
+\includegraphics[scale=0.50]{img/spectre.png}
+\end{center}
 
 \newpage
 
