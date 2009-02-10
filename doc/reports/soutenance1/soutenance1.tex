@@ -68,7 +68,72 @@ respectives.\\
 Ces spécifications suffisent actuellement à nos besoins, mais elles seront très
 probablement étendues d'ici la fin de l'année.
 
-	\subsection{Ondelette de Haar}
+	\subsection{Ondelettes}
+
+        	\subsubsection{Interêt des ondelettes}
+
+Le traitement du signal est indispensable dans de nombreux domaines. La
+transformée de Fourier en est la base et est encore très utilisée.\\
+Elle permet de convertir une fonction (pas forcement périodique) en somme de
+fonctions trigonométriques grâce à un algorithme relativement simple. La
+fonction est donc caractérisée uniquement par des coefficients correspondants à
+la fréquence de chaque sinusoide ainsi que son déphasage. A partir de ceux-ci,
+il est possible de retrouver exactement la fonction d'origine.\\
+Ces coefficients permettent de traiter le signal. Si l'on veut par exemple
+supprimer toutes les hautes frequences d'un signal, il suffit de supprimer les
+coefficients correspondants à ces frequences.\\
+La transformée de Fourier marche très bien pour les signaux relativement simple.
+En effet, si le signal d'entré contient une irrégularité localisée, il va
+falloir des coefficients importants pour les hautes fréquences et il en faudra
+également d'autres à des fréquences plus faible pour compenser. On aura donc de
+nombreux coefficients à cause d'une simple irrégularité très localisé. Le
+problème vient du fait que la transformée de Fourier donne une information
+uniquement sur les fréquences et non sur le temps. Pour palier ce problème, il
+existe de nombreuses ameliorations tel que la transformée de Fourier à fenêtres
+ou encore, la transformée par ondelettes que l'on utilisa dans notre projet.
+Cela permet d'avoir une information à la fois sur le temps et sur la
+fréquence.\\
+
+		\subsubsection{Application sur un son}
+
+Le principe mathématique des ondelettes est basé sur des fonctions continues
+mais en informatique il est impossible de stocké un flux continue de données. On
+est d'abord obligé de passer par un echantillonage du signal. Le principe doit
+donc etre modifié pour utiliser des valeurs discretes. Cela complique certains
+aspects (basés sur la continuité) mais heuresement certains mathématiciens ont
+trouvé des théorèmes anologues pour des valeurs discrètes. (il fallait bien que
+tout leurs théorèmes servent à quelque chose)\\
+Contrairement à la transformée de Fourier où l'on utilise des fonctions
+sinusoidales idéalement infinies, on utilise une ``ondelette''. Il s'agit d'une
+fonction définie sur un court intervalle et réspectant certaines propriétés
+mathématiques.Il fallait encore choisir l'ondelette que l'on allait utliser dans
+notre projet.  Pour la premiere soutenance, nous nous sommes contenter de
+l'ondelette de Haar, la plus simple a mettre en oeuvre. Elle est caractérisée de
+la manière suivante :\\
+
+f(t) = 
+- 1 pour 0 <= t < 1/2
+1 pour 1/2 <= t < 1
+0 sinon
+\\\\
+
+Par un algorithme analogue à la transformée de Fourier, on calcule les
+coefficients d'ondelette correspondants aux niveaux de détails à toutes les
+échelles.\\
+Prenons l'exemple d'une image car c'est ici plus représentatif qu'un signal
+audio. Supposons que l'image fasse 4x4 pixels. Dans une première étape, on va
+pour chaque bloc de 4 pixel calculé le pixel ``moyen'' (cela dépend de
+l'ondelette utilisée) puis on va garder l'information perdu. On aura donc 3
+coefficients par bloc de 4 pixels plus le pixel ``moyen''. A la fin du
+traitement on aura une image de 2x2 pixels et 12 coefficients de détails
+permettant de revenir à l'étape précedente. On réapplique le même traitement. Il
+nous restera donc plus qu'un pixel (correspondant a la couleur ``moyenne'')
+ainsi que 3 nouveaux coefficients. A l'aide du pixel moyen ainsi que des 17
+coefficients (sur deux echelles différentes), il est tout à fait possible de
+récuperer l'image d'origine avec un algorithme inverse.\\
+
+SUPER IMAGE DE LA MORT QUI TUE (WIKIPEDIA ???)
+\\\\
 
 	\subsection{Interfaçage Caml/C}
 Les ondelettes étant faites en Caml, et l'écriture ainsi que divers traitement
