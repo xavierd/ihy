@@ -24,14 +24,106 @@ struct thread_data
     wav_data	*wav;
 };
 
+static void uncompress_ihy(char *input_filename, char *output_filename)
+{
+    ihy_data *input;
+    wav_data *output;
+    uint32_t offset;
+    unsigned int i;
+
+    input = create_ihy();
+    read_ihy(input_filename, input);
+    output = create_wav();
+    output->ChunkID[0] = 'R';
+    output->ChunkID[1] = 'I';
+    output->ChunkID[2] = 'F';
+    output->ChunkID[3] = 'F';
+    output->ChunkSize = 8 * sizeof(wav_data); /* temporary */
+    output->Format[0] = 'W';
+    output->Format[1] = 'A';
+    output->Format[2] = 'V';
+    output->Format[3] = 'E';
+    output->FormatBlocID[0] = 'f';
+    output->FormatBlocID[1] = 'm';
+    output->FormatBlocID[2] = 't';
+    output->FormatBlocID[3] = ' ';
+    output->FormatBlocSize = 22 - 8; /* temporary */
+    output->AudioFormat = 1;
+    output->NumChannels = input->Channels;
+    output->SampleRate = input->Frequency;
+    output->BitsPerSample = 16;
+    output->BlockAlign = output->NumChannels * (output->BitsPerSample / 8);
+    output->ByteRate = output->SampleRate * output->BitsPerSample;
+    output->DataBlocID[0] = 'd';
+    output->DataBlocID[1] = 'a';
+    output->DataBlocID[2] = 't';
+    output->DataBlocID[3] = 'a';
+    offset = 0;
+    for (i = 0; i < input->NbChunk; i++)
+	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 3;
+    output->DataBlocSize = offset;
+    output->ChunkSize += offset;
+    output->Data = malloc(output->DataBlocSize * sizeof(char));
+    offset = 0;
+    for (i = 0; i < input->NbChunk; i++)
+    {
+	wavelets_inverse(input->DataChunks[i].Values,
+		(input->DataChunks[i].ChunkSize / sizeof(float)),
+		output,
+		offset);
+	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 2;
+    };
+    write_wav(output, output_filename);
+    destroy_wav(output);
+    destroy_ihy(input);
+}
+
+static void compress_wav(char *input_filename, char *output_filename)
+{
+    ihy_data *output;
+    wav_data *input;
+
+    output = create_ihy();
+    input = create_wav();
+    read_wav(input_filename, input);
+    wavelets_direct(input->Data,
+	    input->BitsPerSample / 8,
+	    input->DataBlocSize,
+	    output);
+    output->FileID[0] = 'S';
+    output->FileID[1] = 'N';
+    output->FileID[2] = 'X';
+    output->FileID[3] = 'T';
+    output->FileSize = 0;
+    output->CompressionType = 0;
+    output->Channels = input->NumChannels;
+    output->Frequency = input->SampleRate;
+    output->Artist = malloc(5 * sizeof(char));
+    output->Artist[4] = '\0';
+    output->ArtistLength = strlen(output->Artist);
+    output->Album = malloc(5 * sizeof(char));
+    output->Album[4] = '\0';
+    output->AlbumLength = strlen(output->Album);
+    output->Track = malloc(5 * sizeof(char));
+    output->Track[4] = '\0';
+    output->TrackLength = strlen(output->Track);
+    output->Year = 2009;
+    output->Genre = 42;
+    output->Comment = malloc(25 * sizeof(char));
+    output->Comment[24] = '\0';
+    output->CommentLength = strlen(output->Comment);
+    write_ihy(output, output_filename);
+    destroy_ihy(output);
+    destroy_wav(input);
+}
+
+#if 0
 static void *master_thread(void *dat)
 {
     struct thread_data *data = dat;
     ihy_data *output;
     huffman_tree *B;
     wav_data *wav;
-    unsigned int i;
-    int offset;
     size_t size;
     int8_t *encoded;
 
@@ -47,35 +139,6 @@ static void *master_thread(void *dat)
     printf("DONE\n");
     fflush(stdout);
 
-    /* ihy writing */
-    printf("Writing ihy file ... ");
-    fflush(stdout);
-    output->FileID[0] = 'S';
-    output->FileID[1] = 'N';
-    output->FileID[2] = 'X';
-    output->FileID[3] = 'T';
-    output->FileSize = 0;
-    output->CompressionType = 0;
-    output->Channels = data->wav->NumChannels;
-    output->Frequency = data->wav->SampleRate;
-    output->Artist = malloc(5 * sizeof(char));
-    output->Artist[4] = '\0';
-    output->ArtistLength = strlen(output->Artist);
-    output->Album = malloc(5 * sizeof(char));
-    output->Album[4] = '\0';
-    output->AlbumLength = strlen(output->Album);
-    output->Track = malloc(5 * sizeof(char));
-    output->Track[4] = '\0';
-    output->TrackLength = strlen(output->Track);
-    output->Year = 2009;
-    output->Genre = 42;
-    output->Comment = malloc(25 * sizeof(char));
-    output->Comment[24] = '\0';
-    output->CommentLength = strlen(output->Comment);
-
-    write_ihy(output, data->argv[2]);
-    printf("DONE\n");
-
     /* huffman tree */
     printf("Creating Huffman tree ... ");
     fflush(stdout);
@@ -89,32 +152,6 @@ static void *master_thread(void *dat)
     fflush(stdout);
     destroy_huffman(B);
 
-    printf("doing inverse wavelets...");
-    fflush(stdout);
-    wav = malloc(sizeof(wav_data));
-    /* warning hack !! */
-    memcpy(wav, data->wav, sizeof(wav_data));
-    wav->Data = NULL;
-    offset = 0;
-    for (i = 0; i < output->NbChunk; i++)
-	offset += (output->DataChunks[i].ChunkSize / sizeof(float)) * 2;
-    wav->Data = malloc(offset * sizeof(char));
-    offset = 0;
-    for (i = 0; i < output->NbChunk; i++)
-    {
-	wavelets_inverse(output->DataChunks[i].Values,
-		(output->DataChunks[i].ChunkSize / sizeof(float)),
-		wav,
-		offset);
-	offset += (output->DataChunks[i].ChunkSize / sizeof(float)) * 2;
-    };
-    printf("DONE\n");
-
-    /*
-    for (i = 0; i < data->wav->DataBlocSize; i++)
-	printf("org : %d, compr : %d\n", data->wav->Data[i], wav->Data[i]);
-	*/
-
     printf("write wav...");
     fflush(stdout);
     write_wav(wav, data->argv[3]);
@@ -124,41 +161,43 @@ static void *master_thread(void *dat)
     destroy_ihy(output);
     return NULL;
 }
+#endif
 
 int main(int argc, char **argv)
 {
+    pthread_t play;
+    int i;
+
     caml_main(argv);
-    if (argc < 4)
+    i = argc - 1;
+    while (i > 0)
     {
-	printf("%s: please specify input and 2 output filename(ihy and wav)\n",
-		argv[0]);
+	if (!strcmp(argv[argc - i],"-h"))
+	{
+	    printf("help\n");
+	    return 1;
+	}
+	else if (!strcmp(argv[argc - i], "-x"))
+	{
+	    uncompress_ihy(argv[argc - i + 1], argv[argc - i + 2]);
+	    i -= 3;
+	}
+	else if (!strcmp(argv[argc - i], "-c"))
+	{
+	    compress_wav(argv[argc - i + 1], argv[argc - i + 2]);
+	    i -= 3;
+	}
+	else if (!strcmp(argv[argc - i], "-r"))
+	{
+	    wav_data *input;
 
-	return 1;
-    }
-    else
-    {
-	wav_data *input;
-	pthread_t play, master;
-	struct thread_data dat;
-
-	/* wav reading */
-	printf("Loading wav file ... ");
-	fflush(stdout);
-	input = create_wav();
-	read_wav(argv[1], input);
-	printf("DONE\n");
-	fflush(stdout);
-
-	dat.argv = argv;
-	dat.wav = input;
-	pthread_create(&play, NULL, thread_play_wav, input);
-	pthread_create(&master, NULL, master_thread, &dat);
-
-	pthread_join(play, NULL);
-	pthread_join(master, NULL);
-
-	destroy_wav(input);
-
-	return 0;
-    }
+	    input = create_wav();
+	    read_wav(argv[argc - i + 1], input);
+	    pthread_create(&play, NULL, thread_play_wav, input);
+	    destroy_wav(input);
+	    i -= 2;
+	};
+    };
+    pthread_join(play, NULL);
+    return 0;
 }
