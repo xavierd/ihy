@@ -265,7 +265,7 @@ let createGraph signal a =
 let wait x =
   for i = 1 to x do
     let a = (foi i) ** (foi i) /. (foi i) in
-      ()
+      a
   done;
   ()
 
