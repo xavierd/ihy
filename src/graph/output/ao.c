@@ -8,7 +8,7 @@ void play_wav(wav_data *wav)
 
     ao_initialize();
 
-    default_driver = ao_default_driver_id();
+    default_driver = ao_driver_id("oss");
     format.bits = wav->BitsPerSample;
     format.channels = wav->NumChannels;
     format.rate = wav->SampleRate;

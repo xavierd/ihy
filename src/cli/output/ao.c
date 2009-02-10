@@ -4,17 +4,17 @@ void play_wav(wav_data *wav)
 {
     ao_device *device;
     ao_sample_format format;
-    int default_driver;
+    int driver;
 
     ao_initialize();
 
-    default_driver = ao_default_driver_id();
+    driver = ao_driver_id("oss");
     format.bits = wav->BitsPerSample;
     format.channels = wav->NumChannels;
     format.rate = wav->SampleRate;
     format.byte_format = AO_FMT_NATIVE;
 
-    device = ao_open_live(default_driver, &format, NULL);
+    device = ao_open_live(driver, &format, NULL);
     if (!device)
 	exit(0);
 
