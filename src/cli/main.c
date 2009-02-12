@@ -32,7 +32,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->ChunkID[1] = 'I';
     output->ChunkID[2] = 'F';
     output->ChunkID[3] = 'F';
-    output->ChunkSize = 8 * sizeof(wav_data); /* temporary */
+    output->ChunkSize = 8 * sizeof(wav_data);
     output->Format[0] = 'W';
     output->Format[1] = 'A';
     output->Format[2] = 'V';
@@ -41,13 +41,13 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->FormatBlocID[1] = 'm';
     output->FormatBlocID[2] = 't';
     output->FormatBlocID[3] = ' ';
-    output->FormatBlocSize = 22 - 8; /* temporary */
+    output->FormatBlocSize = 16;
     output->AudioFormat = 1;
     output->NumChannels = input->Channels;
     output->SampleRate = input->Frequency;
     output->BitsPerSample = 16;
     output->BlockAlign = output->NumChannels * (output->BitsPerSample / 8);
-    output->ByteRate = output->SampleRate * output->BitsPerSample;
+    output->ByteRate = output->SampleRate * output->BlockAlign;
     output->DataBlocID[0] = 'd';
     output->DataBlocID[1] = 'a';
     output->DataBlocID[2] = 't';
