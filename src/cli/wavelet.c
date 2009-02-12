@@ -140,6 +140,7 @@ void wavelets_direct(const int8_t *array,
 		arrayf[i / sampleSize] = *(int32_t *)number;
 		break;
 	}
+	/*printf("%f\n", arrayf[i / sampleSize]);*/
     };
     fill_data(size, out);
     dat.arrayf = arrayf;
@@ -187,7 +188,8 @@ void wavelets_inverse(float *chunk,
     valf = (float *)(Data_bigarray_val(camlArray));
     for (i = 0; i < nbelmts; i++)
     {
-	val = valf[i];
+	val = roundf(valf[i]);
+	/*printf("%f\n", valf[i]);*/
 	*(int16_t *)(out->Data + offset + j) = val;
 	j = j + 2;
     }

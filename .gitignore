@@ -5,4 +5,6 @@ ihyplayer
 *.cm[ix]
 *.ihy
 *.wav
+*.aux
+*.log
 tags
