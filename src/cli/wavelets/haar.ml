@@ -77,16 +77,10 @@ let haar_direct a =
 	done;
     done;
     res.{0} <- a.{0};
-    for i = 0 to len - 1 do
-      Printf.printf "%f\n" res.{i}
-    done;
     res
 
 let haar_reverse a =
   let len = Bigarray.Array1.dim a in
-    for i = 0 to len - 1 do
-      Printf.printf "%f\n" a.{i}
-    done;
   let nbrRow = iof ((log (foi len)) /. (log 2.)) in
   let posInit = ref 0 in
   let t1 = Bigarray.Array1.create (Bigarray.float32)

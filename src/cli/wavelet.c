@@ -34,14 +34,13 @@ static value c_array_to_caml(float *array, const size_t dim)
 static void compute_chunk(const int toCompute, float *arrayf, ihy_data *ihy)
 {
     value camlArray;
-    int size;
+    const int elem_nbr = ihy->DataChunks[toCompute].ChunkSize / sizeof(float);
 
-    size = ihy->DataChunks[toCompute].ChunkSize / sizeof(float);
-    camlArray = c_array_to_caml(arrayf + (toCompute * CHUNK_SIZE),  size);
+    camlArray = c_array_to_caml(arrayf + (toCompute * CHUNK_SIZE),  elem_nbr);
     camlArray = wavelets_direct_fun(camlArray);
     memcpy(ihy->DataChunks[toCompute].Values,
 	    Data_bigarray_val(camlArray),
-	    size);
+	    elem_nbr * sizeof(float));
 }
 
 /* just fill out.
