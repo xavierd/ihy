@@ -99,7 +99,6 @@ void wavelets_direct(const int8_t *array,
 		arrayf[i / sampleSize] = *(int32_t *)number;
 		break;
 	}
-	/*printf("%f\n", arrayf[i / sampleSize]);*/
     };
     fill_data(size, out);
     for (i = 0; i < out->NbChunk; i++)
@@ -130,7 +129,6 @@ void wavelets_inverse(float *chunk,
     for (i = 0; i < nbelmts; i++)
     {
 	val = roundf(valf[i]);
-	/*printf("%f\n", valf[i]);*/
 	*(int16_t *)(out->Data + offset + j) = val;
 	j = j + 2;
     }
