@@ -1,8 +1,12 @@
-* Merge du caml/c (déjà commencé)
-* Compression avec une ondelette de Haar
-* Travail inverse décompression (assez simple normalement)
-* Interface gtk
-* Merge de compression decompression et reader
-* Pour Huffman, il suffira de stocker non pas la frequence d'apparition
-caracteres mais "le classement" des caracteres en fonction de la
-frequence
+* Nettoyage du code comme dit la dernière fois (plus grand chose à faire
+  normalement) [Xavier]
+* Résolution du bug qui modifie une valeur sur deux après passage aux
+* ondelettes dans les deux sens (TRÈS IMPORTANT) [Xavier/Nicolas]
+* Utilisation du type half pour le stockage des données [Stéphane]
+* Application de l'algorithme de Huffman sur les données à stocker [Xavier]
+* Ecriture d'une doc du ihy pour donner plus de précisions sur certains champs
+  (comme le "CompressionType" par exemple) [Stéphane]
+* Traitement des coeffs des ondelettes (Réelle compression) [Nicolas/Stéphane]
+* Amélioration de la GUI avec l'ajout, entre autres d'un spectrographe [Teddy]
+* Ajout de fonctions pour gérer les tags des fichiers ihy dans le GUI (et
+  éventuellement fonctions de gestion d'une bibliothèque) [Teddy/Stéphane]

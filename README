@@ -1,0 +1,19 @@
+Ihy est un nouveau codec, d'un nouveau genre, utilisant l'outil mathématiques
+que constituent les ondelettes.
+Pour le moment le projet est dans un stade extrêmement expérimental, donc à vos
+risques et périls (vous n'encourrez en fait aucun risque) :).
+
+Comment compiler :
+Vous devez avoir libao et ocaml ainsi que GNU make (disponible sur toutes les
+distribution Linux). Pour cela, utilisez votre gestionnaire de paquet favori :
+Archlinux : pacman -S libao ocaml make
+Debian : apt-get install libao2 libao-dev ocaml make
+Il vous suffit ensuite de lancer la commande 'make' et si tout se passe bien,
+deux executables seront créés dans le dossier bin : ihyconvert et ihyplayer.
+
+Comment utiliser notre programme :
+ihyplayer est l'interface graphique de notre programme, qui n'est pour l'instant
+qu'une fenêtre GTK avec des boutons.
+ihyconvert est un programme en ligne de commande qui prends trois paramètres :
+fichier wav à lire, fichier ihy à écrire, et fichier wav qui contiendra le ihy
+décompressé.
