@@ -13,8 +13,7 @@
 #include <ihy.h>
 #include <input/wav.h>
 
-#define NB_BY_O 65536
-#define NB_THREADS 1
+#define CHUNK_SIZE 65536
 
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
