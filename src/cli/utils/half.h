@@ -9,5 +9,6 @@
 typedef uint16_t t_half;
 
 t_half float_to_half(float f);
+float half_to_float(t_half h);
 
 #endif
