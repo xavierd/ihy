@@ -127,7 +127,7 @@ void wavelets_inverse(float *chunk,
     valf = (float *)(Data_bigarray_val(camlArray));
     for (i = 0; i < nbelmts; i++)
     {
-	val = roundf(valf[i]);
+	val = valf[i];
 	*(int16_t *)(out->Data + offset + j) = val;
 	j = j + 2;
     }
