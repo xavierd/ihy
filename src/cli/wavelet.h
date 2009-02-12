@@ -2,13 +2,9 @@
 #define DEF_INTERFACE
 
 #include <stdint.h>
-#include <pthread.h>
 #include <caml/mlvalues.h>
 #include <caml/callback.h>
 #include <caml/bigarray.h>
-#include <caml/memory.h>
-#include <unistd.h>
-#include <math.h>
 
 #include <ihy.h>
 #include <input/wav.h>
