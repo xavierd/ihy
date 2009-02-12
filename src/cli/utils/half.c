@@ -15,11 +15,8 @@ t_half float_to_half(float f)
 	memcpy(&f2, &f, sizeof(float));
 
 	s = f2 >> 31;
-	printf("%i\n", s);
 	e = ((f2 << 1) >> 24) - 127;
-	printf("%i\n", e);
 	m = (f2 << 9) >> 9;
-	printf("%i\n", m);
 
 	h = s << 15;
 
@@ -38,5 +35,28 @@ t_half float_to_half(float f)
 	h = h + (m >> 13);
 
 	return h;
+    }
+}
+
+float half_to_float(t_half h)
+{
+    if (h == 0)
+    {
+	return 0.;
+    }
+    else
+    {
+	float f;
+	int32_t s, e, m;
+
+	s = h >> 15;
+	e = ((h << 1) >> 10) - 15;
+	m = (h << 6) >> 6;
+
+	f = s << 31;
+	f = h + ((e + 127) << 23);
+	f = h + (m << 13);
+
+	return f;
     }
 }
