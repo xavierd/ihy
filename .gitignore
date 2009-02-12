@@ -1,0 +1,10 @@
+ihyconvert
+ihyplayer
+*.o
+*.pdf
+*.cm[ix]
+*.ihy
+*.wav
+*.aux
+*.log
+tags
