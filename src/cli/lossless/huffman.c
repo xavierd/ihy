@@ -221,7 +221,7 @@ int8_t *huffman_encode(const void *varray, size_t *n)
 }
 
 /* read an build the tree */
-static huffman_tree *huffman_read_tree(const int8_t **array)
+static huffman_tree *huffman_read_tree(int8_t **array)
 {
     huffman_tree *res = malloc(sizeof(huffman_tree));
     huffman_tree *tmp;
@@ -253,7 +253,7 @@ static huffman_tree *huffman_read_tree(const int8_t **array)
     return res;
 }
 
-static int8_t get_next_letter(const int8_t **array,
+static int8_t get_next_letter(int8_t **array,
 			      int *shift,
 			      const huffman_tree *H)
 {
