@@ -47,7 +47,7 @@ filter_directD signal.{0} signal.{1} ;;
 
 let removeFirsts t = 
   let len = Bigarray.Array1.dim t in
-    for i = len / 4 to len - 1 do
+    for i = len / 2 to len - 1 do
       t.{i} <- 0.;
     done;
     ()
@@ -82,8 +82,8 @@ let countZero t =
       
   
 let compress t =
-  (*  removeFirsts t; *)
-  removeSeuil t 1000.;
+  removeFirsts t;
+  removeSeuil t 500.;
   let count = countZero t in
     print_int count;
     print_newline ();
