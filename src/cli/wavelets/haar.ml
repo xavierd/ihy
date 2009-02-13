@@ -45,6 +45,53 @@ filter_directD signal.{0} signal.{1} ;;
 (* FIN TESTS *)
 *)
 
+let removeFirsts t = 
+  let len = Bigarray.Array1.dim t in
+    for i = len / 4 to len - 1 do
+      t.{i} <- 0.;
+    done;
+    ()
+;;
+abs 
+;;
+
+let removeSeuil t s =
+  let len = Bigarray.Array1.dim t in
+  let nbrRow = iof ((log (foi len)) /. (log 2.)) in
+    for i = 1 to len - 1 do
+      let echelle = (foi nbrRow) -. ((log (foi i)) /. (log 2.)) in
+	if (abs_float(t.{i} *. (echelle ** 1.5)) <= s) then
+	  begin
+	    t.{i} <- 0.;
+	  end
+	else
+	  ()
+    done;
+    ()
+
+let countZero t = 
+  let len = Bigarray.Array1.dim t in
+  let count = ref 0 in
+    for i=0 to len - 1 do
+      if (t.{i} = 0.) then
+	count := !count + 1
+      else
+	()
+    done;
+    !count
+      
+  
+let compress t =
+  (*  removeFirsts t; *)
+  removeSeuil t 3000.;
+  let count = countZero t in
+    print_int count;
+    print_newline ();
+    print_int (iof ((foi count) /. (foi (Bigarray.Array1.dim t)) *. 100.)); 
+    print_newline ();
+    print_newline ();
+    t      
+
 let filter_direct x y =
   let coef = (2. ** (-.(1.)/.(2.))) in
     coef *. (x +. y)
@@ -77,7 +124,7 @@ let haar_direct a =
 	done;
     done;
     res.{0} <- a.{0};
-    res
+    compress res
 
 let haar_reverse a =
   let len = Bigarray.Array1.dim a in
@@ -109,6 +156,8 @@ let haar_reverse a =
       t2
     else
       t1
+
+
 
 let _ =
   Callback.register "Haar_Direct" haar_direct
