@@ -65,42 +65,8 @@ static huffman_tree *heap_rm(heap *heap)
     return res;
 }
 
-static char *to_binary(unsigned int code, int code_size)
-{
-    char *res = malloc(code_size * sizeof(char));
-    int i;
-
-    for (i = 0; i < code_size; i++)
-    {
-	code_size--;
-	sprintf(res + i, "%d", code >> code_size);
-	code = code - ((code >> code_size) << code_size);
-    }
-    return res;
-}
-
-/* pretty print huffman */
-void huffman_pretty(huffman_tree *B, int code, int code_size)
-{
-    if (B)
-    {
-	if (!B->fg)
-	{
-	    char *bin = to_binary(code, code_size);
-	    printf("\n");
-	    printf("%c, %d, %s", B->letter, B->occurrence, bin);
-	    free(bin);
-	}
-	else
-	{
-	    huffman_pretty(B->fg, (code << 1) + 0, code_size + 1);
-	    huffman_pretty(B->fd, (code << 1) + 1, code_size + 1);
-	}
-    }
-}
-
 /* build the huffman tree, and return it */
-huffman_tree *build_huffman(const void *varray, const size_t n)
+static huffman_tree *build_huffman(const void *varray, const size_t n)
 {
     unsigned int i;
     huffman_tree **tree;
@@ -207,7 +173,7 @@ static void huffman_write_tree(huffman_tree *H, int8_t **pos)
  * n is the size of varray and will be, when the function returns, the
  * size of the array returned
  */
-int8_t *huffman_encode(const void *varray, size_t *n, huffman_tree *H)
+int8_t *huffman_encode(const void *varray, size_t *n)
 {
     struct huffman_code code[256];
     struct huffman_code letter_code;
@@ -217,31 +183,37 @@ int8_t *huffman_encode(const void *varray, size_t *n, huffman_tree *H)
     int shift;
     unsigned int i;
     int tmp;
+    huffman_tree *H;
 
+    H = build_huffman(varray, *n);
     parc_prof_huffman(H, 0, 0);
     build_code(H, code);
     huffman_write_tree(H, &sentry);
     shift = 0;
     for (i = 0; i < *n; i++)
     {
-	/*printf("i : %d\n", i);*/
+	/* ok that's a little bit tricky.
+	 * first, get the code of the letter we want to encode
+	 */
 	letter_code = code[array[i]];
 	while (letter_code.length > 0)
 	{
-	    /*printf("length : %d\n", letter_code.length);*/
+	    /* sentry point to a byte that is probably half filled with data,
+	     * so we need to shift letter_code.code
+	     */
 	    *sentry |= letter_code.code << (8 - shift - letter_code.length);
 	    tmp = shift;
 	    if (letter_code.length > (8 - shift))
 	    {
+		/* if letter_code.length didn't fill in sentry, we need to fill
+		 * sentry++, with the rest of letter_code.code
+		 */
 		sentry++;
 		shift = 0;
 	    }
 	    else
+		/* change shift to it's new value */
 		shift = (shift + letter_code.length) % 8;
-	    /*
-	    printf("shift : %d\n", shift);
-	    printf("8 - tmp : %d\n", 8 - tmp);
-	    */
 	    letter_code.length -= (8 - tmp);
 	};
     }
