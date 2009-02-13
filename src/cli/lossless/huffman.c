@@ -153,8 +153,6 @@ static void huffman_write_tree(huffman_tree *H, int8_t **pos)
 	{
 	    **pos = 0; /* this is not a leaf */
 	    (*pos)++;
-	    **pos = 0;
-	    (*pos)++;
 	    queue_enqueue(tmp->fg, F);
 	    queue_enqueue(tmp->fd, F);
 	}
@@ -177,7 +175,7 @@ int8_t *huffman_encode(const void *varray, size_t *n)
 {
     struct huffman_code code[256];
     struct huffman_code letter_code;
-    int8_t *res = calloc(*n, 1);
+    int8_t *res = calloc(*n, sizeof(int8_t));
     int8_t *sentry = res;
     uint8_t *array = (uint8_t *)varray;
     int shift;
@@ -220,6 +218,83 @@ int8_t *huffman_encode(const void *varray, size_t *n)
     *n = (sentry - res) + (shift != 0);
     res = realloc(res, *n);
     return res;
+}
+
+/* read an build the tree */
+static huffman_tree *huffman_read_tree(const int8_t **array)
+{
+    huffman_tree *res = malloc(sizeof(huffman_tree));
+    huffman_tree *tmp;
+    t_queue F;
+
+    F = queue_create();
+    queue_enqueue(res, F);
+    while (!queue_isempty(F))
+    {
+	tmp = queue_dequeue(F);
+	if (!**array) /* a node */
+	{
+	    tmp->fg = malloc(sizeof(huffman_tree));
+	    tmp->fd = malloc(sizeof(huffman_tree));
+	    (*array)++;
+	    queue_enqueue(tmp->fg, F);
+	    queue_enqueue(tmp->fd, F);
+	}
+	else /* a leaf */
+	{
+	    (*array)++;
+	    tmp->letter = **array;
+	    tmp->fg = NULL;
+	    tmp->fd = NULL;
+	    (*array)++;
+	}
+    }
+    queue_destroy(F);
+    return res;
+}
+
+static int8_t get_next_letter(const int8_t **array,
+			      int *shift,
+			      const huffman_tree *H)
+{
+    while (H->fg && *shift)
+    {
+	if (!((**array << *shift) >> (8 - *shift)))
+	    H = H->fg;
+	else
+	    H = H->fd;
+	(*shift)++;
+	if (*shift == 8)
+	{
+	    *shift = 0;
+	    (*array)++;
+	}
+    }
+    return H->letter;
+}
+
+/* decode the data
+ */
+void *huffman_decode(const void *varray, const int n)
+{
+    int shift = 0;
+    int8_t *array;
+    huffman_tree *H;
+    /* ceci est TRES moche je sais, mais la resolution de ce problème demande
+     * pas mal de taff au niveau des specs du ihy, a voir avec Stephane
+     */
+    int8_t *res = malloc(n * 2 * sizeof(int8_t));
+    int index = 0;
+
+    array = (int8_t *)varray;
+    H = huffman_read_tree(&array);
+    while ((array - (int8_t *)varray) < n)
+    {
+	res[index] = get_next_letter(&array, &shift, H);
+	index++;
+    };
+    destroy_huffman(H);
+    return realloc(res, index + 1);
 }
 
 /* release the memory used by a huffman tree */

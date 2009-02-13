@@ -23,6 +23,10 @@ typedef struct huffman_tree
  */
 int8_t *huffman_encode(const void *varray, size_t *n);
 
+/* decode the data
+ */
+void *huffman_decode(const void *varray, const int n);
+
 /* release the memory used by a huffman tree */
 void destroy_huffman(huffman_tree *B);
 
