@@ -60,7 +60,7 @@ let removeSeuil t s =
   let nbrRow = iof ((log (foi len)) /. (log 2.)) in
     for i = 1 to len - 1 do
       let echelle = (foi nbrRow) -. ((log (foi i)) /. (log 2.)) in
-	if (abs_float(t.{i} *. (echelle ** 1.5)) <= s) then
+	if (abs_float(t.{i} *. (echelle ** 2.)) <= s) then
 	  begin
 	    t.{i} <- 0.;
 	  end
@@ -83,7 +83,7 @@ let countZero t =
   
 let compress t =
   (*  removeFirsts t; *)
-  removeSeuil t 3000.;
+  removeSeuil t 1000.;
   let count = countZero t in
     print_int count;
     print_newline ();
