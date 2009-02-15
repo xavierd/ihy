@@ -7,6 +7,13 @@
 
 #include <utils/queue.h>
 
+/*
+ * Structure of the compressed data :
+ * |uncompressed |huffman |                           |
+ * |  size       | tree   |      Data                 |
+ * |  4 bytes    |        |                           |
+ */
+
 typedef struct huffman_tree
 {
     unsigned char		letter;
@@ -24,8 +31,9 @@ typedef struct huffman_tree
 int8_t *huffman_encode(const void *varray, size_t *n);
 
 /* decode the data
+ * *n will contain the size of the array returned
  */
-void *huffman_decode(const void *varray, const int n);
+void *huffman_decode(const void *varray, size_t *n);
 
 /* release the memory used by a huffman tree */
 void destroy_huffman(huffman_tree *B);

@@ -186,6 +186,8 @@ int8_t *huffman_encode(const void *varray, size_t *n)
     H = build_huffman(varray, *n);
     parc_prof_huffman(H, 0, 0);
     build_code(H, code);
+    *((size_t *)res) = *n;
+    sentry += 4;
     huffman_write_tree(H, &sentry);
     shift = 0;
     for (i = 0; i < *n; i++)
@@ -275,26 +277,29 @@ static int8_t get_next_letter(int8_t **array,
 
 /* decode the data
  */
-void *huffman_decode(const void *varray, const int n)
+void *huffman_decode(const void *varray, size_t *n)
 {
     int shift = 0;
     int8_t *array;
     huffman_tree *H;
-    /* ceci est TRES moche je sais, mais la resolution de ce problème demande
-     * pas mal de taff au niveau des specs du ihy, a voir avec Stephane
-     */
-    int8_t *res = malloc(n * 2 * sizeof(int8_t));
+    const size_t uncompressed_size = *((size_t *)varray);
+    int8_t *res;
     int index = 0;
+    size_t ptr_diff = 0;
 
     array = (int8_t *)varray;
+    array += 4;
+    res = malloc(uncompressed_size);
     H = huffman_read_tree(&array);
-    while ((array - (int8_t *)varray) < n)
+    while (ptr_diff < *n)
     {
 	res[index] = get_next_letter(&array, &shift, H);
 	index++;
+	ptr_diff = array - (int8_t *)varray;
     };
     destroy_huffman(H);
-    return realloc(res, index + 1);
+    *n = uncompressed_size;
+    return (void *)res;
 }
 
 /* release the memory used by a huffman tree */
