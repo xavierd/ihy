@@ -1,6 +1,9 @@
 let foi = float_of_int
 let iof = int_of_float
 
+type array_type =
+    (float, Bigarray.float32_elt, Bigarray.c_layout) Bigarray.Array1.t
+
 (*
 (* UNIQUEMENT POUR LES TESTS *)
 #load "bigarray.cma"
@@ -45,7 +48,7 @@ filter_directD signal.{0} signal.{1} ;;
 (* FIN TESTS *)
 *)
 
-let removeFirsts t = 
+let removeFirsts (t : array_type) = 
   let len = Bigarray.Array1.dim t in
     for i = len / 2 to len - 1 do
       t.{i} <- 0.;
@@ -55,7 +58,7 @@ let removeFirsts t =
 abs 
 ;;
 
-let removeSeuil t s =
+let removeSeuil (t : array_type) s =
   let len = Bigarray.Array1.dim t in
   let nbrRow = iof ((log (foi len)) /. (log 2.)) in
     for i = 1 to len - 1 do
@@ -69,7 +72,7 @@ let removeSeuil t s =
     done;
     ()
 
-let countZero t = 
+let countZero (t : array_type) = 
   let len = Bigarray.Array1.dim t in
   let count = ref 0 in
     for i=0 to len - 1 do
@@ -81,7 +84,7 @@ let countZero t =
     !count
       
   
-let compress t =
+let compress (t : array_type) =
   removeFirsts t;
   removeSeuil t 500.;
   let count = countZero t in
@@ -100,12 +103,12 @@ let filter_directD x y =
   let coef = (2. ** (-.(1.)/.(2.))) in
     coef *. (y -. x)
 
-let filter_reverse y x op=
+let filter_reverse (y  : float) (x : float) op=
   let coef = (2. ** (-.(1.)/.(2.))) *. 2.  in
     (op y x) /. coef
 
 
-let haar_direct a =
+let haar_direct (a : array_type) =
   let len = Bigarray.Array1.dim a in
   let nbrRow = iof ((log (foi len)) /. (log 2.)) in
   let res = Bigarray.Array1.create (Bigarray.float32)
@@ -126,7 +129,7 @@ let haar_direct a =
     res.{0} <- a.{0};
     compress res
 
-let haar_reverse a =
+let haar_reverse (a : array_type) =
   let len = Bigarray.Array1.dim a in
   let nbrRow = iof ((log (foi len)) /. (log 2.)) in
   let posInit = ref 0 in
