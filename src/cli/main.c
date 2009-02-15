@@ -54,7 +54,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->DataBlocID[3] = 'a';
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
-	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 3;
+	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 2;
     output->DataBlocSize = offset;
     output->ChunkSize += offset;
     output->Data = malloc(output->DataBlocSize * sizeof(char));
