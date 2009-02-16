@@ -76,6 +76,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 {
     ihy_data *output;
     wav_data *input;
+    unsigned int i;
 
     output = create_ihy();
     input = create_wav();
@@ -84,6 +85,13 @@ static void compress_wav(char *input_filename, char *output_filename)
 	    input->BitsPerSample / 8,
 	    input->DataBlocSize,
 	    output);
+    for (i = 0; i < output->NbChunk; i++)
+	/* typage du ihy à changer */
+	output->DataChunks[i].Values = (float *)
+	    huffman_encode(
+		output->DataChunks[i].Values,
+		&output->DataChunks[i].ChunkSize
+		);
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
     output->FileID[2] = 'X';
