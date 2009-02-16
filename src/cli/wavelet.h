@@ -8,6 +8,7 @@
 
 #include <ihy.h>
 #include <input/wav.h>
+#include <lossless/huffman.h>
 
 #define CHUNK_SIZE 65536
 
