@@ -41,10 +41,6 @@ static void compute_chunk(const int toCompute, float *arrayf, ihy_data *ihy)
     memcpy(ihy->DataChunks[toCompute].Values,
 	    Data_bigarray_val(camlArray),
 	    elem_nbr * sizeof(float));
-    ihy->DataChunks[toCompute].Values = huffman_encode(
-	    ihy->DataChunks[toCompute].Values,
-	    &ihy->DataChunks[toCompute].ChunkSize
-	    );
 }
 
 /* just fill out.
