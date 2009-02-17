@@ -149,7 +149,7 @@ static void huffman_write_tree(huffman_tree *H, int8_t **pos)
     while (!queue_isempty(F))
     {
 	tmp = (huffman_tree *)queue_dequeue(F);
-	if (!tmp->fg)
+	if (tmp->fg)
 	{
 	    **pos = 0; /* this is not a leaf */
 	    (*pos)++;
@@ -203,7 +203,7 @@ int8_t *huffman_encode(const void *varray, size_t *n)
 	     */
 	    *sentry |= letter_code.code << (8 - shift - letter_code.length);
 	    tmp = shift;
-	    if (letter_code.length > (8 - shift))
+	    if (letter_code.length >= (8 - shift))
 	    {
 		/* if letter_code.length didn't fill in sentry, we need to fill
 		 * sentry++, with the rest of letter_code.code
