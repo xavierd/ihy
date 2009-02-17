@@ -61,6 +61,11 @@ static void extract_ihy(char *input_filename, char *output_filename)
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
     {
+	input->DataChunks[i].Values =
+	    huffman_decode(
+		    input->DataChunks[i].Values,
+		    &input->DataChunks[i].ChunkSize
+		    );
 	wavelets_inverse(input->DataChunks[i].Values,
 		(input->DataChunks[i].ChunkSize / sizeof(float)),
 		output,

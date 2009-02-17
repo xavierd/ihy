@@ -223,7 +223,7 @@ int8_t *huffman_encode(const void *varray, size_t *n)
 }
 
 /* read an build the tree */
-static huffman_tree *huffman_read_tree(int8_t **array)
+static huffman_tree *huffman_read_tree(uint8_t **array)
 {
     huffman_tree *res = malloc(sizeof(huffman_tree));
     huffman_tree *tmp;
@@ -255,13 +255,15 @@ static huffman_tree *huffman_read_tree(int8_t **array)
     return res;
 }
 
-static int8_t get_next_letter(int8_t **array,
+static int8_t get_next_letter(uint8_t **array,
 			      int *shift,
 			      const huffman_tree *H)
 {
-    while (H->fg && *shift)
+    unsigned char zero_or_one;
+    while (H->fg)
     {
-	if (!((**array << *shift) >> (8 - *shift)))
+	zero_or_one = (((**array << *shift) >> 7) & 1);
+	if (!zero_or_one)
 	    H = H->fg;
 	else
 	    H = H->fd;
@@ -280,22 +282,20 @@ static int8_t get_next_letter(int8_t **array,
 void *huffman_decode(const void *varray, size_t *n)
 {
     int shift = 0;
-    int8_t *array;
+    uint8_t *array;
     huffman_tree *H;
     const size_t uncompressed_size = *((size_t *)varray);
-    int8_t *res;
-    int index = 0;
-    size_t ptr_diff = 0;
+    uint8_t *res;
+    unsigned int index = 0;
 
-    array = (int8_t *)varray;
+    array = (uint8_t *)varray;
     array += 4;
     res = malloc(uncompressed_size);
     H = huffman_read_tree(&array);
-    while (ptr_diff < *n)
+    while (index < uncompressed_size)
     {
 	res[index] = get_next_letter(&array, &shift, H);
 	index++;
-	ptr_diff = array - (int8_t *)varray;
     };
     destroy_huffman(H);
     *n = uncompressed_size;
