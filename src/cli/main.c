@@ -24,6 +24,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     wav_data *output;
     uint32_t offset;
     unsigned int i;
+    /*float *oldValue;*/
 
     input = create_ihy();
     read_ihy(input_filename, input);
@@ -61,11 +62,14 @@ static void extract_ihy(char *input_filename, char *output_filename)
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
     {
+/*	oldValue = input->DataChunks[i].Values;
 	input->DataChunks[i].Values =
 	    huffman_decode(
 		    input->DataChunks[i].Values,
 		    &input->DataChunks[i].ChunkSize
 		    );
+	free(oldValue);
+	*/
 	wavelets_inverse(input->DataChunks[i].Values,
 		(input->DataChunks[i].ChunkSize / sizeof(float)),
 		output,
@@ -81,7 +85,10 @@ static void compress_wav(char *input_filename, char *output_filename)
 {
     ihy_data *output;
     wav_data *input;
+    /*
     unsigned int i;
+    float *oldValue;
+    */
 
     output = create_ihy();
     input = create_wav();
@@ -90,13 +97,18 @@ static void compress_wav(char *input_filename, char *output_filename)
 	    input->BitsPerSample / 8,
 	    input->DataBlocSize,
 	    output);
+    /*
     for (i = 0; i < output->NbChunk; i++)
-	/* typage du ihy à changer */
+    {
+	oldValue = output->DataChunks[i].Values;
 	output->DataChunks[i].Values = (float *)
 	    huffman_encode(
 		output->DataChunks[i].Values,
 		&output->DataChunks[i].ChunkSize
 		);
+	free(oldValue);
+    };
+    */
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
     output->FileID[2] = 'X';
