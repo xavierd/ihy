@@ -257,7 +257,7 @@ static huffman_tree *huffman_read_tree(uint8_t **array)
 
 static int8_t get_next_letter(uint8_t **array,
 			      int *shift,
-			      const huffman_tree *H)
+			      huffman_tree *H)
 {
     unsigned char zero_or_one;
     while (H->fg)

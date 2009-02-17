@@ -88,7 +88,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 {
     ihy_data *output;
     wav_data *input;
-    unsigned int i, j;
+    unsigned int i;
     uint8_t *oldValue;
 
     output = create_ihy();
@@ -107,10 +107,6 @@ static void compress_wav(char *input_filename, char *output_filename)
 		&output->DataChunks[i].ChunkSize
 		);
 	free(oldValue);
-	/*
-	for (j = 0; j < output->DataChunks[i].ChunkSize; j++)
-	    printf("%d\n", output->DataChunks[i].Values[j]);
-	    */
     };
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
