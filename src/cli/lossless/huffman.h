@@ -28,7 +28,7 @@ typedef struct huffman_tree
  * n is the size of varray and will be, when the function returns, the
  * size of the array returned
  */
-int8_t *huffman_encode(const void *varray, size_t *n);
+uint8_t *huffman_encode(const void *varray, size_t *n);
 
 /* decode the data
  * *n will contain the size of the array returned

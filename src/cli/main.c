@@ -67,7 +67,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     for (i = 0; i < input->NbChunk; i++)
     {
 	oldValue = input->DataChunks[i].Values;
-	input->DataChunks[i].Values = (uint8_t *)
+	input->DataChunks[i].Values =
 	    huffman_decode(
 		    input->DataChunks[i].Values,
 		    &input->DataChunks[i].ChunkSize
