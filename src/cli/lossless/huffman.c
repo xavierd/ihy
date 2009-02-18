@@ -139,7 +139,7 @@ static void build_code(huffman_tree *H, struct huffman_code *code)
 }
 
 /* write the huffman tree, before the encoded values */
-static void huffman_write_tree(huffman_tree *H, int8_t **pos)
+static void huffman_write_tree(huffman_tree *H, uint8_t **pos)
 {
     t_queue F;
     huffman_tree *tmp;
@@ -171,12 +171,12 @@ static void huffman_write_tree(huffman_tree *H, int8_t **pos)
  * n is the size of varray and will be, when the function returns, the
  * size of the array returned
  */
-int8_t *huffman_encode(const void *varray, size_t *n)
+uint8_t *huffman_encode(const void *varray, size_t *n)
 {
     struct huffman_code code[256];
     struct huffman_code letter_code;
-    int8_t *res = calloc(*n, sizeof(int8_t));
-    int8_t *sentry = res;
+    uint8_t *res = calloc(*n, sizeof(uint8_t));
+    uint8_t *sentry = res;
     uint8_t *array = (uint8_t *)varray;
     int shift;
     unsigned int i;
@@ -187,9 +187,13 @@ int8_t *huffman_encode(const void *varray, size_t *n)
     parc_prof_huffman(H, 0, 0);
     build_code(H, code);
     *((size_t *)res) = *n;
-    sentry += 4;
+    sentry += sizeof(size_t);
     huffman_write_tree(H, &sentry);
     shift = 0;
+    /*
+    for (i = 0; i < *n; i++)
+	printf("%d\n", array[i]);
+	*/
     for (i = 0; i < *n; i++)
     {
 	/* ok that's a little bit tricky.
@@ -289,7 +293,7 @@ void *huffman_decode(const void *varray, size_t *n)
     unsigned int index = 0;
 
     array = (uint8_t *)varray;
-    array += 4;
+    array += sizeof(size_t);
     res = malloc(uncompressed_size);
     H = huffman_read_tree(&array);
     while (index < uncompressed_size)
