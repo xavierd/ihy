@@ -167,6 +167,25 @@ static void huffman_write_tree(huffman_tree *H, uint8_t **pos)
     queue_destroy(F);
 }
 
+#if 0
+static void parc(huffman_tree *H)
+{
+    if (H)
+    {
+	if (!H->fg)
+	    printf("leaf : %d\n", H->letter);
+	else
+	{
+	    printf("prefixe\n");
+	    parc(H->fg);
+	    printf("infixe\n");
+	    parc(H->fd);
+	    printf("suffixe\n");
+	}
+    }
+}
+#endif
+
 /* encode the data
  * n is the size of varray and will be, when the function returns, the
  * size of the array returned
@@ -180,45 +199,51 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
     uint8_t *array = (uint8_t *)varray;
     int shift;
     unsigned int i;
-    int tmp;
     huffman_tree *H;
 
     H = build_huffman(varray, *n);
     parc_prof_huffman(H, 0, 0);
     build_code(H, code);
+    /*
+    for (i = 0; i < 256; i++)
+	printf("%d\n", code[i].length);
+    seulement pour tester
+    */
     *((size_t *)res) = *n;
     sentry += sizeof(size_t);
     huffman_write_tree(H, &sentry);
     shift = 0;
-    /*
-    for (i = 0; i < *n; i++)
-	printf("%d\n", array[i]);
-	*/
     for (i = 0; i < *n; i++)
     {
 	/* ok that's a little bit tricky.
 	 * first, get the code of the letter we want to encode
 	 */
 	letter_code = code[array[i]];
+	/*
+	printf("%d\n", letter_code.length);
+	*/
 	while (letter_code.length > 0)
 	{
 	    /* sentry point to a byte that is probably half filled with data,
 	     * so we need to shift letter_code.code
 	     */
 	    *sentry |= letter_code.code << (8 - shift - letter_code.length);
-	    tmp = shift;
 	    if (letter_code.length >= (8 - shift))
 	    {
 		/* if letter_code.length didn't fill in sentry, we need to fill
 		 * sentry++, with the rest of letter_code.code
 		 */
 		sentry++;
+		letter_code.length -= (8 - shift);
 		shift = 0;
 	    }
 	    else
+	    {
 		/* change shift to it's new value */
 		shift = (shift + letter_code.length) % 8;
-	    letter_code.length -= (8 - tmp);
+		/* force to quit because we write the entire letter */
+		letter_code.length = 0;
+	    }
 	};
     }
     *n = (sentry - res) + (shift != 0);
@@ -259,14 +284,22 @@ static huffman_tree *huffman_read_tree(uint8_t **array)
     return res;
 }
 
+/* le bug se trouve ICI
+ * je pige pas ca marche à la main...
+ * faut tester avec le vrai arbre... long
+ */
 static int8_t get_next_letter(uint8_t **array,
 			      int *shift,
 			      huffman_tree *H)
 {
     unsigned char zero_or_one;
+    int count = 0;
+    /*
+    printf("%d\n", *shift);
+    */
     while (H->fg)
     {
-	zero_or_one = (((**array << *shift) >> 7) & 1);
+	zero_or_one = ((**array >> (7 - *shift)) & 1);
 	if (!zero_or_one)
 	    H = H->fg;
 	else
@@ -277,6 +310,7 @@ static int8_t get_next_letter(uint8_t **array,
 	    *shift = 0;
 	    (*array)++;
 	}
+	count++;
     }
     return H->letter;
 }
@@ -286,6 +320,10 @@ static int8_t get_next_letter(uint8_t **array,
 void *huffman_decode(const void *varray, size_t *n)
 {
     int shift = 0;
+    /*
+    struct huffman_code code[256];
+    int i;
+    */
     uint8_t *array;
     huffman_tree *H;
     const size_t uncompressed_size = *((size_t *)varray);
@@ -296,6 +334,14 @@ void *huffman_decode(const void *varray, size_t *n)
     array += sizeof(size_t);
     res = malloc(uncompressed_size);
     H = huffman_read_tree(&array);
+    /*
+    parc_prof_huffman(H, 0, 0);
+    build_code(H, code);
+    for (i = 0; i < 256; i++)
+	printf("%d\n", code[i].length);
+	montre que l'arbre est bien identique
+	*/
+    /* arbre identique qu'à la compression */
     while (index < uncompressed_size)
     {
 	res[index] = get_next_letter(&array, &shift, H);
@@ -303,6 +349,7 @@ void *huffman_decode(const void *varray, size_t *n)
     };
     destroy_huffman(H);
     *n = uncompressed_size;
+    /* different que la compression */
     return (void *)res;
 }
 
