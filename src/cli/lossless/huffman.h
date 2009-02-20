@@ -18,7 +18,7 @@ typedef struct huffman_tree
 {
     unsigned char		letter;
     int				occurrence;
-    int				code;
+    unsigned int		code;
     int				codelength;
     struct huffman_tree		*fg;
     struct huffman_tree		*fd;
