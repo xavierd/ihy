@@ -148,7 +148,7 @@ static void huffman_write_tree(huffman_tree *H, uint8_t **pos)
     queue_enqueue(H, F);
     while (!queue_isempty(F))
     {
-	tmp = (huffman_tree *)queue_dequeue(F);
+	tmp = queue_dequeue(F);
 	if (tmp->fg)
 	{
 	    **pos = 0; /* this is not a leaf */
@@ -192,6 +192,7 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
     sentry += sizeof(size_t);
     huffman_write_tree(H, &sentry);
     shift = 0;
+    to_write = 0;
     for (i = 0; i < *n; i++)
     {
 	/* get the code associated with the letter array[i] */
@@ -212,7 +213,7 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
 	    }
 	}
     }
-    /* the last letter can be not written to the array */
+    /* write the last letter to the array, in case of... */
     if (shift != 0)
     {
 	*sentry = to_write << (7 - shift);
