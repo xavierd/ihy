@@ -107,21 +107,21 @@ static huffman_tree *build_huffman(const void *varray, const size_t n)
     return father;
 }
 
-static void parc_prof_huffman(huffman_tree *H, int code, int length)
+static void put_code_on_huffman(huffman_tree *H, int code, int length)
 {
     if (H)
     {
 	H->code = code;
 	H->codelength = length;
-	parc_prof_huffman(H->fg, (code << 1), length + 1);
-	parc_prof_huffman(H->fd, (code << 1) + 1, length + 1);
+	put_code_on_huffman(H->fg, (code << 1), length + 1);
+	put_code_on_huffman(H->fd, (code << 1) + 1, length + 1);
     }
 }
 
 struct huffman_code
 {
     unsigned int	code;
-    int			length;
+    unsigned int	length;
 };
 
 static void build_code(huffman_tree *H, struct huffman_code *code)
@@ -167,24 +167,9 @@ static void huffman_write_tree(huffman_tree *H, uint8_t **pos)
     queue_destroy(F);
 }
 
-#if 0
-static void parc(huffman_tree *H)
-{
-    if (H)
-    {
-	if (!H->fg)
-	    printf("leaf : %d\n", H->letter);
-	else
-	{
-	    printf("prefixe\n");
-	    parc(H->fg);
-	    printf("infixe\n");
-	    parc(H->fd);
-	    printf("suffixe\n");
-	}
-    }
-}
-#endif
+/* used very often, so boost it with a macro */
+#define ith_bit(number, i)		\
+    (((number) >> ((i) - 1)) & 1)
 
 /* encode the data
  * n is the size of varray and will be, when the function returns, the
@@ -192,65 +177,48 @@ static void parc(huffman_tree *H)
  */
 uint8_t *huffman_encode(const void *varray, size_t *n)
 {
-    struct huffman_code code[256];
-    struct huffman_code letter_code;
-    uint8_t *res = calloc(*n, sizeof(uint8_t));
+    struct huffman_code code[256], letter_code;
+    uint8_t *res = calloc(*n, sizeof(uint8_t)); /* should be enough */
     uint8_t *sentry = res;
     uint8_t *array = (uint8_t *)varray;
-    int shift;
-    unsigned int i;
+    unsigned int i, j, shift;
     uint8_t to_write;
     huffman_tree *H;
 
     H = build_huffman(varray, *n);
-    parc_prof_huffman(H, 0, 0);
+    put_code_on_huffman(H, 0, 0);
     build_code(H, code);
-    /*
-    for (i = 0; i < 256; i++)
-	printf("%d\n", code[i].length);
-    seulement pour tester
-    */
     *((size_t *)res) = *n;
     sentry += sizeof(size_t);
     huffman_write_tree(H, &sentry);
     shift = 0;
     for (i = 0; i < *n; i++)
     {
-	/* ok that's a little bit tricky.
-	 * first, get the code of the letter we want to encode
-	 */
+	/* get the code associated with the letter array[i] */
 	letter_code = code[array[i]];
-	/*
-	printf("%d\n", letter_code.length);
-	*/
-	while (letter_code.length > 0)
+	for (j = 0; j < letter_code.length; j++)
 	{
-	    /* sentry point to a byte that is probably half filled with data,
-	     * so we need to shift letter_code.code
-	     */
-	    to_write = letter_code.code << (8 - shift - letter_code.length);
-	    /* ICI!!!!! ca chie bizarrement */
-	    printf("%d, %d, %d\n", to_write, letter_code.length, shift);
-	    *sentry |= to_write;
-	    if (letter_code.length >= (8 - shift))
+	    /* write bit per bit on to_write, which is "a buffer" */
+	    to_write |= (ith_bit(letter_code.code, letter_code.length - j)
+			<< (7 - shift));
+	    shift++;
+	    /* if to_write is full, write it to the array */
+	    if (shift == 8)
 	    {
-		/* if letter_code.length didn't fill in sentry, we need to fill
-		 * sentry++, with the rest of letter_code.code
-		 */
+		*sentry = to_write;
 		sentry++;
-		letter_code.length -= (8 - shift);
 		shift = 0;
+		to_write = 0;
 	    }
-	    else
-	    {
-		/* change shift to it's new value */
-		shift = (shift + letter_code.length);
-		/* force to quit because we write the entire letter */
-		letter_code.length = 0;
-	    }
-	};
+	}
     }
-    *n = (sentry - res) + (shift != 0);
+    /* the last letter can be not written to the array */
+    if (shift != 0)
+    {
+	*sentry = to_write << (7 - shift);
+	sentry++;
+    }
+    *n = (sentry - res);
     res = realloc(res, *n);
     return res;
 }
@@ -258,8 +226,7 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
 /* read an build the tree */
 static huffman_tree *huffman_read_tree(uint8_t **array)
 {
-    huffman_tree *res = malloc(sizeof(huffman_tree));
-    huffman_tree *tmp;
+    huffman_tree *tmp, *res = malloc(sizeof(huffman_tree));
     t_queue F;
 
     F = queue_create();
@@ -293,10 +260,6 @@ static int8_t get_next_letter(uint8_t **array,
 			      huffman_tree *H)
 {
     unsigned char zero_or_one;
-    int count = 0;
-    /*
-    printf("%d\n", *shift);
-    */
     while (H->fg)
     {
 	zero_or_one = ((**array >> (7 - *shift)) & 1);
@@ -310,9 +273,7 @@ static int8_t get_next_letter(uint8_t **array,
 	    *shift = 0;
 	    (*array)++;
 	}
-	count++;
     }
-    printf("%d\n", count);
     return H->letter;
 }
 
@@ -321,28 +282,15 @@ static int8_t get_next_letter(uint8_t **array,
 void *huffman_decode(const void *varray, size_t *n)
 {
     int shift = 0;
-    /*
-    struct huffman_code code[256];
-    int i;
-    */
-    uint8_t *array;
+    uint8_t *array, *res;
     huffman_tree *H;
     const size_t uncompressed_size = *((size_t *)varray);
-    uint8_t *res;
     unsigned int index = 0;
 
     array = (uint8_t *)varray;
     array += sizeof(size_t);
     res = malloc(uncompressed_size);
     H = huffman_read_tree(&array);
-    /*
-    parc_prof_huffman(H, 0, 0);
-    build_code(H, code);
-    for (i = 0; i < 256; i++)
-	printf("%d\n", code[i].length);
-	montre que l'arbre est bien identique
-	*/
-    /* arbre identique qu'à la compression */
     while (index < uncompressed_size)
     {
 	res[index] = get_next_letter(&array, &shift, H);
@@ -350,7 +298,6 @@ void *huffman_decode(const void *varray, size_t *n)
     };
     destroy_huffman(H);
     *n = uncompressed_size;
-    /* different que la compression */
     return (void *)res;
 }
 
