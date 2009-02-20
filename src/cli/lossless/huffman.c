@@ -199,6 +199,7 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
     uint8_t *array = (uint8_t *)varray;
     int shift;
     unsigned int i;
+    uint8_t to_write;
     huffman_tree *H;
 
     H = build_huffman(varray, *n);
@@ -227,7 +228,10 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
 	    /* sentry point to a byte that is probably half filled with data,
 	     * so we need to shift letter_code.code
 	     */
-	    *sentry |= letter_code.code << (8 - shift - letter_code.length);
+	    to_write = letter_code.code << (8 - shift - letter_code.length);
+	    /* ICI!!!!! ca chie bizarrement */
+	    printf("%d, %d, %d\n", to_write, letter_code.length, shift);
+	    *sentry |= to_write;
 	    if (letter_code.length >= (8 - shift))
 	    {
 		/* if letter_code.length didn't fill in sentry, we need to fill
@@ -240,7 +244,7 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
 	    else
 	    {
 		/* change shift to it's new value */
-		shift = (shift + letter_code.length) % 8;
+		shift = (shift + letter_code.length);
 		/* force to quit because we write the entire letter */
 		letter_code.length = 0;
 	    }
@@ -284,10 +288,6 @@ static huffman_tree *huffman_read_tree(uint8_t **array)
     return res;
 }
 
-/* le bug se trouve ICI
- * je pige pas ca marche à la main...
- * faut tester avec le vrai arbre... long
- */
 static int8_t get_next_letter(uint8_t **array,
 			      int *shift,
 			      huffman_tree *H)
@@ -312,6 +312,7 @@ static int8_t get_next_letter(uint8_t **array,
 	}
 	count++;
     }
+    printf("%d\n", count);
     return H->letter;
 }
 
