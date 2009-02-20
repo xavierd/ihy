@@ -221,6 +221,7 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
     }
     *n = (sentry - res);
     res = realloc(res, *n);
+    destroy_huffman(H);
     return res;
 }
 
