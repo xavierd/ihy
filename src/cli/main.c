@@ -53,14 +53,14 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->DataBlocID[1] = 'a';
     output->DataBlocID[2] = 't';
     output->DataBlocID[3] = 'a';
-    /*
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
-	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 2;
+	offset +=
+	    (((size_t *)input->DataChunks[i].Values)[0] / sizeof(float)) * 2;
     output->DataBlocSize = offset;
-    output->ChunkSize += offset;
-    */
+    /*
     output->DataBlocSize = 65536 * 2 * input->NbChunk;
+    */
     output->ChunkSize += output->DataBlocSize;
     output->Data = malloc(output->DataBlocSize * sizeof(char));
     offset = 0;
