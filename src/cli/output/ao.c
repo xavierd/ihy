@@ -1,8 +1,9 @@
 #include "ao.h"
 
-void play_wav(wav_data *wav)
+/* return the device, to play sound in streaming */
+ao_device *init_device(int BitsPerSample, int NumChannels, int SampleRate)
 {
-    ao_device *device;
+    ao_device *res;
     ao_sample_format format;
     int driver;
 
@@ -13,17 +14,34 @@ void play_wav(wav_data *wav)
 #else
     driver = ao_driver_id("oss");
 #endif
-    format.bits = wav->BitsPerSample;
-    format.channels = wav->NumChannels;
-    format.rate = wav->SampleRate;
+    format.bits = BitsPerSample;
+    format.channels = NumChannels;
+    format.rate = SampleRate;
     format.byte_format = AO_FMT_NATIVE;
-
-    device = ao_open_live(driver, &format, NULL);
-    if (!device)
+    res = ao_open_live(driver, &format, NULL);
+    if (!res)
 	exit(0);
+    return res;
+}
 
-    ao_play(device, (char *) wav->Data, wav->DataBlocSize);
-
+/* close the device, and do some cleaning */
+void close_device(ao_device *device)
+{
     ao_close(device);
     ao_shutdown();
+}
+
+/* play the content of array */
+void play(ao_device *device, void *array, int size)
+{
+    ao_play(device, (char *)array, size);
+}
+
+void play_wav(wav_data *wav)
+{
+    ao_device *device;
+
+    device = init_device(wav->BitsPerSample, wav->NumChannels, wav->SampleRate);
+    play(device, wav->Data, wav->DataBlocSize);
+    close_device(device);
 }
