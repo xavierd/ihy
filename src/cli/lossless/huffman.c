@@ -178,7 +178,7 @@ static void huffman_write_tree(huffman_tree *H, uint8_t **pos)
 uint8_t *huffman_encode(const void *varray, size_t *n)
 {
     struct huffman_code code[256], letter_code;
-    uint8_t *res = calloc(*n, sizeof(uint8_t)); /* should be enough */
+    uint8_t *res = malloc(*n * sizeof(uint8_t)); /* should be enough */
     uint8_t *sentry = res;
     uint8_t *array = (uint8_t *)varray;
     unsigned int i, j, shift;
