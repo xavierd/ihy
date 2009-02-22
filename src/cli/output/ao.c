@@ -36,14 +36,3 @@ void play(ao_device *device, void *array, int size)
 {
     ao_play(device, (char *)array, size);
 }
-
-/*
-void play_wav(wav_data *wav)
-{
-    ao_device *device;
-
-    device = init_device(wav->BitsPerSample, wav->NumChannels, wav->SampleRate);
-    play(device, wav->Data, wav->DataBlocSize);
-    close_device(device);
-}
-*/
