@@ -5,6 +5,9 @@
 #include <stdlib.h>
 #include <stdint.h>
 
+#include <utils/buffer.h>
+#include <output/ao.h>
+
 /* wav file structure */
 /* http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
  * for more precision
@@ -42,6 +45,9 @@ void read_wav(const char *filename, wav_data *data);
 
 /* write a wav to the disk */
 void write_wav(const wav_data *data, const char *filename);
+
+/* play the wav in streaming */
+void play_wav_streaming(wav_data *data);
 
 /* release the memory used by a wav */
 void destroy_wav(wav_data *data);
