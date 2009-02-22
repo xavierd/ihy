@@ -12,9 +12,14 @@
 #include <lossless/huffman.h>
 #include <output/ao.h>
 
-static void *thread_play_wav(void *wav)
+static void *thread_play_wav(void *data)
 {
-    play_wav((wav_data *)wav);
+    ao_device *device;
+    wav_data *wav = data;
+
+    device = init_device(wav->BitsPerSample, wav->NumChannels, wav->SampleRate);
+    play(device, wav->Data, wav->DataBlocSize);
+    close_device(device);
     return NULL;
 }
 
