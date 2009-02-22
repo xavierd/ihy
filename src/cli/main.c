@@ -14,12 +14,7 @@
 
 static void *thread_play_wav(void *data)
 {
-    ao_device *device;
-    wav_data *wav = data;
-
-    device = init_device(wav->BitsPerSample, wav->NumChannels, wav->SampleRate);
-    play(device, wav->Data, wav->DataBlocSize);
-    close_device(device);
+    play_wav_streaming(data);
     return NULL;
 }
 
@@ -205,6 +200,7 @@ int main(int argc, char **argv)
     if (is_thread_playing_wav)
     {
 	printf("Waiting for the reader to stop ... ");
+	fflush(stdout);
 	pthread_join(play, NULL);
 	destroy_wav(input_to_play);
 	printf("DONE\n");
