@@ -6,9 +6,9 @@
 #include <caml/callback.h>
 #include <caml/bigarray.h>
 
-#include <ihy.h>
-#include <input/wav.h>
-#include <lossless/huffman.h>
+#include <codecs/ihy.h>
+#include <codecs//wav.h>
+#include <compression/huffman.h>
 
 #define CHUNK_SIZE 65536
 
