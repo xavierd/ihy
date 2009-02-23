@@ -6,11 +6,11 @@
 #include <caml/callback.h>
 #include <caml/bigarray.h>
 
-#include <input/wav.h>
-#include <ihy.h>
-#include <wavelet.h>
-#include <lossless/huffman.h>
-#include <output/ao.h>
+#include <codecs/wav.h>
+#include <codecs/ihy.h>
+#include <compression/wavelet.h>
+#include <compression//huffman.h>
+#include <audio_output/ao.h>
 
 static void *thread_play_wav(void *wav)
 {

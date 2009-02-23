@@ -14,10 +14,10 @@ else
 	OUTPUT=
 endif
 
-CSRC=input/wav.c output/ao.c ihy.c wavelet.c lossless/huffman.c utils/queue.c main.c
+CSRC=codecs/wav.c audio_output/ao.c codecs/ihy.c compression/wavelet.c compression/huffman.c utils/queue.c main.c
 COBJ=${CSRC:.c=.o}
-CAMLSRC=wavelets/haar.ml
-CAMLINTERFACE=wavelets/haar.mli
+CAMLSRC=compression/wavelets/haar.ml
+CAMLINTERFACE=compression/wavelets/haar.mli
 CAMLOBJ=${CAMLSRC:.ml=_ml.o}
 CAMLCMI=${CAMLINTERFACE:.mli=.cmi}
 CAMLO=${CAMLSRC:.ml=.o}
@@ -34,7 +34,7 @@ ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
 	${CC} ${CFLAGS} -c $< -o $@
 
 %_ml.o: %.ml
-	${CAMLC} ${CAMLFLAGS} -I ./wavelets $< -o $@
+	${CAMLC} ${CAMLFLAGS} -I ./compression/wavelets $< -o $@
 
 %.cmi: %.mli
 	${CAMLC} $< -o $@
