@@ -85,16 +85,16 @@ static void *playing(void *data)
     ao_device *audio_device;
     int8_t *to_play;
 
-    audio_device = init_device(wav->BitsPerSample,
-			       wav->NumChannels,
-			       wav->SampleRate);
+    audio_device = ao_init_device(wav->BitsPerSample,
+				  wav->NumChannels,
+				  wav->SampleRate);
     /* il se peut que ca crée des soucis, si filling_buffer n'a rien ajouté */
     while (!buffer_isempty(buffer))
     {
 	to_play = buffer_get(buffer);
-	play(audio_device, to_play, 65536 /* pour tester */);
+	ao_play_samples(audio_device, to_play, 65536 /* pour tester */);
     };
-    close_device(audio_device);
+    ao_close_device(audio_device);
     return NULL;
 }
 

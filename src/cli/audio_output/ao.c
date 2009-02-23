@@ -1,7 +1,7 @@
 #include "ao.h"
 
 /* return the device, to play sound in streaming */
-ao_device *init_device(int BitsPerSample, int NumChannels, int SampleRate)
+ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate)
 {
     ao_device *res;
     ao_sample_format format;
@@ -25,14 +25,13 @@ ao_device *init_device(int BitsPerSample, int NumChannels, int SampleRate)
 }
 
 /* close the device, and do some cleaning */
-void close_device(ao_device *device)
+void ao_close_device(ao_device *device)
 {
     ao_close(device);
     ao_shutdown();
 }
 
-/* play the content of array */
-void play(ao_device *device, void *array, int size)
+void ao_play_samples(ao_device *device, void *array, int size)
 {
-    ao_play(device, (char *)array, size);
+    ao_play(device, array, size);
 }
