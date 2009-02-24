@@ -26,7 +26,7 @@ void wavelets_direct(const int8_t *array,
  */
 void wavelets_inverse(float *chunk,
 		      const size_t chunkSize,
-		      wav_data *out,
+		      int8_t *out,
 		      const int offset);
 
 #endif
