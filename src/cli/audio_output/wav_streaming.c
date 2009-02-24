@@ -1,15 +1,15 @@
 #include "wav_streaming.h"
 
-struct streaming_data
+struct wav_streaming_data
 {
     t_buffer	buffer;
     wav_data	*wav;
 };
 
-static void *playing(void *data)
+static void *wav_playing(void *data)
 {
-    t_buffer buffer = ((struct streaming_data *)data)->buffer; /* contains int8_t */
-    wav_data *wav = ((struct streaming_data *)data)->wav;
+    t_buffer buffer = ((struct wav_streaming_data *)data)->buffer; /* contains int8_t */
+    wav_data *wav = ((struct wav_streaming_data *)data)->wav;
     ao_device *audio_device;
     int8_t *to_play;
 
@@ -26,10 +26,10 @@ static void *playing(void *data)
     return NULL;
 }
 
-static void *filling_buffer(void *data)
+static void *wav_filling_buffer(void *data)
 {
-    t_buffer buffer = ((struct streaming_data *)data)->buffer; /* contains int8_t */
-    wav_data *wav = ((struct streaming_data *)data)->wav;
+    t_buffer buffer = ((struct wav_streaming_data *)data)->buffer; /* contains int8_t */
+    wav_data *wav = ((struct wav_streaming_data *)data)->wav;
     int8_t *to_add;
     unsigned int i = 0;
 
@@ -47,13 +47,13 @@ void play_wav_streaming(wav_data *wav)
 {
     t_buffer buffer; /* contains int8_t */
     pthread_t playing_thread, filling_buffer_thread;
-    struct streaming_data data;
+    struct wav_streaming_data data;
 
     buffer = buffer_init(10); /* max 10 elements */
     data.wav = wav;
     data.buffer = buffer;
-    pthread_create(&filling_buffer_thread, NULL, &filling_buffer, &data);
-    pthread_create(&playing_thread, NULL, &playing, &data);
+    pthread_create(&filling_buffer_thread, NULL, &wav_filling_buffer, &data);
+    pthread_create(&playing_thread, NULL, &wav_playing, &data);
     pthread_join(filling_buffer_thread, NULL);
     pthread_join(playing_thread, NULL);
 }
