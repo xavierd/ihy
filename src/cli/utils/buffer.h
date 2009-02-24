@@ -9,12 +9,7 @@
 /* A thread-safe buffer */
 
 typedef struct s_buffer *t_buffer;
-struct s_buffer
-{
-    t_queue		queue;
-    pthread_mutex_t	lock;
-    int			max_size;
-};
+/* do not expose the content of the buffer */
 
 t_buffer buffer_init(const int max_size);
 
