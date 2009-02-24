@@ -14,7 +14,7 @@ else
 	OUTPUT=
 endif
 
-CSRC=codecs/wav.c audio_output/ao.c codecs/ihy.c compression/wavelet.c compression/huffman.c utils/queue.c utils/buffer.c main.c
+CSRC=codecs/wav.c audio_output/ao.c audio_output/wav_streaming.c codecs/ihy.c compression/wavelet.c compression/huffman.c utils/queue.c utils/buffer.c main.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=compression/wavelets/haar.ml
 CAMLINTERFACE=compression/wavelets/haar.mli

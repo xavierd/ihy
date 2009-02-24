@@ -10,7 +10,7 @@
 #include <codecs/ihy.h>
 #include <compression/wavelet.h>
 #include <compression//huffman.h>
-#include <audio_output/ao.h>
+#include <audio_output/wav_streaming.h>
 
 static void *thread_play_wav(void *data)
 {
