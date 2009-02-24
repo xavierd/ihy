@@ -1,5 +1,12 @@
 #include "buffer.h"
 
+struct s_buffer
+{
+    t_queue		queue;
+    pthread_mutex_t	lock;
+    int			max_size;
+};
+
 t_buffer buffer_init(const int max_size)
 {
     t_buffer res;
@@ -18,7 +25,7 @@ t_buffer buffer_init(const int max_size)
  */
 void buffer_add(void *elem, t_buffer buf)
 {
-    while (buf->queue->nb_elem == buf->max_size)
+    while (queue_nbelement(buf->queue) == buf->max_size)
 	usleep(100); /* do nothing for 100ms */
     pthread_mutex_lock(&buf->lock);
     queue_enqueue(elem, buf->queue);
