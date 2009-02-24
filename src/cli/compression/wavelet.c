@@ -113,7 +113,7 @@ void wavelets_direct(const int8_t *array,
  */
 void wavelets_inverse(float *chunk,
 		      const size_t nbelmts,
-		      wav_data *out,
+		      int8_t *out,
 		      const int offset)
 {
     value camlArray;
@@ -129,7 +129,7 @@ void wavelets_inverse(float *chunk,
     for (i = 0; i < nbelmts; i++)
     {
 	val = valf[i];
-	*(int16_t *)(out->Data + offset + j) = val;
+	*(int16_t *)(out + offset + j) = val;
 	j = j + 2;
     }
 }
