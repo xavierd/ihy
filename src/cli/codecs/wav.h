@@ -5,9 +5,6 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-#include <utils/buffer.h>
-#include <audio_output/ao.h>
-
 /* wav file structure */
 /* http://ccrma.stanford.edu/courses/422/projects/WaveFormat/
  * for more precision
