@@ -30,7 +30,6 @@ static void *ihy_playing(void *data)
     while (!buffer_isempty(buffer))
     {
 	to_play = buffer_get(buffer);
-	printf("get\n");
 	ao_play_samples(audio_device, to_play->samples, to_play->samplesSize);
 	free(to_play); /* hum quite dangerous */
     }
@@ -52,9 +51,12 @@ static void *ihy_filling_buffer(void *data)
 	to_add->samplesSize = ihy->DataChunks[i].ChunkSize;
 	to_add->samples =
 	    huffman_decode(ihy->DataChunks[i].Values, &to_add->samplesSize);
-	wavelets_inverse((float *)to_add->samples, to_add->samplesSize / sizeof(float), to_add->samples, 0);
+	wavelets_inverse((float *)to_add->samples,
+			 to_add->samplesSize / sizeof(float),
+			 to_add->samples,
+			 0);
+	to_add->samplesSize = to_add->samplesSize / 2;
 	buffer_add(to_add, buffer);
-	printf("added\n");
 	i++;
     }
     return NULL;
