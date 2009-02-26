@@ -14,6 +14,8 @@ deux executables seront créés dans le dossier bin : ihyconvert et ihyplayer.
 Comment utiliser notre programme :
 ihyplayer est l'interface graphique de notre programme, qui n'est pour l'instant
 qu'une fenêtre GTK avec des boutons.
-ihyconvert est un programme en ligne de commande qui prends trois paramètres :
-fichier wav à lire, fichier ihy à écrire, et fichier wav qui contiendra le ihy
-décompressé.
+ihyconvert est un programme en ligne de commande, qui peut :
+- lire un fichier ihy, à l'aide de l'argument -r
+- compresser un fichier wav en ihy à l'aide de l'argument -c
+- et enfin décompresser un fichier ihy à l'aide de l'argument -x
+Ces 3 choses sont combinables, à noter que la lecture du ihy est non bloquante.
