@@ -9,7 +9,7 @@
 typedef struct ihy_chunk
 {
     uint32_t		ChunkSize;
-    float		*Values;
+    uint8_t		*Values;
 } ihy_chunk;
 
 typedef struct ihy_data

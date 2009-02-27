@@ -65,42 +65,8 @@ static huffman_tree *heap_rm(heap *heap)
     return res;
 }
 
-static char *to_binary(unsigned int code, int code_size)
-{
-    char *res = malloc(code_size * sizeof(char));
-    int i;
-
-    for (i = 0; i < code_size; i++)
-    {
-	code_size--;
-	sprintf(res + i, "%d", code >> code_size);
-	code = code - ((code >> code_size) << code_size);
-    }
-    return res;
-}
-
-/* pretty print huffman */
-void huffman_pretty(huffman_tree *B, int code, int code_size)
-{
-    if (B)
-    {
-	if (!B->fg)
-	{
-	    char *bin = to_binary(code, code_size);
-	    printf("\n");
-	    printf("%c, %d, %s", B->letter, B->occurrence, bin);
-	    free(bin);
-	}
-	else
-	{
-	    huffman_pretty(B->fg, (code << 1) + 0, code_size + 1);
-	    huffman_pretty(B->fd, (code << 1) + 1, code_size + 1);
-	}
-    }
-}
-
 /* build the huffman tree, and return it */
-huffman_tree *build_huffman(const void *varray, const size_t n)
+static huffman_tree *build_huffman(const void *varray, const size_t n)
 {
     unsigned int i;
     huffman_tree **tree;
@@ -141,21 +107,21 @@ huffman_tree *build_huffman(const void *varray, const size_t n)
     return father;
 }
 
-static void parc_prof_huffman(huffman_tree *H, int code, int length)
+static void put_code_on_huffman(huffman_tree *H, int code, int length)
 {
     if (H)
     {
 	H->code = code;
 	H->codelength = length;
-	parc_prof_huffman(H->fg, (code << 1), length + 1);
-	parc_prof_huffman(H->fd, (code << 1) + 1, length + 1);
+	put_code_on_huffman(H->fg, (code << 1), length + 1);
+	put_code_on_huffman(H->fd, (code << 1) + 1, length + 1);
     }
 }
 
 struct huffman_code
 {
     unsigned int	code;
-    int			length;
+    unsigned int	length;
 };
 
 static void build_code(huffman_tree *H, struct huffman_code *code)
@@ -173,7 +139,7 @@ static void build_code(huffman_tree *H, struct huffman_code *code)
 }
 
 /* write the huffman tree, before the encoded values */
-static void huffman_write_tree(huffman_tree *H, int8_t **pos)
+static void huffman_write_tree(huffman_tree *H, uint8_t **pos)
 {
     t_queue F;
     huffman_tree *tmp;
@@ -182,12 +148,10 @@ static void huffman_write_tree(huffman_tree *H, int8_t **pos)
     queue_enqueue(H, F);
     while (!queue_isempty(F))
     {
-	tmp = (huffman_tree *)queue_dequeue(F);
-	if (!tmp->fg)
+	tmp = queue_dequeue(F);
+	if (tmp->fg)
 	{
 	    **pos = 0; /* this is not a leaf */
-	    (*pos)++;
-	    **pos = 0;
 	    (*pos)++;
 	    queue_enqueue(tmp->fg, F);
 	    queue_enqueue(tmp->fd, F);
@@ -203,51 +167,140 @@ static void huffman_write_tree(huffman_tree *H, int8_t **pos)
     queue_destroy(F);
 }
 
+/* used very often, so boost it with a macro */
+#define ith_bit(number, i)		\
+    (((number) >> ((i) - 1)) & 1)
+
 /* encode the data
  * n is the size of varray and will be, when the function returns, the
  * size of the array returned
  */
-int8_t *huffman_encode(const void *varray, size_t *n, huffman_tree *H)
+uint8_t *huffman_encode(const void *varray, size_t *n)
 {
-    struct huffman_code code[256];
-    struct huffman_code letter_code;
-    int8_t *res = calloc(*n, 1);
-    int8_t *sentry = res;
+    struct huffman_code code[256], letter_code;
+    uint8_t *res = malloc(*n * sizeof(uint8_t)); /* should be enough */
+    uint8_t *sentry = res;
     uint8_t *array = (uint8_t *)varray;
-    int shift;
-    unsigned int i;
-    int tmp;
+    unsigned int i, j, shift;
+    uint8_t to_write;
+    huffman_tree *H;
 
-    parc_prof_huffman(H, 0, 0);
+    H = build_huffman(varray, *n);
+    put_code_on_huffman(H, 0, 0);
     build_code(H, code);
+    *((size_t *)res) = *n;
+    sentry += sizeof(size_t);
     huffman_write_tree(H, &sentry);
     shift = 0;
+    to_write = 0;
     for (i = 0; i < *n; i++)
     {
-	/*printf("i : %d\n", i);*/
+	/* get the code associated with the letter array[i] */
 	letter_code = code[array[i]];
-	while (letter_code.length > 0)
+	for (j = 0; j < letter_code.length; j++)
 	{
-	    /*printf("length : %d\n", letter_code.length);*/
-	    *sentry |= letter_code.code << (8 - shift - letter_code.length);
-	    tmp = shift;
-	    if (letter_code.length > (8 - shift))
+	    /* write bit per bit on to_write, which is "a buffer" */
+	    to_write |= (ith_bit(letter_code.code, letter_code.length - j)
+			<< (7 - shift));
+	    shift++;
+	    /* if to_write is full, write it to the array */
+	    if (shift == 8)
 	    {
+		*sentry = to_write;
 		sentry++;
 		shift = 0;
+		to_write = 0;
 	    }
-	    else
-		shift = (shift + letter_code.length) % 8;
-	    /*
-	    printf("shift : %d\n", shift);
-	    printf("8 - tmp : %d\n", 8 - tmp);
-	    */
-	    letter_code.length -= (8 - tmp);
-	};
+	}
     }
-    *n = (sentry - res) + (shift != 0);
+    /* write the last letter to the array, in case of... */
+    if (shift != 0)
+    {
+	*sentry = to_write << (7 - shift);
+	sentry++;
+    }
+    *n = (sentry - res);
     res = realloc(res, *n);
+    destroy_huffman(H);
     return res;
+}
+
+/* read an build the tree */
+static huffman_tree *huffman_read_tree(uint8_t **array)
+{
+    huffman_tree *tmp, *res = malloc(sizeof(huffman_tree));
+    t_queue F;
+
+    F = queue_create();
+    queue_enqueue(res, F);
+    while (!queue_isempty(F))
+    {
+	tmp = queue_dequeue(F);
+	if (!**array) /* a node */
+	{
+	    tmp->fg = malloc(sizeof(huffman_tree));
+	    tmp->fd = malloc(sizeof(huffman_tree));
+	    (*array)++;
+	    queue_enqueue(tmp->fg, F);
+	    queue_enqueue(tmp->fd, F);
+	}
+	else /* a leaf */
+	{
+	    (*array)++;
+	    tmp->letter = **array;
+	    tmp->fg = NULL;
+	    tmp->fd = NULL;
+	    (*array)++;
+	}
+    }
+    queue_destroy(F);
+    return res;
+}
+
+static int8_t get_next_letter(uint8_t **array,
+			      int *shift,
+			      huffman_tree *H)
+{
+    unsigned char zero_or_one;
+    while (H->fg)
+    {
+	zero_or_one = ((**array >> (7 - *shift)) & 1);
+	if (!zero_or_one)
+	    H = H->fg;
+	else
+	    H = H->fd;
+	(*shift)++;
+	if (*shift == 8)
+	{
+	    *shift = 0;
+	    (*array)++;
+	}
+    }
+    return H->letter;
+}
+
+/* decode the data
+ */
+void *huffman_decode(const void *varray, size_t *n)
+{
+    int shift = 0;
+    uint8_t *array, *res;
+    huffman_tree *H;
+    const size_t uncompressed_size = *((size_t *)varray);
+    unsigned int index = 0;
+
+    array = (uint8_t *)varray;
+    array += sizeof(size_t);
+    res = malloc(uncompressed_size);
+    H = huffman_read_tree(&array);
+    while (index < uncompressed_size)
+    {
+	res[index] = get_next_letter(&array, &shift, H);
+	index++;
+    };
+    destroy_huffman(H);
+    *n = uncompressed_size;
+    return (void *)res;
 }
 
 /* release the memory used by a huffman tree */
