@@ -4,20 +4,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-struct s_queue_elem {
-    struct s_queue_elem *next;
-    void *content;
-};
-struct s_queue {
-    int nb_elem;
-    struct s_queue_elem *rear;
-};
+/* do not expose the content of s_queue */
 typedef struct s_queue *t_queue;
 
 t_queue queue_create();
 void queue_enqueue(void *elem, t_queue queue);
 void *queue_dequeue(t_queue queue);
 int queue_isempty(const t_queue queue);
+int queue_nbelement(const t_queue queue);
 void queue_destroy(t_queue queue);
 
 #endif
