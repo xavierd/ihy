@@ -100,6 +100,7 @@ void wavelets_direct(const int8_t *array,
 	}
     };
     fill_data(size, out);
+    free(number);
     for (i = 0; i < out->NbChunk; i++)
 	compute_chunk(i, arrayf, out);
     free(arrayf);

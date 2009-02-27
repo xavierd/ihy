@@ -6,11 +6,11 @@
 #include <caml/callback.h>
 #include <caml/bigarray.h>
 
-#include <input/wav.h>
-#include <ihy.h>
-#include <wavelet.h>
-#include <lossless/huffman.h>
-#include <output/ao.h>
+#include <codecs/wav.h>
+#include <codecs/ihy.h>
+#include <compression/wavelet.h>
+#include <compression//huffman.h>
+#include <audio_output/ao.h>
 
 static void *thread_play_wav(void *wav)
 {
@@ -24,6 +24,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     wav_data *output;
     uint32_t offset;
     unsigned int i;
+    uint8_t *oldValue;
 
     input = create_ihy();
     read_ihy(input_filename, input);
@@ -54,14 +55,25 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->DataBlocID[3] = 'a';
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
-	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 3;
+	offset +=
+	    (((size_t *)input->DataChunks[i].Values)[0] / sizeof(float)) * 2;
     output->DataBlocSize = offset;
-    output->ChunkSize += offset;
+    /*
+    output->DataBlocSize = 65536 * 2 * input->NbChunk;
+    */
+    output->ChunkSize += output->DataBlocSize;
     output->Data = malloc(output->DataBlocSize * sizeof(char));
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
     {
-	wavelets_inverse(input->DataChunks[i].Values,
+	oldValue = input->DataChunks[i].Values;
+	input->DataChunks[i].Values =
+	    huffman_decode(
+		    input->DataChunks[i].Values,
+		    &input->DataChunks[i].ChunkSize
+		    );
+	free(oldValue);
+	wavelets_inverse((float *)input->DataChunks[i].Values,
 		(input->DataChunks[i].ChunkSize / sizeof(float)),
 		output,
 		offset);
@@ -76,6 +88,8 @@ static void compress_wav(char *input_filename, char *output_filename)
 {
     ihy_data *output;
     wav_data *input;
+    unsigned int i;
+    uint8_t *oldValue;
 
     output = create_ihy();
     input = create_wav();
@@ -84,6 +98,16 @@ static void compress_wav(char *input_filename, char *output_filename)
 	    input->BitsPerSample / 8,
 	    input->DataBlocSize,
 	    output);
+    for (i = 0; i < output->NbChunk; i++)
+    {
+	oldValue = output->DataChunks[i].Values;
+	output->DataChunks[i].Values = (uint8_t *)
+	    huffman_encode(
+		output->DataChunks[i].Values,
+		&output->DataChunks[i].ChunkSize
+		);
+	free(oldValue);
+    };
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
     output->FileID[2] = 'X';

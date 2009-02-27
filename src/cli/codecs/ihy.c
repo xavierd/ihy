@@ -59,8 +59,8 @@ void read_ihy(const char *filename, ihy_data *data)
 	data->DataChunks[i].Values = malloc(data->DataChunks[i].ChunkSize);
 	fread(
 	    data->DataChunks[i].Values,
-	    sizeof(float),
-	    data->DataChunks[i].ChunkSize / sizeof(float),
+	    sizeof(uint8_t),
+	    data->DataChunks[i].ChunkSize / sizeof(uint8_t),
 	    file
 	);
     }
@@ -101,8 +101,8 @@ void write_ihy(const ihy_data *data, const char *filename)
 	fwrite(&data->DataChunks[i].ChunkSize, sizeof(uint32_t), 1, file);
 	fwrite(
 	    data->DataChunks[i].Values,
-	    sizeof(float),
-	    data->DataChunks[i].ChunkSize / sizeof(float),
+	    sizeof(uint8_t),
+	    data->DataChunks[i].ChunkSize / sizeof(uint8_t),
 	    file
 	);
     }

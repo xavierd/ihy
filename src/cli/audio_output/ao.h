@@ -3,7 +3,7 @@
 
 #include <ao/ao.h>
 
-#include <input/wav.h>
+#include <codecs/wav.h>
 
 void play_wav(wav_data *wav);
 
