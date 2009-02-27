@@ -1,5 +1,16 @@
 #include "queue.h"
 
+struct s_queue_elem
+{
+    struct s_queue_elem *next;
+    void *content;
+};
+struct s_queue
+{
+    int nb_elem;
+    struct s_queue_elem *rear;
+};
+
 t_queue queue_create()
 {
     t_queue result;
@@ -56,6 +67,11 @@ void *queue_dequeue(t_queue queue)
 int queue_isempty(const t_queue queue)
 {
     return (queue->nb_elem == 0);
+}
+
+int queue_nbelement(const t_queue queue)
+{
+    return queue->nb_elem;
 }
 
 void queue_destroy(t_queue queue)
