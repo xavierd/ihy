@@ -30,23 +30,22 @@ static value c_array_to_caml(float *array, const size_t dim)
 	    1, array, dim);
 }
 
-/* this function assume that ihy is correctly malloc'ed */
-static void compute_chunk(const int toCompute, float *arrayf, ihy_data *ihy)
+static void compute_chunk(float *arrayf, const size_t nb_elmt, float *out)
 {
     value camlArray;
-    const int elem_nbr = ihy->DataChunks[toCompute].ChunkSize / sizeof(float);
 
-    camlArray = c_array_to_caml(arrayf + (toCompute * CHUNK_SIZE),  elem_nbr);
+    camlArray = c_array_to_caml(arrayf, nb_elmt);
     camlArray = wavelets_direct_fun(camlArray);
-    memcpy(ihy->DataChunks[toCompute].Values,
+    memcpy(out,
 	    Data_bigarray_val(camlArray),
-	    elem_nbr * sizeof(float));
+	    nb_elmt * sizeof(float));
 }
 
 /* just fill out.
  * memcpy is necessary because caml release, with the GC, the memory
  * used by camlArray
  */
+#if 0
 static void fill_data(const size_t size, ihy_data *out)
 {
     unsigned int max, i, nbChunk;
@@ -61,22 +60,26 @@ static void fill_data(const size_t size, ihy_data *out)
     };
     out->NbChunk = nbChunk;
 }
+#endif
 
+#if 0
 static size_t next_multiple(const size_t nb)
 {
     return ((nb / CHUNK_SIZE) + (nb % CHUNK_SIZE != 0)) * CHUNK_SIZE;
 }
+#endif
 
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
+ * assuming dim = 2^n
  */
 void wavelets_direct(const int8_t *array,
 		     const size_t sampleSize,
 		     const size_t dim,
-		     ihy_data *out)
+		     float *out)
 {
     unsigned int i, j;
-    size_t size = next_multiple(dim / sampleSize);
+    size_t size = dim / sampleSize;
     float *arrayf = malloc(size * sizeof(float));
     void *number = malloc(sampleSize);
 
@@ -99,12 +102,9 @@ void wavelets_direct(const int8_t *array,
 		break;
 	}
     };
-    fill_data(size, out);
     free(number);
-    for (i = 0; i < out->NbChunk; i++)
-	compute_chunk(i, arrayf, out);
+    compute_chunk(arrayf, size, out);
     free(arrayf);
-    return;
 }
 
 /* compute the result of the OCaml function "Haar_Reverse"
