@@ -9,7 +9,7 @@
 #include <codecs/wav.h>
 #include <codecs/ihy.h>
 #include <compression/wavelet.h>
-#include <compression//huffman.h>
+#include <compression/huffman.h>
 #include <audio_output/wav_streaming.h>
 #include <audio_output/ihy_streaming.h>
 
