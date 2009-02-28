@@ -10,11 +10,12 @@
 #include <codecs/ihy.h>
 #include <compression/wavelet.h>
 #include <compression//huffman.h>
-#include <audio_output/ao.h>
+#include <audio_output/wav_streaming.h>
+#include <audio_output/ihy_streaming.h>
 
-static void *thread_play_wav(void *wav)
+static void *thread_play_ihy(void *data)
 {
-    play_wav((wav_data *)wav);
+    play_ihy_streaming(data);
     return NULL;
 }
 
@@ -156,8 +157,8 @@ int main(int argc, char **argv)
 {
     pthread_t play;
     int i;
-    int is_thread_playing_wav = 0;
-    wav_data *input_to_play;
+    int is_thread_playing_ihy = 0;
+    ihy_data *input_to_play;
 
     if (argc == 1)
     {
@@ -191,10 +192,10 @@ int main(int argc, char **argv)
 	}
 	else if (!strcmp(argv[argc - i], "-r"))
 	{
-	    is_thread_playing_wav = 1;
-	    input_to_play = create_wav();
-	    read_wav(argv[argc - i + 1], input_to_play);
-	    pthread_create(&play, NULL, thread_play_wav, input_to_play);
+	    is_thread_playing_ihy = 1;
+	    input_to_play = create_ihy();
+	    read_ihy(argv[argc - i + 1], input_to_play);
+	    pthread_create(&play, NULL, thread_play_ihy, input_to_play);
 	    i -= 2;
 	}
 	else
@@ -204,11 +205,12 @@ int main(int argc, char **argv)
 	    return 1;
 	}
     };
-    if (is_thread_playing_wav)
+    if (is_thread_playing_ihy)
     {
 	printf("Waiting for the reader to stop ... ");
+	fflush(stdout);
 	pthread_join(play, NULL);
-	destroy_wav(input_to_play);
+	destroy_ihy(input_to_play);
 	printf("DONE\n");
     }
     return 0;

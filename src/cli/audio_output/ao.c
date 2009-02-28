@@ -1,29 +1,41 @@
 #include "ao.h"
 
-void play_wav(wav_data *wav)
+/* return the device, to play sound in streaming */
+ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate)
 {
-    ao_device *device;
+    ao_device *res;
     ao_sample_format format;
     int driver;
 
     ao_initialize();
 
 #ifdef linux
-    driver = ao_default_driver_id();
+    driver = ao_driver_id("alsa");
 #else
+# ifdef __FreeBSD__ /* cpp main.c -dM | grep BSD */
     driver = ao_driver_id("oss");
+# else
+    driver = ao_default_driver_id();
+# endif
 #endif
-    format.bits = wav->BitsPerSample;
-    format.channels = wav->NumChannels;
-    format.rate = wav->SampleRate;
+    format.bits = BitsPerSample;
+    format.channels = NumChannels;
+    format.rate = SampleRate;
     format.byte_format = AO_FMT_NATIVE;
-
-    device = ao_open_live(driver, &format, NULL);
-    if (!device)
+    res = ao_open_live(driver, &format, NULL);
+    if (!res)
 	exit(0);
+    return res;
+}
 
-    ao_play(device, (char *) wav->Data, wav->DataBlocSize);
-
+/* close the device, and do some cleaning */
+void ao_close_device(ao_device *device)
+{
     ao_close(device);
     ao_shutdown();
+}
+
+void ao_play_samples(ao_device *device, void *array, int size)
+{
+    ao_play(device, array, size);
 }
