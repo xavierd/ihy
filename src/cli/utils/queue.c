@@ -1,10 +1,12 @@
 #include "queue.h"
 
-struct s_queue_elem {
+struct s_queue_elem
+{
     struct s_queue_elem *next;
     void *content;
 };
-struct s_queue {
+struct s_queue
+{
     int nb_elem;
     struct s_queue_elem *rear;
 };
