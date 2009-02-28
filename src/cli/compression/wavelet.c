@@ -30,43 +30,6 @@ static value c_array_to_caml(float *array, const size_t dim)
 	    1, array, dim);
 }
 
-#if 0
-static void compute_chunk(float *arrayf, const size_t nb_elmt, float *out)
-{
-    value camlArray;
-
-    camlArray = c_array_to_caml(arrayf, nb_elmt);
-    camlArray = wavelets_direct_fun(camlArray);
-    memcpy(out,
-	    Data_bigarray_val(camlArray),
-	    nb_elmt * sizeof(float));
-}
-
-/* just fill out.
- * memcpy is necessary because caml release, with the GC, the memory
- * used by camlArray
- */
-static void fill_data(const size_t size, ihy_data *out)
-{
-    unsigned int max, i, nbChunk;
-
-    max = (size / CHUNK_SIZE);
-    nbChunk = (max + (size % CHUNK_SIZE != 0));
-    out->DataChunks = malloc(nbChunk * sizeof(ihy_chunk));
-    for (i = 0; i < nbChunk; i++)
-    {
-	out->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
-	out->DataChunks[i].Values = malloc(CHUNK_SIZE * sizeof(float));
-    };
-    out->NbChunk = nbChunk;
-}
-
-static size_t next_multiple(const size_t nb)
-{
-    return ((nb / CHUNK_SIZE) + (nb % CHUNK_SIZE != 0)) * CHUNK_SIZE;
-}
-#endif
-
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
  * assuming dim = 2^n
