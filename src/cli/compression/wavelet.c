@@ -30,6 +30,7 @@ static value c_array_to_caml(float *array, const size_t dim)
 	    1, array, dim);
 }
 
+#if 0
 static void compute_chunk(float *arrayf, const size_t nb_elmt, float *out)
 {
     value camlArray;
@@ -45,7 +46,6 @@ static void compute_chunk(float *arrayf, const size_t nb_elmt, float *out)
  * memcpy is necessary because caml release, with the GC, the memory
  * used by camlArray
  */
-#if 0
 static void fill_data(const size_t size, ihy_data *out)
 {
     unsigned int max, i, nbChunk;
@@ -60,9 +60,7 @@ static void fill_data(const size_t size, ihy_data *out)
     };
     out->NbChunk = nbChunk;
 }
-#endif
 
-#if 0
 static size_t next_multiple(const size_t nb)
 {
     return ((nb / CHUNK_SIZE) + (nb % CHUNK_SIZE != 0)) * CHUNK_SIZE;
@@ -73,38 +71,26 @@ static size_t next_multiple(const size_t nb)
  * compress the data and fill out
  * assuming dim = 2^n
  */
-void wavelets_direct(const int8_t *array,
-		     const size_t sampleSize,
-		     const size_t dim,
+void wavelets_direct(const int8_t *samples,
+		     const size_t dim, /* size of prec arg */
+		     const size_t sampleSize, /* in bytes */
 		     float *out)
 {
-    unsigned int i, j;
-    size_t size = dim / sampleSize;
-    float *arrayf = malloc(size * sizeof(float));
-    void *number = malloc(sampleSize);
+    size_t resSize = dim / sampleSize;
+    float *res = malloc(sizeof(float) * resSize);
+    int16_t sample; /* je remettrai le switch plus tard */
+    unsigned int i;
+    value camlArray;
 
-    for (i = 0; i < dim; i += sampleSize)
+    for (i = 0; i < resSize; i++)
     {
-	j = sampleSize - 1;
-	*(int32_t *)number = 0;
-	memcpy(number, &array[i], sampleSize);
-	switch (sampleSize)
-	{
-	    case 1:
-		arrayf[i / sampleSize] = *(int8_t *)number;
-		break;
-	    case 2:
-		arrayf[i / sampleSize] = *(int16_t *)number;
-		break;
-	    case 4:
-	    default:
-		arrayf[i / sampleSize] = *(int32_t *)number;
-		break;
-	}
-    };
-    free(number);
-    compute_chunk(arrayf, size, out);
-    free(arrayf);
+	sample = 0;
+	memcpy(&sample, &samples[i * sampleSize], sampleSize);
+	res[i] = sample;
+    }
+    camlArray = c_array_to_caml(res, resSize);
+    camlArray = wavelets_direct_fun(camlArray);
+    memcpy(out, Data_bigarray_val(camlArray), resSize * sizeof(float));
 }
 
 /* compute the result of the OCaml function "Haar_Reverse"
