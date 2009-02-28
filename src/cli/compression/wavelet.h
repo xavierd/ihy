@@ -15,9 +15,9 @@
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
  */
-void wavelets_direct(const int8_t *array,
-		     const size_t sampleSize,
-		     const size_t dim,
+void wavelets_direct(const int8_t *samples,
+		     const size_t dim, /* size of prec arg */
+		     const size_t sampleSize, /* in bytes */
 		     float *out);
 
 /* compute the result of the OCaml function "Haar_Reverse"
