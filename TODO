@@ -1,12 +1,11 @@
-* Nettoyage du code comme dit la dernière fois (plus grand chose à faire
-  normalement) [Xavier]
-* Résolution du bug qui modifie une valeur sur deux après passage aux
-* ondelettes dans les deux sens (TRÈS IMPORTANT) [Xavier/Nicolas]
-* Utilisation du type half pour le stockage des données [Stéphane]
-* Application de l'algorithme de Huffman sur les données à stocker [Xavier]
-* Ecriture d'une doc du ihy pour donner plus de précisions sur certains champs
-  (comme le "CompressionType" par exemple) [Stéphane]
-* Traitement des coeffs des ondelettes (Réelle compression) [Nicolas/Stéphane]
-* Amélioration de la GUI avec l'ajout, entre autres d'un spectrographe [Teddy]
-* Ajout de fonctions pour gérer les tags des fichiers ihy dans le GUI (et
-  éventuellement fonctions de gestion d'une bibliothèque) [Teddy/Stéphane]
+* Utilisation du type half pour le stockage des donnees [Stephane]
+* Ecriture d'une doc du ihy pour donner plus de precisions sur certains champs
+  (comme le "CompressionType" par exemple) [Stephane]
+* Traitement des coeffs des ondelettes (Reelle compression) [Nicolas/Stephane]
+* Amelioration de la GUI avec l'ajout, entre autres d'un spectrographe [Teddy]
+* Ajout de fonctions pour gerer les tags des fichiers ihy dans le GUI (et
+  eventuellement fonctions de gestion d'une bibliothèque) [Teddy/Stephane]
+
+/* ------------------------------------------------------------------------- */
+
+
