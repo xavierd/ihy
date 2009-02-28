@@ -75,7 +75,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
 	free(oldValue);
 	wavelets_inverse((float *)input->DataChunks[i].Values,
 		(input->DataChunks[i].ChunkSize / sizeof(float)),
-		output,
+		output->Data,
 		offset);
 	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 2;
     };
