@@ -12,10 +12,10 @@ ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate)
 #ifdef linux
     driver = ao_driver_id("alsa");
 #else
-# ifdef BSD
+# ifdef __FreeBSD__ /* cpp main.c -dM | grep BSD */
     driver = ao_driver_id("oss");
 # else
-    driver = ao_default_driver();
+    driver = ao_default_driver_id();
 # endif
 #endif
     format.bits = BitsPerSample;
