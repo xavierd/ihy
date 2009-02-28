@@ -30,6 +30,11 @@ static value c_array_to_caml(float *array, const size_t dim)
 	    1, array, dim);
 }
 
+int get_nbChunk(const int chunk_size, const int nb)
+{
+    return (nb / chunk_size) + (nb % chunk_size != 0);
+}
+
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
  * assuming dim = 2^n
