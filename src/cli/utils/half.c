@@ -1,23 +1,41 @@
 #include "half.h"
 
-t_half float_to_half(t_float f)
+uint16_t float_to_half(float f)
 {
-    t_half h;
+    if (f == 0.)
+    {
+	return 0;
+    }
+    else
+    {
+	t_half h;
+	t_float tempf;
 
-    h.negative = f.negative;
-    h.exponent = f.exponent;
-    h.mantissa = f.mantissa >> 13;
+	tempf.f = f;
+	h.ieee.negative = tempf.ieee.negative;
+	h.ieee.exponent = tempf.ieee.exponent - 112;
+	h.ieee.mantissa = tempf.ieee.mantissa >> 13;
 
-    return h;
+	return h.h;
+    }
 }
 
-t_float half_to_float(t_half h)
+float half_to_float(uint16_t h)
 {
-    t_float f;
+    if (h == 0)
+    {
+	return 0.;
+    }
+    else
+    {
+	t_float f;
+	t_half temph;
 
-    f.negative = h.negative;
-    f.exponent = h.exponent;
-    f.mantissa = h.mantissa << 13;
+	temph.h = h;
+	f.ieee.negative = temph.ieee.negative;
+	f.ieee.exponent = temph.ieee.exponent + 112;
+	f.ieee.mantissa = temph.ieee.mantissa << 13;
 
-    return f;
+	return f.f;
+    }
 }
