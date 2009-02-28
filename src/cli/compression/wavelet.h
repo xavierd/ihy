@@ -18,7 +18,7 @@
 void wavelets_direct(const int8_t *array,
 		     const size_t sampleSize,
 		     const size_t dim,
-		     ihy_data *out);
+		     float *out);
 
 /* compute the result of the OCaml function "Haar_Reverse"
  * uncompress the data and fill out
