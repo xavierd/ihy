@@ -12,6 +12,9 @@
 
 #define CHUNK_SIZE 65536
 
+/* just return the number of chunk needed */
+int get_nbChunk(const int chunk_size, const int nb);
+
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
  */

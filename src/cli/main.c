@@ -94,18 +94,21 @@ static void compress_wav(char *input_filename, char *output_filename)
     output = create_ihy();
     input = create_wav();
     read_wav(input_filename, input);
-    output->NbChunk = 50;
+
+    output->NbChunk = get_nbChunk(CHUNK_SIZE,
+	    input->DataBlocSize / (input->BitsPerSample / 8));
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
     for (i = 0; i < output->NbChunk; i++)
     {
 	output->DataChunks[i].Values = malloc(sizeof(float) * CHUNK_SIZE);
-	wavelets_direct(input->Data + (i * CHUNK_SIZE * (input->BitsPerSample / 8)),
+	output->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
+	wavelets_direct(
+		input->Data + (i * CHUNK_SIZE * (input->BitsPerSample / 8)),
 		CHUNK_SIZE * (input->BitsPerSample / 8),
 		input->BitsPerSample / 8,
 		(float *)output->DataChunks[i].Values);
-	output->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
 	oldValue = output->DataChunks[i].Values;
-	output->DataChunks[i].Values = (uint8_t *)
+	output->DataChunks[i].Values =
 	    huffman_encode(
 		output->DataChunks[i].Values,
 		&output->DataChunks[i].ChunkSize
