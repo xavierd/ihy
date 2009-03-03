@@ -6,6 +6,7 @@
 #include <audio_output/ao.h>
 #include <compression/wavelet.h>
 #include <compression/huffman.h>
+#include <utils/half.h>
 
 /* play the ihy in streaming */
 void play_ihy_streaming(ihy_data *ihy);

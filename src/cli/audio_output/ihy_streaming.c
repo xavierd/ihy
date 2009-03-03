@@ -44,6 +44,7 @@ static void *ihy_filling_buffer(void *data)
     ihy_data *ihy = ((struct ihy_streaming_data *)data)->ihy;
     struct ihy_buffer_content *to_add;
     unsigned int i = 0;
+    void *oldValues;
 
     while (i < ihy->NbChunk)
     {
@@ -51,11 +52,17 @@ static void *ihy_filling_buffer(void *data)
 	to_add->samplesSize = ihy->DataChunks[i].ChunkSize;
 	to_add->samples =
 	    huffman_decode(ihy->DataChunks[i].Values, &to_add->samplesSize);
+	oldValues = to_add->samples;
+	to_add->samples = (int8_t *)halfarray_to_float(
+		(uint16_t *)to_add->samples,
+		to_add->samplesSize / sizeof(uint16_t));
+	free(oldValues);
+	to_add->samplesSize *= 2;
 	wavelets_inverse((float *)to_add->samples,
 			 to_add->samplesSize / sizeof(float),
 			 to_add->samples,
 			 0);
-	to_add->samplesSize = to_add->samplesSize / 2;
+	to_add->samplesSize = to_add->samplesSize / 2; /*samplesize = 16bits*/
 	buffer_add(to_add, buffer);
 	i++;
     }
