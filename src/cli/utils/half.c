@@ -66,7 +66,7 @@ float half_to_float(uint16_t h)
     }
 }
 
-uint16_t* floatarray_to_half(float *fa, size_t size)
+uint16_t *floatarray_to_half(float *fa, size_t size)
 {
     uint16_t *res;
     unsigned int i;
@@ -80,7 +80,7 @@ uint16_t* floatarray_to_half(float *fa, size_t size)
     return res;
 }
 
-float* halfarray_to_float(uint16_t *ha, size_t size)
+float *halfarray_to_float(uint16_t *ha, size_t size)
 {
     float *res;
     unsigned int i;
