@@ -69,7 +69,7 @@ float half_to_float(uint16_t h)
 uint16_t* floatarray_to_half(float *fa, size_t size)
 {
     uint16_t *res;
-    int i;
+    unsigned int i;
 
     res = malloc(size * sizeof(uint16_t));
     for (i = 0; i < size; i++)
@@ -80,8 +80,17 @@ uint16_t* floatarray_to_half(float *fa, size_t size)
     return res;
 }
 
-/*
-float* halfarray_to_float(float *fa, size_t size)
+
+float* halfarray_to_float(uint16_t *ha, size_t size)
 {
+    float *res;
+    unsigned int i;
+
+    res = malloc(size * sizeof(float));
+    for (i = 0; i < size; i++)
+    {
+	res[i] = half_to_float(ha[i]);
+    }
+
+    return res;
 }
-*/

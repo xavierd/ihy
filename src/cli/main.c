@@ -12,6 +12,7 @@
 #include <compression/huffman.h>
 #include <audio_output/wav_streaming.h>
 #include <audio_output/ihy_streaming.h>
+#include <utils/half.h>
 
 static void *thread_play_ihy(void *data)
 {
@@ -74,6 +75,13 @@ static void extract_ihy(char *input_filename, char *output_filename)
 		    &input->DataChunks[i].ChunkSize
 		    );
 	free(oldValue);
+	oldValue = input->DataChunks[i].Values;
+	input->DataChunks[i].Values = (uint8_t *)halfarray_to_float(
+	    (uint16_t *)oldValue,
+	    input->DataChunks[i].ChunkSize
+	);
+	input->DataChunks[i].ChunkSize *= 2;
+	free(oldValue);
 	wavelets_inverse((float *)input->DataChunks[i].Values,
 		(input->DataChunks[i].ChunkSize / sizeof(float)),
 		output->Data,
@@ -108,6 +116,13 @@ static void compress_wav(char *input_filename, char *output_filename)
 		CHUNK_SIZE * (input->BitsPerSample / 8),
 		input->BitsPerSample / 8,
 		(float *)output->DataChunks[i].Values);
+	oldValue = output->DataChunks[i].Values;
+	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
+	    (float *)oldValue,
+	    output->DataChunks[i].ChunkSize
+	);
+	output->DataChunks[i].ChunkSize /= 2;
+	free(oldValue);
 	oldValue = output->DataChunks[i].Values;
 	output->DataChunks[i].Values =
 	    huffman_encode(
