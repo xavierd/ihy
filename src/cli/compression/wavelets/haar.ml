@@ -87,12 +87,12 @@ let countZero (t : float_array) =
 let compress (t : float_array) =
   removeFirsts t;
   removeSeuil t 500.;
-  let count = countZero t in
+(*  let count = countZero t in
     print_int count;
     print_newline ();
     print_int (iof ((foi count) /. (foi (Bigarray.Array1.dim t)) *. 100.)); 
     print_newline ();
-    print_newline ();
+    print_newline ();*)
     t      
 
 let filter_direct x y =
