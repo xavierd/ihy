@@ -78,7 +78,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
 	oldValue = input->DataChunks[i].Values;
 	input->DataChunks[i].Values = (uint8_t *)halfarray_to_float(
 	    (uint16_t *)oldValue,
-	    input->DataChunks[i].ChunkSize
+	    input->DataChunks[i].ChunkSize / sizeof(uint16_t)
 	);
 	input->DataChunks[i].ChunkSize *= 2;
 	free(oldValue);
@@ -119,7 +119,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 	oldValue = output->DataChunks[i].Values;
 	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
 	    (float *)oldValue,
-	    output->DataChunks[i].ChunkSize
+	    output->DataChunks[i].ChunkSize / sizeof(float)
 	);
 	output->DataChunks[i].ChunkSize /= 2;
 	free(oldValue);
