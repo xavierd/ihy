@@ -59,7 +59,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     for (i = 0; i < input->NbChunk; i++)
 	offset +=
 	    (((size_t *)input->DataChunks[i].Values)[0] / sizeof(float)) * 2;
-    output->DataBlocSize = offset;
+    output->DataBlocSize = offset * 2; /* because of Half */
     /*
     output->DataBlocSize = 65536 * 2 * input->NbChunk;
     */
