@@ -1,10 +1,13 @@
-CAMLC=ocamlopt
-CAMLFLAGS=-output-obj bigarray.cmxa
-OCAMLPATH=${shell ocamlc -where}
+CROSSBINDIR=/home/xavier/src/iPhone/toolchain/toolchain/pre/bin
+CROSSLIBDIR=/home/xavier/src/iPhone/toolchain/toolchain/pre/lib
 
-CC=gcc
+CAMLC=${CROSSBINDIR}/ocamlopt
+CAMLFLAGS=-output-obj bigarray.cmxa
+OCAMLPATH=${shell ${CROSSBINDIR}/ocamlc -where}
+
+CC=${CROSSBINDIR}/arm-apple-darwin9-gcc
 CFLAGS=-Wall -W -pedantic -Wno-long-long -I${OCAMLPATH} -I./
-LDFLAGS=-L${OCAMLPATH} -L/usr/local/lib ${NATIVECCLIBS} -lao -lasmrun -lbigarray -lpthread
+LDFLAGS=-L${CROSSLIBDIR} -L${OCAMLPATH} ${NATIVECCLIBS} -lao -lasmrun -lbigarray -lpthread
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2
