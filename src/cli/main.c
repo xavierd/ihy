@@ -161,7 +161,7 @@ static void print_help()
     printf("-c filename.wav filename.ihy : compress filename.wav and\n");
     printf("                               put it to the filename.ihy\n");
     printf("-x filename.ihy filename.wav : extract filename.ihy to filename.wav\n");
-    printf("-r filename.wav : play filename.wav on a separate thread\n");
+    printf("-r filename.ihy : play filename.ihy on a separate thread\n");
     printf("-h : display this help\n");
 }
 
