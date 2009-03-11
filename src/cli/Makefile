@@ -7,7 +7,7 @@ OCAMLPATH=${shell ${CROSSBINDIR}/ocamlc -where}
 
 CC=${CROSSBINDIR}/arm-apple-darwin9-gcc
 CFLAGS=-Wall -W -pedantic -Wno-long-long -I${OCAMLPATH} -I./
-LDFLAGS=-L${CROSSLIBDIR} -L${OCAMLPATH} ${NATIVECCLIBS} -lao -lasmrun -lbigarray -lpthread
+LDFLAGS=-L${CROSSLIBDIR} -L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray -lpthread
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2
@@ -17,7 +17,7 @@ else
 	OUTPUT=
 endif
 
-CSRC=codecs/wav.c audio_output/ao.c audio_output/wav_streaming.c codecs/ihy.c audio_output/ihy_streaming.c compression/wavelet.c compression/huffman.c utils/queue.c utils/buffer.c utils/half.c main.c
+CSRC=codecs/wav.c codecs/ihy.c compression/wavelet.c compression/huffman.c utils/queue.c utils/buffer.c utils/half.c main.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=compression/wavelets/haar.ml
 CAMLINTERFACE=compression/wavelets/haar.mli
