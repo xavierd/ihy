@@ -1,3 +1,6 @@
+external ( ** ) : float -> float -> float = "caml_power_float"
+external log : float -> float = "caml_log_float"
+
 let foi = float_of_int
 let iof = int_of_float
 
