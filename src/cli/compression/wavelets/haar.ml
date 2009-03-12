@@ -95,17 +95,17 @@ let compress (t : float_array) =
     print_newline ();*)
     t      
 
+let coef = (2. ** (-.(1.)/.(2.)))
+
 let filter_direct x y =
-  let coef = (2. ** (-.(1.)/.(2.))) in
     coef *. (x +. y)
 
 let filter_directD x y =
-  let coef = (2. ** (-.(1.)/.(2.))) in
     coef *. (y -. x)
 
 let filter_reverse (y  : float) (x : float) op=
-  let coef = (2. ** (-.(1.)/.(2.))) *. 2.  in
-    (op y x) /. coef
+  let coef' = coef *. 2.  in
+    (op y x) /. coef'
 
 
 let haar_direct (a : float_array) =
