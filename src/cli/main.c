@@ -81,6 +81,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
 	free(oldValue);
 	wavelets_inverse((float *)input->DataChunks[i].Values,
 		(input->DataChunks[i].ChunkSize / sizeof(float)),
+		input->Channels,
 		output->Data,
 		offset);
 	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 2;
@@ -112,6 +113,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 		input->Data + (i * CHUNK_SIZE * (input->BitsPerSample / 8)),
 		CHUNK_SIZE * (input->BitsPerSample / 8),
 		input->BitsPerSample / 8,
+		input->NumChannels,
 		(float *)output->DataChunks[i].Values);
 	oldValue = output->DataChunks[i].Values;
 	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
