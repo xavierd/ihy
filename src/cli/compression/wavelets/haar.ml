@@ -86,7 +86,7 @@ let countZero (t : float_array) =
   
 let compress (t : float_array) =
   removeFirsts t;
-  removeSeuil t 500.;
+(*   removeSeuil t 500.; *)
 (*  let count = countZero t in
     print_int count;
     print_newline ();
