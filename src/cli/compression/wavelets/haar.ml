@@ -89,7 +89,7 @@ let countZero (t : float_array) =
   
 let compress (t : float_array) =
   removeFirsts t;
-  removeSeuil t 500.;
+(*   removeSeuil t 500.; *)
 (*  let count = countZero t in
     print_int count;
     print_newline ();
@@ -109,8 +109,11 @@ let filter_directD x y =
     coef *. (y -. x)
 
 let filter_reverse (y  : float) (x : float) op=
+(*
   let coef' = coef *. 2.  in
     (op y x) /. coef'
+ *)
+  (op y x)
 
 
 let haar_direct (a : float_array) =
