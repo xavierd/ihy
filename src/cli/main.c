@@ -11,12 +11,11 @@
 #include <compression/wavelet.h>
 #include <compression/huffman.h>
 #include <utils/half.h>
+#include <audio_output/ihy_streaming.h>
 
 static void *thread_play_ihy(void *data)
 {
-    /*
     play_ihy_streaming(data);
-    */
     return NULL;
 }
 
