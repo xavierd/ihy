@@ -42,23 +42,28 @@ int get_nbChunk(const int chunk_size, const int nb)
 void wavelets_direct(const int8_t *samples,
 		     const size_t dim, /* size of prec arg */
 		     const size_t sampleSize, /* in bytes */
+		     const uint16_t nbChannels,
 		     float *out)
 {
-    size_t resSize = dim / sampleSize;
+    size_t resSize = (dim / sampleSize) / nbChannels;
     float *res = malloc(sizeof(float) * resSize);
     int16_t sample; /* je remettrai le switch plus tard */
-    unsigned int i;
+    unsigned int i, j;
     value camlArray;
 
-    for (i = 0; i < resSize; i++)
+    for (j = 0; j < nbChannels; j++)
     {
-	sample = 0;
-	memcpy(&sample, &samples[i * sampleSize], sampleSize);
-	res[i] = sample;
+	for (i = j; i < resSize; i++)
+	{
+	    sample = 0;
+	    memcpy(&sample, &samples[i * sampleSize * nbChannels], sampleSize);
+	    res[i] = sample;
+	}
+	camlArray = c_array_to_caml(res, resSize);
+	camlArray = wavelets_direct_fun(camlArray);
+	memcpy(out + (j * resSize), Data_bigarray_val(camlArray),
+						      resSize * sizeof(float));
     }
-    camlArray = c_array_to_caml(res, resSize);
-    camlArray = wavelets_direct_fun(camlArray);
-    memcpy(out, Data_bigarray_val(camlArray), resSize * sizeof(float));
 }
 
 /* compute the result of the OCaml function "Haar_Reverse"
@@ -67,23 +72,27 @@ void wavelets_direct(const int8_t *samples,
  */
 void wavelets_inverse(float *chunk,
 		      const size_t nbelmts,
+		      const uint8_t nbChannels,
 		      int8_t *out,
 		      const int offset)
 {
     value camlArray;
     int16_t val;
     float *valf;
-    unsigned int i, j;
+    unsigned int i, j, k;
 
-    camlArray = c_array_to_caml(chunk, nbelmts);
-    camlArray = wavelets_reverse_fun(camlArray);
-
-    j = 0;
-    valf = (float *)(Data_bigarray_val(camlArray));
-    for (i = 0; i < nbelmts; i++)
+    for (k = 0; k < nbChannels; k++)
     {
-	val = valf[i];
-	*(int16_t *)(out + offset + j) = val;
-	j = j + 2;
+	camlArray = c_array_to_caml(chunk + k * (nbelmts / nbChannels), nbelmts / nbChannels);
+	camlArray = wavelets_reverse_fun(camlArray);
+
+	j = k;
+	valf = (float *)(Data_bigarray_val(camlArray));
+	for (i = 0; i < nbelmts / nbChannels; i++)
+	{
+	    val = valf[i];
+	    *(int16_t *)(out + offset + (j * nbChannels)) = val;
+	    j = j + sizeof(int16_t);
+	}
     }
 }

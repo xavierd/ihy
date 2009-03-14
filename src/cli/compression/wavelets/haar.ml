@@ -98,7 +98,9 @@ let compress (t : float_array) =
     print_newline ();*)
     t      
 
-let coef = (2. ** (-.(1.)/.(2.)))
+let coef =
+(*   (2. ** (-.(1.)/.(2.))) *)
+  1. /. 2.
 
 let filter_direct x y =
     coef *. (x +. y)
