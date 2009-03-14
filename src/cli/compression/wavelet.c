@@ -53,11 +53,11 @@ void wavelets_direct(const int8_t *samples,
 
     for (j = 0; j < nbChannels; j++)
     {
-	for (i = j; i < resSize; i++)
+	for (i = j; i < resSize * nbChannels; i += nbChannels)
 	{
-	    sample = 0;
-	    memcpy(&sample, &samples[i * sampleSize * nbChannels], sampleSize);
-	    res[i] = sample;
+	    /*sample = 0;*/
+	    memcpy(&sample, &samples[i * sampleSize], sampleSize);
+	    res[i / nbChannels] = sample;
 	}
 	camlArray = c_array_to_caml(res, resSize);
 	camlArray = wavelets_direct_fun(camlArray);
