@@ -165,12 +165,12 @@ static void compress_wav(char *input_filename, char *output_filename)
 
 static void print_help()
 {
-    printf("help mode of ihyconvert :\n");
-    printf("-c filename.wav filename.ihy : compress filename.wav and\n");
-    printf("                               put it to the filename.ihy\n");
-    printf("-x filename.ihy filename.wav : extract filename.ihy to filename.wav\n");
-    printf("-r filename.ihy : play filename.ihy on a separate thread\n");
-    printf("-h : display this help\n");
+    printf(	"Usage : ihyconvert [OPTION] [FILEs]\n");
+    printf(	"Official converter of the ihy codec\n\n");
+    printf(	"  -c IN.wav OUT.ihy		: compress IN into OUT\n");
+    printf(	"  -x IN.ihy OUT.wav		: extract OUT from IN\n");
+    printf(	"  -r IN.ihy			: play IN\n");
+    printf(	"  -h				: display this help\n");
 }
 
 int main(int argc, char **argv)
