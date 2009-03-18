@@ -34,7 +34,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->ChunkID[1] = 'I';
     output->ChunkID[2] = 'F';
     output->ChunkID[3] = 'F';
-    output->ChunkSize = 8 * sizeof(wav_data);
+    output->ChunkSize = sizeof(wav_data) - 12;
     output->Format[0] = 'W';
     output->Format[1] = 'A';
     output->Format[2] = 'V';
@@ -106,13 +106,19 @@ static void compress_wav(char *input_filename, char *output_filename)
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
     for (i = 0; i < output->NbChunk; i++)
     {
+	size_t size = 0;
+	size_t real_size = 0;
+
+	size = CHUNK_SIZE * (input->BitsPerSample / 8);
+	/* avoid garbage on the last chunk */
+	if (i == output->NbChunk - 1)
+	    real_size = input->DataBlocSize % CHUNK_SIZE;
+	else
+	    real_size = size;
 	output->DataChunks[i].Values = malloc(sizeof(float) * CHUNK_SIZE);
 	output->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
-	wavelets_direct(
-		input->Data + (i * CHUNK_SIZE * (input->BitsPerSample / 8)),
-		CHUNK_SIZE * (input->BitsPerSample / 8),
-		input->BitsPerSample / 8,
-		input->NumChannels,
+	wavelets_direct(input->Data + (i * size), size, real_size,
+		input->BitsPerSample / 8, input->NumChannels,
 		(float *)output->DataChunks[i].Values);
 	oldValue = output->DataChunks[i].Values;
 	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
@@ -158,12 +164,12 @@ static void compress_wav(char *input_filename, char *output_filename)
 
 static void print_help()
 {
-    printf("help mode of ihyconvert :\n");
-    printf("-c filename.wav filename.ihy : compress filename.wav and\n");
-    printf("                               put it to the filename.ihy\n");
-    printf("-x filename.ihy filename.wav : extract filename.ihy to filename.wav\n");
-    printf("-r filename.ihy : play filename.ihy on a separate thread\n");
-    printf("-h : display this help\n");
+    printf(	"Usage : ihyconvert [OPTION] [FILEs]\n");
+    printf(	"Official converter of the ihy codec\n\n");
+    printf(	"  -c IN.wav OUT.ihy		: compress IN into OUT\n");
+    printf(	"  -x IN.ihy OUT.wav		: extract OUT from IN\n");
+    printf(	"  -r IN.ihy			: play IN\n");
+    printf(	"  -h				: display this help\n");
 }
 
 int main(int argc, char **argv)
