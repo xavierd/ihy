@@ -29,6 +29,11 @@ void read_wav(const char *filename, wav_data *data)
     fread(&data->FormatBlocSize, sizeof(uint32_t), 1, file);
     fread(&data->AudioFormat, sizeof(uint16_t), 1, file);
     fread(&data->NumChannels, sizeof(uint16_t), 1, file);
+    if (data->NumChannels > 2)
+    {
+	printf("Wav file not supported : NumChannels > 2\n");
+	exit(0);
+    }
     fread(&data->SampleRate, sizeof(uint32_t), 1, file);
     fread(&data->ByteRate, sizeof(uint32_t), 1, file);
     fread(&data->BlockAlign, sizeof(uint16_t), 1, file);
