@@ -70,6 +70,7 @@ void wavelets_direct(const int8_t *samples,
 	memcpy(out + (j * resSize), Data_bigarray_val(camlArray),
 						      resSize * sizeof(float));
     }
+    free(res);
 }
 
 /* compute the result of the OCaml function "Haar_Reverse"
