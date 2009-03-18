@@ -38,9 +38,12 @@ int get_nbChunk(const int chunk_size, const int nb)
 /* compute the result of the OCaml function "Haar_Direct"
  * compress the data and fill out
  * assuming dim = 2^n
+ * real_size is quite particular, it is here to avoid getting values behind the
+ * end of samples (should only happen on the last chunk)
  */
 void wavelets_direct(const int8_t *samples,
 		     const size_t dim, /* size of prec arg */
+		     size_t real_size,
 		     const size_t sampleSize, /* in bytes */
 		     const uint16_t nbChannels,
 		     float *out)
@@ -51,14 +54,17 @@ void wavelets_direct(const int8_t *samples,
     unsigned int i, j;
     value camlArray;
 
+    real_size /= sampleSize / nbChannels;
     for (j = 0; j < nbChannels; j++)
     {
-	for (i = j; i < resSize * nbChannels; i += nbChannels)
+	for (i = j; i < real_size && i < resSize * nbChannels; i += nbChannels)
 	{
 	    /*sample = 0;*/
 	    memcpy(&sample, &samples[i * sampleSize], sampleSize);
 	    res[i / nbChannels] = sample;
 	}
+	for ( ; i < resSize * nbChannels; i += nbChannels)
+	    res[i / nbChannels] = 0.0f;
 	camlArray = c_array_to_caml(res, resSize);
 	camlArray = wavelets_direct_fun(camlArray);
 	memcpy(out + (j * resSize), Data_bigarray_val(camlArray),
