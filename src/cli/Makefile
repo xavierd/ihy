@@ -7,7 +7,7 @@ OCAMLPATH=${shell ${CROSSBINDIR}/ocamlc -where}
 
 CC=${CROSSBINDIR}/arm-apple-darwin9-gcc
 CFLAGS=-Wall -W -pedantic -Wno-long-long -I${OCAMLPATH} -I./
-LDFLAGS=-L${CROSSLIBDIR} -L${OCAMLPATH} ${NATIVECCLIBS} -lao -lasmrun -lbigarray -lpthread
+LDFLAGS=-L${CROSSLIBDIR} -L${OCAMLPATH} ${NATIVECCLIBS} -lasmrun -lbigarray -lpthread -framework CoreAudio -framework AudioToolbox -framework CoreFoundation -framework Foundation
 
 ifeq (${DEBUG}, false)
 	CFLAGS+=-O2

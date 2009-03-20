@@ -1,15 +1,22 @@
 #ifndef DEF_AO
 #define DEF_AO
 
-#include <ao/ao.h>
+#include <CoreFoundation/CoreFoundation.h>
+#include <AudioToolbox/AudioQueue.h>
 
-/* return the device, to play sound in streaming */
+#define BUFFERS 3
+
+typedef ao_device CallbackStruct;
+struct CallbackStruct
+{
+    AudioQueueRef			queue;
+    UInt32				framecount;
+    AudioQueueBufferRef			mBuffers[BUFFERS];
+    AudioStreamBasicDescription		mDataFormat;
+};
+
 ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate);
-
-/* close the device, and do some cleaning */
 void ao_close_device(ao_device *device);
-
-/* play the content of array */
 void ao_play_samples(ao_device *device, void *array, int size);
 
 #endif
