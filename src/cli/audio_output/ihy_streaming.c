@@ -76,7 +76,7 @@ void play_ihy_streaming(ihy_data *ihy)
     pthread_t playing_thread, filling_buffer_thread;
     struct ihy_streaming_data data;
 
-    buffer = buffer_init(10); /* max 10 elements */
+    buffer = buffer_init(3); /* max 10 elements */
     data.ihy = ihy;
     data.buffer = buffer;
     pthread_create(&filling_buffer_thread, NULL, &ihy_filling_buffer, &data);
