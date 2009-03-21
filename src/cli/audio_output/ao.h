@@ -4,16 +4,15 @@
 #include <CoreFoundation/CoreFoundation.h>
 #include <AudioToolbox/AudioQueue.h>
 
-#define BUFFERS 3
+#define NBBUFFERS 3
 
-typedef ao_device CallbackStruct;
-struct CallbackStruct
+typedef struct CallbackStruct
 {
     AudioQueueRef			queue;
     UInt32				framecount;
-    AudioQueueBufferRef			mBuffers[BUFFERS];
+    AudioQueueBufferRef			mBuffers[NBBUFFERS];
     AudioStreamBasicDescription		mDataFormat;
-};
+} ao_device;
 
 ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate);
 void ao_close_device(ao_device *device);
