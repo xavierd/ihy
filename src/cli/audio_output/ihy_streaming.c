@@ -81,13 +81,11 @@ static int get_nb_chunk(void *Data)
 
 static void DecodeIhy(void *Data, int chunk, void *out)
 {
-    printf("decode early\n");
     ihy_data *ihy = Data;
     int8_t *toDecode = ihy->DataChunks[chunk].Values;
     int8_t *Values, *oldValues;
     int size = ihy->DataChunks[chunk].ChunkSize;
 
-    printf("decode\n");
     Values = huffman_decode(toDecode, &size);
     oldValues = Values;
     Values = halfarray_to_float(Values, size / sizeof(uint16_t));
@@ -102,6 +100,7 @@ void play_ihy_streaming(ihy_data *ihy)
     ao_device *dev;
 
     dev = ao_init_device(16, ihy->Channels, ihy->Frequency);
+    dev->Data = ihy;
     printf("init\n");
     dev->NbChunk = &get_nb_chunk;
     dev->DecodeFunction = &DecodeIhy;

@@ -28,12 +28,11 @@ static void Callback(void *in, AudioQueueRef inQ, AudioQueueBufferRef out)
     ao_device *dev = (ao_device *)in;
     short *audioBuffer = (short *)out->mAudioData;
 
-    printf("callback\n");
-    if (dev->Chunk <= dev->NbChunk(dev))
+    printf("callback, %d, %d\n", dev->Chunk, dev->NbChunk(dev->Data));
+    if (dev->Chunk <= dev->NbChunk(dev->Data))
     {
-	printf("prout\n");
 	dev->DecodeFunction(dev->Data, dev->Chunk, audioBuffer);
-	printf("caca\n");
+	out->mAudioDataByteSize = 65536;
 	AudioQueueEnqueueBuffer(inQ, out, 0, NULL);
 	dev->Chunk++;
     }
@@ -59,6 +58,7 @@ ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate)
     in->mDataFormat.mBitsPerChannel = BitsPerSample;
     in->mDataFormat.mBytesPerFrame = BitsPerSample * NumChannels / 8;
     in->mDataFormat.mBytesPerPacket = in->mDataFormat.mBytesPerFrame;
+    in->Chunk = 0;
 
     return in;
 }
@@ -73,7 +73,7 @@ void ao_play(ao_device *device)
 
     printf("ao_play\n");
     device->isPlaying = true;
-    bufferBytes = device->mDataFormat.mBitsPerChannel * 65536;
+    bufferBytes = device->mDataFormat.mBitsPerChannel * 65536 / 8;
     for (i = 0; i < NBBUFFERS; i++)
     {
 	AudioQueueAllocateBuffer(device->queue, bufferBytes,
@@ -85,7 +85,9 @@ void ao_play(ao_device *device)
     AudioQueueStart(device->queue, NULL);
     printf("start\n");
     while (device->isPlaying)
+    {
 	CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.25, false);
+    }
 
     AudioQueueDispose(device->queue, true);
     free(device);
