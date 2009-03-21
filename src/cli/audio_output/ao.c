@@ -5,7 +5,9 @@ static void Callback(void *in, AudioQueueRef inQ, AudioQueueBufferRef out)
     ao_device *dev = (ao_device *)in;
     short *audioBuffer = (short *)out->mAudioData;
 
-    if (dev->Chunk <= dev->NbChunk(dev->Data))
+    if (!dev->isPlaying)
+	return;
+    if (dev->Chunk < dev->NbChunk(dev->Data))
     {
 	dev->DecodeFunction(dev->Data, dev->Chunk, audioBuffer);
 	out->mAudioDataByteSize = 65536 * 2;
@@ -58,10 +60,8 @@ void ao_play(ao_device *device)
 
     AudioQueueStart(device->queue, NULL);
     while (device->isPlaying)
-    {
 	CFRunLoopRunInMode(kCFRunLoopDefaultMode, 0.25, false);
-    }
 
-    AudioQueueDispose(device->queue, false);
+    AudioQueueDispose(device->queue, true);
     free(device);
 }
