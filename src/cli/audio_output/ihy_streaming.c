@@ -1,5 +1,6 @@
 #include "ihy_streaming.h"
 
+#if 0
 struct ihy_streaming_data
 {
     t_buffer	buffer;
@@ -70,17 +71,41 @@ static void *ihy_filling_buffer(void *data)
     return NULL;
 }
 
+#endif
+static int get_nb_chunk(void *Data)
+{
+    ihy_data *ihy = Data;
+
+    return ihy->NbChunk;
+}
+
+static void DecodeIhy(void *Data, int chunk, void *out)
+{
+    printf("decode early\n");
+    ihy_data *ihy = Data;
+    int8_t *toDecode = ihy->DataChunks[chunk].Values;
+    int8_t *Values, *oldValues;
+    int size = ihy->DataChunks[chunk].ChunkSize;
+
+    printf("decode\n");
+    Values = huffman_decode(toDecode, &size);
+    oldValues = Values;
+    Values = halfarray_to_float(Values, size / sizeof(uint16_t));
+    free(oldValues);
+    size *= 2;
+    wavelets_inverse(Values, size / sizeof(float), ihy->Channels, out, 0);
+    size /= 2;
+}
+
 void play_ihy_streaming(ihy_data *ihy)
 {
-    t_buffer buffer; /* contains ihy_buffer_content */
-    pthread_t playing_thread, filling_buffer_thread;
-    struct ihy_streaming_data data;
+    ao_device *dev;
 
-    buffer = buffer_init(3); /* max 10 elements */
-    data.ihy = ihy;
-    data.buffer = buffer;
-    pthread_create(&filling_buffer_thread, NULL, &ihy_filling_buffer, &data);
-    pthread_create(&playing_thread, NULL, &ihy_playing, &data);
-    pthread_join(filling_buffer_thread, NULL);
-    pthread_join(playing_thread, NULL);
+    dev = ao_init_device(16, ihy->Channels, ihy->Frequency);
+    printf("init\n");
+    dev->NbChunk = &get_nb_chunk;
+    dev->DecodeFunction = &DecodeIhy;
+
+    printf("play\n");
+    ao_play(dev);
 }

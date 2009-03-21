@@ -6,16 +6,23 @@
 
 #define NBBUFFERS 3
 
-typedef struct CallbackStruct
+typedef void (*DecodeFunction)(void *Data, int chunk, void *out);
+typedef int (*NbChunk)(void *Data);
+
+typedef struct ao_device
 {
     AudioQueueRef			queue;
-    UInt32				framecount;
+    bool				isPlaying;
     AudioQueueBufferRef			mBuffers[NBBUFFERS];
     AudioStreamBasicDescription		mDataFormat;
+    void				*Data;
+    int					Chunk;
+    void				(*DecodeFunction)
+					(void *Data, int chunk, void *out);
+    int					(*NbChunk)(void *Data);
 } ao_device;
 
 ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate);
-void ao_close_device(ao_device *device);
-void ao_play_samples(ao_device *device, void *array, int size);
+void ao_play(ao_device *device);
 
 #endif
