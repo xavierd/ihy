@@ -9,8 +9,10 @@ static void Callback(void *in, AudioQueueRef inQ, AudioQueueBufferRef out)
 	return;
     if (dev->Chunk < dev->NbChunk(dev->Data))
     {
-	dev->DecodeFunction(dev->Data, dev->Chunk, audioBuffer);
+	out->mAudioDataByteSize = dev->DecodeFunction(dev->Data, dev->Chunk, audioBuffer);
+	/*
 	out->mAudioDataByteSize = 65536 * 2;
+	*/
 	AudioQueueEnqueueBuffer(inQ, out, 0, NULL);
 	dev->Chunk++;
     }
@@ -43,16 +45,17 @@ ao_device *ao_init_device(int BitsPerSample, int NumChannels, int SampleRate)
 void ao_play(ao_device *device)
 {
     int i;
-    int bufferBytes;
+    int buffersize;
 
     AudioQueueNewOutput(&device->mDataFormat, Callback, device,
 	    CFRunLoopGetCurrent(), kCFRunLoopCommonModes, 0, &device->queue);
 
     device->isPlaying = true;
-    bufferBytes = device->mDataFormat.mBitsPerChannel * 65536 / 8;
+    /* OK 'magick number', it's just the buffer size (cannot be changed) */
+    buffersize = device->mDataFormat.mBitsPerChannel * 65536 / 8;
     for (i = 0; i < NBBUFFERS; i++)
     {
-	AudioQueueAllocateBuffer(device->queue, bufferBytes,
+	AudioQueueAllocateBuffer(device->queue, buffersize,
 							&device->mBuffers[i]);
 	Callback(device, device->queue, device->mBuffers[i]);
     }

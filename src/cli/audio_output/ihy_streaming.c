@@ -7,7 +7,7 @@ static int get_nb_chunk(void *Data)
     return ihy->NbChunk;
 }
 
-static void DecodeIhy(void *Data, int chunk, void *out)
+static int DecodeIhy(void *Data, int chunk, void *out)
 {
     ihy_data *ihy = Data;
     uint8_t *toDecode = ihy->DataChunks[chunk].Values;
@@ -21,6 +21,7 @@ static void DecodeIhy(void *Data, int chunk, void *out)
     size *= 2;
     wavelets_inverse(Values, size / sizeof(float), ihy->Channels, out, 0);
     size /= 2;
+    return size;
 }
 
 void play_ihy_streaming(ihy_data *ihy)

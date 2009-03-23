@@ -17,7 +17,7 @@ typedef struct ao_device
     AudioStreamBasicDescription		mDataFormat;
     void				*Data;
     int					Chunk;
-    void				(*DecodeFunction)
+    int					(*DecodeFunction)
 					(void *Data, int chunk, void *out);
     int					(*NbChunk)(void *Data);
 } ao_device;
