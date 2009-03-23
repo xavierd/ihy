@@ -1,87 +1,184 @@
 #include <stdlib.h>
 #include <gtk/gtk.h>
 
-void OnDestroy(GtkWidget *pWidget, gpointer pData);
 void OnPlay(GtkWidget *pWidget, gpointer data);
 void OnPause(GtkWidget *pWidget, gpointer data);
 void OnStop(GtkWidget *pWidget, gpointer data);
-void OnRewind(GtkWidget *pWidget, gpointer data);
-void OnForward(GtkWidget *pWidget, gpointer data);
 
+static GtkWidget *pToolbar = NULL;
+ //Declare une zone de dessin
+static GdkPixmap *pixmap = NULL;
 
+//Initialize la zone de dessin, avec la taille qu'elle doit avoir ainsi que sa position
+static gint
+configure_event (GtkWidget *widget, GdkEventConfigure *event)
+{
+    if (pixmap)
+    gdk_pixmap_unref(pixmap);
 
+    pixmap = gdk_pixmap_new(widget->window,
+    widget->allocation.width,
+    widget->allocation.height,
+    -1);//Creer une fenetre avec la zone de dessins
+    gdk_draw_rectangle (pixmap, //Alloue la taille et la position de la fenetre
+    widget->style->black_gc, //Fond noir
+    TRUE,
+    0, 0,
+    widget->allocation.width, //Largeur
+    widget->allocation.height); //Heuteur
 
-int main(int argc,char **argv)
+    return TRUE;
+}
+
+ //Redessine la zone de dessin en fonction du tracer
+static gint
+expose_event (GtkWidget *widget, GdkEventExpose *event)
+{
+    //Permet de dessiner le tracer fait avec la souris
+    gdk_draw_pixmap(widget->window,
+    widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
+    pixmap,
+    event->area.x, event->area.y, //Evenement 1 (x, y)
+    event->area.x, event->area.y, //Evenement 2 (x, y)
+    event->area.width, event->area.height); //Largeur et hauteur
+
+    return FALSE;
+ }
+
+static gint
+motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
+{
+    int x, y;
+    GdkModifierType state;
+
+    if (event->is_hint)
+    gdk_window_get_pointer (event->window, &x, &y, &state);
+    else
+{
+    x = event->x;
+    y = event->y;
+    state = event->state;
+}
+
+   return TRUE;
+}
+
+//void
+//quit ()
+//{
+//    gtk_exit (0); //Quitte l'aplication
+//}
+
+int main(int argc, char **argv)
 {
     GtkWidget *pWindow;
-    GtkWidget *pVBox;
-    GtkWidget *pHBox;
-    GtkWidget *pButton[5];
+    GtkWidget *pTable;
+    GtkWidget *drawing_area;
+    GtkWidget *pButton[3];
     GtkWidget *pProgress;
 
-    gtk_init(&argc,&argv);
+    gtk_init(&argc, &argv);
 
-    /* Creation de la fenetre */
     pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-    /* Definition de la position */
-    gtk_window_set_position(GTK_WINDOW(pWindow), GTK_WIN_POS_NONE);
-    /* Definition de la taille de la fenetre */
-    gtk_window_set_default_size(GTK_WINDOW(pWindow), 620, 400);
-    /* Titre de la fenetre */
-    gtk_window_set_title(GTK_WINDOW(pWindow), "Lecteur Ihy");
+    gtk_window_set_default_size(GTK_WINDOW(pWindow), 820, 500);
+    gtk_window_set_title(GTK_WINDOW(pWindow), "Ihy Player");
+    g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
-    /* Connexion du signal "destroy" */
-    g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(OnDestroy), NULL);
+    /* Creation et insertion de la table 16 lignes 10 colonnes */
+    pTable=gtk_table_new(16,10,TRUE);
+    gtk_container_add(GTK_CONTAINER(pWindow), GTK_WIDGET(pTable));
 
-    /* Creation de la GtkBox verticale */
-    pVBox = gtk_vbox_new(TRUE, 0);
-    /* Ajout de la GtkHBox dans la fenetre */
-    gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
+    /* Creation de la barre d'outil*/
+    pToolbar = gtk_toolbar_new();
 
-    /* Creation de la GtkBox horizontale */
-    pHBox = gtk_hbox_new(TRUE, 0);
-    /* Ajout de la GtkHBox dans la GtkVBox */
-    gtk_box_pack_start(GTK_BOX(pVBox), pHBox, TRUE, FALSE, 0);
+    /* Remplissage de la barre d'outil*/
+       gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
+      GTK_STOCK_NEW,
+      "Nouveau",
+      NULL,
+      NULL,
+      NULL,
+      -1);
+   gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
+      GTK_STOCK_OPEN,
+      "Ouvrir",
+      NULL,
+      NULL,
+      NULL,
+      -1);
+   gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
+      GTK_STOCK_SAVE,
+      "Enregistrer",
+      NULL,
+      NULL,
+      NULL,
+      -1);
 
-    /* Creation de la barre de progression */
-    pProgress = gtk_progress_bar_new();
-    gtk_box_pack_start(GTK_BOX(pVBox), pProgress, TRUE, FALSE, 0);
+   gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
+      GTK_STOCK_QUIT,
+      "Fermer",
+      NULL,
+      G_CALLBACK(gtk_main_quit),
+      NULL,
+      -1);
 
-    /* Creation des boutons */
+     /* Create the drawing area */
+
+    drawing_area = gtk_drawing_area_new (); //Crer une zone de dessins
+    gtk_drawing_area_size (GTK_DRAWING_AREA (drawing_area), 50, 50); //Initialise la zone de dessins
+    //gtk_box_pack_start (GTK_BOX (vbox), drawing_area, TRUE, TRUE, 0); //Ajoute la zone de dessin a la boute
+
+    gtk_widget_show (drawing_area); //Affiche la zone de dessin
+
+     //Les differents signaux a connecteer
+ gtk_signal_connect (GTK_OBJECT (drawing_area), "expose_event",
+ (GtkSignalFunc) expose_event, NULL);
+ gtk_signal_connect (GTK_OBJECT(drawing_area),"configure_event",
+ (GtkSignalFunc) configure_event, NULL);
+
+
+ gtk_signal_connect (GTK_OBJECT (drawing_area), "motion_notify_event",
+ (GtkSignalFunc) motion_notify_event, NULL);
+
+ gtk_widget_set_events (drawing_area, GDK_EXPOSURE_MASK
+ | GDK_LEAVE_NOTIFY_MASK
+ | GDK_BUTTON_PRESS_MASK
+ | GDK_POINTER_MOTION_MASK
+ | GDK_POINTER_MOTION_HINT_MASK);
+
+
+    /*Creation des boutons*/
     pButton[0] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
     pButton[1] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
     pButton[2] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
-    pButton[3] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_REWIND);
-    pButton[4] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_FORWARD);
 
+        /* Creation de la barre de progression */
+    pProgress = gtk_progress_bar_new();
+    gtk_table_attach_defaults(GTK_TABLE(pTable), pProgress,
+        5, 9, 11, 12);
 
-    /* Ajout des Boutons dans la GtkHBox */
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[0], FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[1], FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[2], FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[3], FALSE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[4], FALSE, FALSE, 0);
+    /* Insertion des boutons */
+    gtk_table_attach_defaults(GTK_TABLE(pTable), pToolbar,
+        0, 10, 0, 1);
+    gtk_table_attach_defaults(GTK_TABLE(pTable), drawing_area,
+        0, 7, 1, 10);
+    gtk_table_attach_defaults(GTK_TABLE(pTable), pButton[0],
+        1, 2, 11, 12);
+    gtk_table_attach_defaults(GTK_TABLE(pTable), pButton[1],
+        2, 3, 11, 12);
+    gtk_table_attach_defaults(GTK_TABLE(pTable), pButton[2],
+        3, 4, 11, 12);    
 
-    /* Connection des boutons */
+        /* Connection des boutons */
     g_signal_connect_swapped(G_OBJECT(pButton[0]), "clicked", G_CALLBACK(OnPlay), pProgress);
     g_signal_connect_swapped(G_OBJECT(pButton[1]), "clicked", G_CALLBACK(OnPause), pProgress);
     g_signal_connect_swapped(G_OBJECT(pButton[2]), "clicked", G_CALLBACK(OnStop), pProgress);
-    g_signal_connect_swapped(G_OBJECT(pButton[3]), "clicked", G_CALLBACK(OnRewind), pProgress);
-    g_signal_connect_swapped(G_OBJECT(pButton[4]), "clicked", G_CALLBACK(OnForward), pProgress);
-    
-    /* Affichage de la fenetre */
+
     gtk_widget_show_all(pWindow);
 
-    /* Demarrage de la boucle evenementielle */
     gtk_main();
 
     return EXIT_SUCCESS;
-}
-
-void OnDestroy(GtkWidget *pWidget, gpointer pData)
-{
-    /* Arret de la boucle evenementielle */
-    gtk_main_quit();
 }
 
 void OnPlay(GtkWidget *pWidget, gpointer data)
@@ -119,14 +216,3 @@ void OnStop(GtkWidget *pWidget, gpointer data)
 {
     /* Tu fixe la fonction de du bouton "stop" ici*/
 }
-
-void OnRewind(GtkWidget *pWidget, gpointer data)
-{
-    /* Tu fixe la fonction de du bouton "rewind" ici*/
-}
-
-void OnForward(GtkWidget *pWidget, gpointer data)
-{
-    /* Tu fixe la fonction de du bouton "forward" ici*/
-}
-
