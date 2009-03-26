@@ -5,77 +5,24 @@ void OnPlay(GtkWidget *pWidget, gpointer data);
 void OnPause(GtkWidget *pWidget, gpointer data);
 void OnStop(GtkWidget *pWidget, gpointer data);
 
-/*Declare une zone de dessin*/
-/*static GdkPixmap *pixmap = NULL;*/
-
-/*Initialize la zone de dessin, avec la taille qu'elle doit avoir ainsi que sa position*/
-    static gint
-configure_event (GtkWidget *widget, GdkEventConfigure *event)
-{
-    static GdkPixmap *pixmap = NULL; 
-
-    if (pixmap)
-	gdk_pixmap_unref(pixmap);
-
-    pixmap = gdk_pixmap_new(widget->window,
-	    widget->allocation.width,
-	    widget->allocation.height,
-	    -1);/*Creer une fenetre avec la zone de dessins*/
-    gdk_draw_rectangle (pixmap, /*Alloue la taille et la position de la fenetre*/
-	    widget->style->black_gc, /*Fond noir*/
-	    TRUE,
-	    0, 0,
-	    widget->allocation.width, /*Largeur*/
-	    widget->allocation.height); /*Hauteur*/
-
-    return TRUE;
-}
-
-/*Redessine la zone de dessin en fonction du tracer*/
-    static gint
-expose_event (GtkWidget *widget, GdkEventExpose *event)
-{
-
-    static GdkPixmap *pixmap = NULL;
-    /*Permet de dessiner le tracer fait avec la souris*/
-    gdk_draw_pixmap(widget->window,
-	    widget->style->fg_gc[GTK_WIDGET_STATE (widget)],
-	    pixmap,
-	    event->area.x, event->area.y, /*Evenement 1 (x, y)*/
-	    event->area.x, event->area.y, /*Evenement 2 (x, y)*/
-	    event->area.width, event->area.height); /*Largeur et hauteur*/
-
-    return FALSE;
-}
-
-    static gint
-motion_notify_event (GtkWidget *widget, GdkEventMotion *event)
-{
-    int x, y;
-    GdkModifierType state;
-
-    if (event->is_hint)
-	gdk_window_get_pointer (event->window, &x, &y, &state);
-    else
-    {
-	x = event->x;
-	y = event->y;
-	state = event->state;
-    }
-
-    return TRUE;
-}
-
 
 int main(int argc, char **argv)
 {
-    GtkWidget *pWindow;
-    GtkWidget *pTable;
-    GtkWidget *drawing_area;
-    GtkWidget *pButton[3];
-    GtkWidget *pProgress;
-    GtkWidget *pToolbar;
-    static GdkPixmap *pixmap = NULL;
+    GtkWidget   *pWindow;
+    GtkWidget   *pTable;
+    GtkWidget   *pButton[3];
+    GtkWidget   *pProgress;
+    GtkWidget   *pToolbar;
+    GtkWidget   *image;
+    cairo_t     *cr;
+    GdkColormap *cmap;
+    GdkPixmap   *pmap;
+    GdkPixbuf   *pbuf;
+
+    gint w,h;
+
+    w = 400;
+    h = 400;
 
     gtk_init(&argc, &argv);
 
@@ -122,27 +69,21 @@ int main(int argc, char **argv)
 	    NULL,
 	    -1);
 
-    /* Create the drawing area */
+    /* get a default GdkColormap */
+    cmap = gdk_colormap_get_system();
+    /*create a new GdkPixmap for drawing */
+    pmap = gdk_pixmap_new(NULL, w, h, gdk_colormap_get_visual(cmap)->depth);    /*create a cairo context from the pixmap*/
+    cr = gdk_cairo_create(GDK_DRAWABLE(pmap));
 
-    drawing_area = gtk_drawing_area_new (); /*Crer une zone de dessins*/
-    gtk_drawing_area_size (GTK_DRAWING_AREA (drawing_area), 50, 50); /*Initialise la zone de dessins*/
+    /*fill the background red*/
+    cairo_set_source_rgb(cr, 0, 0, 0);
+    cairo_rectangle(cr, 0, 0, w, h);
+    cairo_fill(cr);
 
-    gtk_widget_show (drawing_area); /*Affiche la zone de dessin*/
-
-    /*Les differents signaux a connecteer*/
-    gtk_signal_connect (GTK_OBJECT (drawing_area), "expose_event",
-	    (GtkSignalFunc) expose_event, pixmap);
-    gtk_signal_connect (GTK_OBJECT(drawing_area),"configure_event",
-	    (GtkSignalFunc) configure_event, pixmap);
-    gtk_signal_connect (GTK_OBJECT (drawing_area), "motion_notify_event",
-	    (GtkSignalFunc) motion_notify_event, NULL);
-
-    gtk_widget_set_events (drawing_area, GDK_EXPOSURE_MASK
-	    | GDK_LEAVE_NOTIFY_MASK
-	    | GDK_BUTTON_PRESS_MASK
-	    | GDK_POINTER_MOTION_MASK
-	    | GDK_POINTER_MOTION_HINT_MASK);
-
+    /*create a new GdkPixbuf from the pixmap*/
+    pbuf = gdk_pixbuf_get_from_drawable(NULL, pmap, cmap, 0, 0, 0, 0, w, h);
+    /*create a new GtkImage from the pixbuf*/
+    image = gtk_image_new_from_pixbuf(pbuf);
 
     /*Creation des boutons*/
     pButton[0] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
@@ -157,8 +98,8 @@ int main(int argc, char **argv)
     /* Insertion des boutons */
     gtk_table_attach_defaults(GTK_TABLE(pTable), pToolbar,
 	    0, 10, 0, 1);
-    gtk_table_attach_defaults(GTK_TABLE(pTable), drawing_area,
-	    0, 7, 1, 10);
+    gtk_table_attach_defaults(GTK_TABLE(pTable), image,
+	    0, 5, 0, 10);
     gtk_table_attach_defaults(GTK_TABLE(pTable), pButton[0],
 	    1, 2, 11, 12);
     gtk_table_attach_defaults(GTK_TABLE(pTable), pButton[1],
