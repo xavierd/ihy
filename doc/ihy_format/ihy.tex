@@ -19,11 +19,11 @@ utilisées dans un fichier audio au format ihy.
 
 \tableofcontents
 
-\section{Headers}
+\section{Introduction}
 
 Voici la structure du ihy, tel qu'il a été initialement implanté.
 
-\lstset{language=c, numbers=left}
+\lstset{numbers=left}
 \begin{lstlisting}[frame=single]
 typedef struct ihy_chunk
 {
@@ -55,5 +55,17 @@ typedef struct ihy_data
     ihy_chunk		*DataChunks;
 } ihy_data;
 \end{lstlisting}
+
+Les types de chaque champs renseignent la taille, ils ont été choisis pour être
+invariant sur toutes les architecture.
+
+\section{Headers}
+
+Premièrement, le ``magic number'' du format, qui est la suite des 4 caractères
+SNXT écrit en big-endian dans le fichier.
+S'en suit le FileSize qui représente la taille totale en octet du fichier.
+Le champ CompressionType sera détaillé plus bas, il donne les compressions
+utilisées, à noter que plus le nombre de compressions augmente, plus la
+décompression est lente, mais le fichier est alors de taille moindre.
 
 \end{document}
