@@ -1,0 +1,59 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{pslatex}
+\usepackage{listings}
+
+\title{Ihy format documentation}
+\author{Ihy group}
+
+\begin{document}
+
+\maketitle
+
+\abstract
+Ici, sera présent les informations relatives au format Ihy, les headers, ainsi
+que la façon dont le fichier est contruit, les différentes compression
+utilisées dans un fichier audio au format ihy.
+
+\tableofcontents
+
+\section{Headers}
+
+Voici la structure du ihy, tel qu'il a été initialement implanté.
+
+\lstset{language=c, numbers=left}
+\begin{lstlisting}[frame=single]
+typedef struct ihy_chunk
+{
+    uint32_t		ChunkSize;
+    uint8_t		*Values;
+} ihy_chunk;
+
+typedef struct ihy_data
+{
+    /* Header */
+    char		FileID[4]; /* "SNXT" */
+    uint64_t		FileSize;
+    uint16_t		CompressionType;
+    uint8_t		Channels;
+    uint32_t		Frequency;
+    /* Tags */
+    uint16_t		ArtistLength;
+    char		*Artist;
+    uint16_t		AlbumLength;
+    char		*Album;
+    uint16_t		TrackLength;
+    char		*Track;
+    uint16_t		Year;
+    uint8_t		Genre;
+    uint32_t		CommentLength;
+    char		*Comment;
+    /* Data */
+    uint32_t		NbChunk;
+    ihy_chunk		*DataChunks;
+} ihy_data;
+\end{lstlisting}
+
+\end{document}
