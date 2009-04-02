@@ -34,7 +34,17 @@ wagnac\_t (Teddy Wagnac)
 
 \section{Travail accompli}
 	\subsection{Lecture du format}
-	\subsection{Streaming}
+Un pre-requis a la creation d'un codec est sa lecture, le format doit
+pouvoir etre lu tel quel, et non pas decompresse vers un fichier wav, on
+perdrait alors tous interet d'un tel format. Pour cela, plusieurs choses
+ont ete necessaire. Premierement, il fallait mettre en place un systeme
+de ``streaming'', pour lire de facon fluide, en effet la decompression
+doit se derouler en meme temps que la lecture. Une implentation
+sequentielle naive n'aurait pas eu l'effet escompte : s'il faut attendre
+la fin de la lecture d'un ``chunk'' pour commencer a decompresser la
+suite, pour finalement lire le chunk decompresse, l'utilisateur aurait
+senti un temps d'arret lors de la lecture du fichier, en effet, la
+decompression n'est pas instantannee.\\
 	\subsection{Le type half}
 	\subsection{Ondelettes}
 	\subsection{Threading}
