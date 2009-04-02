@@ -88,8 +88,22 @@ nous le lise.
 données, néanmoins, nous n'avions pas écrit le code pour la décompression, et
 donc nous ne pouvions pas savoir si cela marchait réellement, nous savions juste
 que cela devrait marcher théoriquement. Nous avons donc écrit le code pour
-décompresser Huffman, et bien sûr, cela n'a pas fonctionné dès le début (ca
-aurait été trop beau).
+décompresser Huffman, et bien sûr, cela n'a pas fonctionné dès le début (ça
+aurait été trop beau). En fait, la technique utilisée à la compression, pour
+l'écriture était mauvaise, après réécriture de cette partie du code, tout
+marchait.\\
+Contrairement à notre première idée, Huffman n'est pas appliqué sur tout le
+fichier, il n'y a pas un arbre unique pour tout le fichier. En fait, chaque
+chunk possède son propre arbre de Huffman, premièrement, cela permet d'avoir un
+arbre de Huffman qui est beaucoup plus précis, en contrepartie, l'arbre de
+Huffman doit être écrit pour chaque chunk. Il fallait donc trouver le bon
+compromis, afin d'avoir une compression optimale. À cause des ondelettes, la
+taille d'un chunk doit être une puissance de deux, les tests pour l'optimalité
+de Huffman on donc été assez facile à réaliser. Sans avoir fait de tests (et
+même avant d'avoir commencer Huffman), nous avions fixé la taille d'un chunk
+comme étant équivalente à 65536 échantillons, et coup de chance pour nous, il
+s'agit de la taille optimale pour Huffman, un chunk deux fois plus gros, ou deux
+fois plus petit, grossis la taille du fichier final de quelques kilo-octets.
 	\subsection{Interface graphique}
 	\subsection{Site web}
 	\subsection{Portage sur iPhone}
