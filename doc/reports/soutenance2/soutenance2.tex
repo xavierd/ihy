@@ -34,20 +34,62 @@ wagnac\_t (Teddy Wagnac)
 
 \section{Travail accompli}
 	\subsection{Lecture du format}
-Un pre-requis a la creation d'un codec est sa lecture, le format doit
-pouvoir etre lu tel quel, et non pas decompresse vers un fichier wav, on
-perdrait alors tous interet d'un tel format. Pour cela, plusieurs choses
-ont ete necessaire. Premierement, il fallait mettre en place un systeme
-de ``streaming'', pour lire de facon fluide, en effet la decompression
-doit se derouler en meme temps que la lecture. Une implentation
-sequentielle naive n'aurait pas eu l'effet escompte : s'il faut attendre
-la fin de la lecture d'un ``chunk'' pour commencer a decompresser la
-suite, pour finalement lire le chunk decompresse, l'utilisateur aurait
-senti un temps d'arret lors de la lecture du fichier, en effet, la
-decompression n'est pas instantannee.\\
+Un pré requis la création d'un codec est sa lecture, le format doit
+pouvoir être lu tel quel, et non pas décompressé vers un fichier wav, on
+perdrait alors tous intérêt d'un tel format. Pour cela, plusieurs choses
+ont été nécessaire. Premièrement, il fallait mettre en place un système
+de ``streaming'', pour lire de façon fluide, en effet la décompression
+doit se dérouler en même temps que la lecture. Une implantation
+séquentielle naïve n'aurait pas eu l'effet escompte : s'il faut attendre
+la fin de la lecture d'un ``chunk'' pour commencer a décompresser la
+suite, pour finalement lire le chunk décompressé, l'utilisateur aurait
+senti un temps d'arrêt lors de la lecture du fichier, en effet, la
+décompression n'est pas instantanée.\\
+La solution choisie ici est de faire la lecture et le décodage simultanément,
+ainsi, on peut lire un chunk, et lorsque celui ci a fini de lire, on peut
+directement enchainer sur le chunk suivant, puisque celui ci a été décompressé.
+Pour mettre en place cette solution, il nous a fallu penser de façon parallèle,
+en effet si la programmation séquentielle va de soit, il n'en est pas de même
+pour la programmation parallèle.\\
+Ce qui ici est essentielle, est une structure de données partagées entre les
+deux processus (un qui décompresse, un autre qui lit). Pour cela, un buffer est
+tout approprié. En effet, lorsque le processus de lecture a besoin de données
+décompressées, il va simplement récupérer le prochain élément du buffer, et
+lorsque le processus de décompression a fini de décompresser, il va tout
+simplement ajouter les données dans le buffer. On voit ici clairement qu'un
+buffer n'est qu'une simple structure de donnée de type ``fifo''\footnote{first
+in first out}, qui est souvent implanté avec une file.\\
+Notre buffer est néanmoins plus complexe qu'une simple file, en effet, il faut
+qu'il puisse gérer les accès concurrentiels de la part des deux processus. Pour
+cela, on utilise des ``mutex'' pour protéger les zones critiques, plus
+précisément, l'ajout et le retrait d'un élément. De plus, pour des raisons
+d'économies de mémoire, il est judicieux que le processus de décompression ne
+soit pas toujours actif, en effet, lorsqu'un chunk est décompressé, il contient
+uniquement des échantillons, tels qu'ils sont codés dans un fichier wav, tout
+décompresser en une seule fois reviendrai a avoir le fichier wav intégralement
+en mémoire. En plus de cela, la lecture audio de notre format ne doit pas
+impacter les performances de l'ordinateur. Pour régler ces deux soucis, il
+existe une solution plutôt simple, définir une taille maximum pour le buffer, et
+lorsque celui-ci est plein, le processus de décompression va tout simplement
+attendre que ce dernier se vide. La ``bonne taille'' a été déterminée et est une
+taille de buffer de trois, c'est-à-dire que le buffer ne peut contenir que
+trois chunks.\\
+Lorsque tout ceci fut mis en place, il ne restait plus qu'à utiliser ce que nous
+avions commencé à mettre en place à la soutenance dernière, en prévision de
+cette lecture en streaming, la lecture d'un fichier wav. Ici, lorsque l'on
+décompresse le ihy, on récupère des bouts de wav, qui correspondent aux chunks
+du format. Il ne reste alors plus qu'à les envoyer à libao, pour que ce dernier
+nous le lise.
 	\subsection{Le type half}
 	\subsection{Ondelettes}
 	\subsection{Threading}
+	\subsection{Huffman suite et fin}
+À la dernière soutenance, nous pouvions utiliser huffman, pour compresser des
+données, néanmoins, nous n'avions pas écrit le code pour la décompression, et
+donc nous ne pouvions pas savoir si cela marchait réellement, nous savions juste
+que cela devrait marcher théoriquement. Nous avons donc écrit le code pour
+décompresser Huffman, et bien sûr, cela n'a pas fonctionné dès le début (ca
+aurait été trop beau).
 	\subsection{Interface graphique}
 	\subsection{Site web}
 	\subsection{Portage sur iPhone}
