@@ -13,6 +13,7 @@
 #include <audio_output/wav_streaming.h>
 #include <audio_output/ihy_streaming.h>
 #include <utils/half.h>
+#include <main_threading.h>
 
 static void *thread_play_ihy(void *data)
 {
