@@ -108,42 +108,61 @@ kilo-octets.\\
 	\subsection{Interface graphique}
 	\subsection{Site web}
 	\subsection{Portage sur iPhone}
-Aujourd'hui, les codecs audio sont de plus en plus utilises sur des
-ordinateur possedant une puissance plus que limite, j'ai nomme les iPods
-et derives. Pour qu'un codec soit considere comme utilisable, il faut
-qu'il puisse etre utilise sur ces plateformes, cela montre qu'il n'est
-pas necessaire d'avoir un ordinateur tres puissant pour pouvoir lire le
-format. C'est egalement une preuve d'un codec bien realise, celui ci
-etant alors portable et donc theoriquement lisible sur tous les
+Aujourd'hui, les codecs audio sont de plus en plus utilisés sur des
+ordinateur possédant une puissance plus que limite, j'ai nommé les iPods
+et dérives. Pour qu'un codec soit considère comme utilisable, il faut
+qu'il puisse être utilise sur ces plateformes, cela montre qu'il n'est
+pas nécessaire d'avoir un ordinateur très puissant pour pouvoir lire le
+format. C'est également une preuve d'un codec bien réalise, celui ci
+étant alors portable et donc théoriquement lisible sur tous les
 appareils.\\
-L'annee derniere apple a sorti un SDK\footnote{software developpement
-kit} permettant de developper des applications pour l'iPhone, ceci en
-utilisant les outils ainsi que les docs officielles de facon gratuite.
-C'est l'occasion revee de montrer que notre codec est a la fois
-portable et leger.\\
+L'année dernière apple a sorti un SDK\footnote{software developpement
+kit} permettant de développer des applications pour l'iPhone\footnote{Lorsque
+l'on parle d'iPhone, on parle également d'iPod Touch, qui sont identiques au
+niveau plateforme de développement}, ceci en
+utilisant les outils ainsi que la documentation officielle, et ce de façon gratuite.
+C'est l'occasion rêvée de montrer que notre codec est a la fois
+portable et léger.\\
 		\subsubsection{Reunir les outils}
-Premiere etape donc, absolument indispensable a la realisation du
+Première étape donc, absolument indispensable a la réalisation du
 portage, la mise en place d'un environnement de cross-compilation,
-c'est-a-dire, un compilateur pouvant generer du code pour iPhone, qui
+c'est-à-dire, un compilateur, et les outils associés,  pouvant générer du code
+pour iPhone, qui
 tourne sur un ordinateur classique. Le SDK de apple en fournit un, mais
 celui-ci est compatible uniquement avec MAC OSX Leopard, ce que nous ne
-possedons pas. Heuresement, la communaute ``underground'' de l'iPhone
-est assez importante, en cherchant bien, on a reussi a trouver un
+possédons pas. Heureusement, la communauté ``underground'' de l'iPhone
+est assez importante, en cherchant bien, on a réussi a trouver un
 tutoriel expliquant comment se construire un
 ``toolchain''\footnote{logiciel et headers complet pour compiler un
-programme} integral. Apres cela, nous pouvions compiler et lancer un
+programme} intégral sur Linux. Après cela, nous pouvions compiler et lancer un
 simple Hello World sur l'iPhone.\\
-Mais voila, notre projet n'est pas uniquement fait de C, mais egalement
-de OCaml. Il a donc fallu trouver une facon de creer un compilateur caml
-pour l'iPhone. Chose que l'on a egalement trouve sur internet, avec
-tutoriel tres detaille.
+Mais voila, notre projet n'est pas uniquement fait de C, mais également
+de OCaml. Il a donc fallu trouver une façon de créer un compilateur
+cross-compilateur OCaml
+pour l'iPhone. On a également trouvé un tutoriel très détaillé, fournissant les
+patchs a appliquer aux sources de OCaml, pour que celui-ci génère du code pour
+iPhone.
 		\subsubsection{Compiler le projet}
-Notre projet ne possedant que tres peu de dependance externes, la
-compilation s'est bien deroule, sauf sur la seule dependance : libao, la
-bibliotheque nous permettant de lire du son. Apres l'avoir retire du
+Notre projet ne possédant que très peu de dépendance externes, la
+compilation s'est bien déroulée, sauf sur la seule dépendance : libao, la
+bibliothèque nous permettant de lire du son. Après l'avoir retire du
 projet, nous avons teste le bon fonctionnement des autres composants du
-projet, c'est-a-dire la compression et la decompression. Cela a
-fonctionne du premier coup, chose a laquelle je ne m'attendais pas.\\
+projet, c'est-à-dire la compression et la décompression. Cela a
+fonctionné du premier coup, chose a laquelle je ne m'attendais pas.\\
+		\subsubsection{La sortie audio}
+Libao ne compilant pas, il nous fallait impérativement trouver une autre
+solution pour lire du son. En fouillant dans la documentation de Apple, je suis
+tombé sur un article montrant comment utiliser les ``Audio Queues'', qui est
+décrit comme étant ``la solution pour lire vos sons de façon asynchrone''. La
+description colle exactement avec l'utilisation qu'on veut en avoir.\\
+Dans les grandes lignes, apple a implanté la notion décrite plus haut pour
+les buffers audio, et l'a rendue utilisable via ces Audio Queues. La seule chose
+à faire est de créer une fonction qui sera appelée lorsque le lecteur audio aura
+besoin de nouvelles données. Dans notre cas, cette fonction va tout simplement
+décompresser le fichier ihy et le renvoyer sous la forme d'un flux PCM.\\
+Lorsque cela fut implanter, l'iPhone pouvait lire, de façon théorique, notre
+format. Restait à le vérifier sur l'iPhone. Et là oh surprise, cela
+fonctionnait, de façon totalement fluide. 
 
 \newpage
 
