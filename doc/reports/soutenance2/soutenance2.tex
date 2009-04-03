@@ -92,6 +92,14 @@ décompresser Huffman, et bien sûr, cela n'a pas fonctionné dès le début (ç
 aurait été trop beau). En fait, la technique utilisée à la compression, pour
 l'écriture était mauvaise, après réécriture de cette partie du code, tout
 marchait.\\
+La technique utilisée pour décompresser des données qui ont été précédemment
+compressées via Huffman est simple, on récupère le prochain bit des données
+compressées, puis si il s'agit d'un 0, on recommence le procédé sur le fils
+gauche de l'arbre, si c'est un 1, à droite. Enfin le caractère non compressé est
+celui que l'on trouve lorsque l'on arrive en racine de l'arbre de Huffman, que
+l'on avait, à la compression, sauvé dans le fichier. Pour décompresser
+totalement le fichier, on recommence ce petit
+procédé tant qu'il y a des caractères dans celui-ci.\\
 Contrairement à notre première idée, Huffman n'est pas appliqué sur tout le
 fichier, il n'y a pas un arbre unique pour tout le fichier. En fait, chaque
 chunk possède son propre arbre de Huffman, premièrement, cela permet d'avoir un
@@ -167,6 +175,11 @@ fonctionnait, de façon totalement fluide.
 \newpage
 
 \section{Tâches prévues}
+	\subsection{Documentation}
+Pour cette ultime soutenance, nous avons prévu d'écrire une documentation du
+format, suffisamment détaillée pour que n'importe qui puisse lire et écrire un
+fichier ihy sans dépendre de notre code. A remplir.
+	\subsection{Comparaison entre les codecs}
 
 \newpage
 
