@@ -1,3 +1,5 @@
+#include <main_threading.h>
+
 static void encode_ihy(int nbcpu)
 {
     pid_t *children;
@@ -75,10 +77,4 @@ static void encode_ihy(int nbcpu)
 	buf[5] = 0;
 	printf("le fils %i a recu : %s\n", nbchild, buf);
     }
-}
-
-int main()
-{
-	encode_ihy(8);
-	return 0;
 }
