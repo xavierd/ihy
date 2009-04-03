@@ -99,14 +99,51 @@ arbre de Huffman qui est beaucoup plus précis, en contrepartie, l'arbre de
 Huffman doit être écrit pour chaque chunk. Il fallait donc trouver le bon
 compromis, afin d'avoir une compression optimale. À cause des ondelettes, la
 taille d'un chunk doit être une puissance de deux, les tests pour l'optimalité
-de Huffman on donc été assez facile à réaliser. Sans avoir fait de tests (et
+de Huffman ont donc été assez facile à réaliser. Sans avoir fait de tests (et
 même avant d'avoir commencer Huffman), nous avions fixé la taille d'un chunk
 comme étant équivalente à 65536 échantillons, et coup de chance pour nous, il
 s'agit de la taille optimale pour Huffman, un chunk deux fois plus gros, ou deux
-fois plus petit, grossis la taille du fichier final de quelques kilo-octets.
+fois plus petit, grossis la taille du fichier final de quelques
+kilo-octets.\\
 	\subsection{Interface graphique}
 	\subsection{Site web}
 	\subsection{Portage sur iPhone}
+Aujourd'hui, les codecs audio sont de plus en plus utilises sur des
+ordinateur possedant une puissance plus que limite, j'ai nomme les iPods
+et derives. Pour qu'un codec soit considere comme utilisable, il faut
+qu'il puisse etre utilise sur ces plateformes, cela montre qu'il n'est
+pas necessaire d'avoir un ordinateur tres puissant pour pouvoir lire le
+format. C'est egalement une preuve d'un codec bien realise, celui ci
+etant alors portable et donc theoriquement lisible sur tous les
+appareils.\\
+L'annee derniere apple a sorti un SDK\footnote{software developpement
+kit} permettant de developper des applications pour l'iPhone, ceci en
+utilisant les outils ainsi que les docs officielles de facon gratuite.
+C'est l'occasion revee de montrer que notre codec est a la fois
+portable et leger.\\
+		\subsubsection{Reunir les outils}
+Premiere etape donc, absolument indispensable a la realisation du
+portage, la mise en place d'un environnement de cross-compilation,
+c'est-a-dire, un compilateur pouvant generer du code pour iPhone, qui
+tourne sur un ordinateur classique. Le SDK de apple en fournit un, mais
+celui-ci est compatible uniquement avec MAC OSX Leopard, ce que nous ne
+possedons pas. Heuresement, la communaute ``underground'' de l'iPhone
+est assez importante, en cherchant bien, on a reussi a trouver un
+tutoriel expliquant comment se construire un
+``toolchain''\footnote{logiciel et headers complet pour compiler un
+programme} integral. Apres cela, nous pouvions compiler et lancer un
+simple Hello World sur l'iPhone.\\
+Mais voila, notre projet n'est pas uniquement fait de C, mais egalement
+de OCaml. Il a donc fallu trouver une facon de creer un compilateur caml
+pour l'iPhone. Chose que l'on a egalement trouve sur internet, avec
+tutoriel tres detaille.
+		\subsubsection{Compiler le projet}
+Notre projet ne possedant que tres peu de dependance externes, la
+compilation s'est bien deroule, sauf sur la seule dependance : libao, la
+bibliotheque nous permettant de lire du son. Apres l'avoir retire du
+projet, nous avons teste le bon fonctionnement des autres composants du
+projet, c'est-a-dire la compression et la decompression. Cela a
+fonctionne du premier coup, chose a laquelle je ne m'attendais pas.\\
 
 \newpage
 
