@@ -166,7 +166,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 
 static void print_help()
 {
-    printf(	"Usage : ihyconvert [OPTION] [FILEs]\n");
+    printf(	"Usage : ihyconvert [mode] [file ...]\n");
     printf(	"Official converter of the ihy codec\n\n");
     printf(	"  -c IN.wav OUT.ihy		: compress IN into OUT\n");
     printf(	"  -x IN.ihy OUT.wav		: extract OUT from IN\n");
