@@ -16,7 +16,7 @@ set nokey
 set style data impulse
 set xlabel "frequency [Hz]" font "VeraMono,10"
 set xrange [0:22000]
-set yrange [0:400000000]
+set yrange [0:200]
 set title "FFT" font "VeraMono,10"
 set grid xtics ytics
 set xtics 3000
@@ -24,4 +24,5 @@ plot "data.dat" using 1:2 w impulse 1
 EOPLOT
 close(GNUPLOT);
 
+#set yrange [0:400000000]
 #set yrange [0:500000000]

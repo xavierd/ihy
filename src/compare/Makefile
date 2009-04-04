@@ -2,7 +2,7 @@ CC=gcc
 CFLAGS=-O2 -Wall -W -pedantic
 LDFLAGS=-L/usr/local/lib -lfftw3 -lm
 
-SRC=codecs/wav.c codecs/ihy.c fftux.c
+SRC=codecs/wav.c fftux.c
 OBJ=${SRC:.c=.o}
 
 EXEC=fftux
