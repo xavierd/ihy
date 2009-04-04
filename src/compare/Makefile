@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-g -Wall -W -pedantic
+CFLAGS=-O2 -Wall -W -pedantic
 LDFLAGS=-L/usr/local/lib -lfftw3 -lm
 
 SRC=codecs/wav.c codecs/ihy.c fftux.c
