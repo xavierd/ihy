@@ -35,24 +35,31 @@ wagnac\_t (Teddy Wagnac)
 \section{Travail accompli}
 	\subsection{Lecture du format}
 Un pré requis la création d'un codec est sa lecture, le format doit
-pouvoir être lu tel quel, et non pas décompressé vers un fichier wav, on
-perdrait alors tous intérêt d'un tel format. Pour cela, plusieurs choses
-ont été nécessaire. Premièrement, il fallait mettre en place un système
-de ``streaming'', pour lire de façon fluide, en effet la décompression
-doit se dérouler en même temps que la lecture. Une implantation
-séquentielle naïve n'aurait pas eu l'effet escompte : s'il faut attendre
-la fin de la lecture d'un ``chunk'' pour commencer a décompresser la
-suite, pour finalement lire le chunk décompressé, l'utilisateur aurait
-senti un temps d'arrêt lors de la lecture du fichier, en effet, la
-décompression n'est pas instantanée.\\
-La solution choisie ici est de faire la lecture et le décodage simultanément,
-ainsi, on peut lire un chunk, et lorsque celui ci a fini de lire, on peut
-directement enchainer sur le chunk suivant, puisque celui ci a été décompressé.
+pouvoir être lu tel quel, et non pas décompressé vers un fichier wav pour
+pouvoir ensuite le lire, on
+perdrait alors tous intérêt d'un tel format. Il faut donc mettre en place un
+système de ``streaming'' dans lequel la décompression et la lecture sont
+simultanés.
+		\subsubsection{Architecture du streaming}
+La première idée qui vient à l'esprit, est d'attendre qu'une partie de la
+musique soit lue pour commencer à décompresser puis lire ce que l'on vient de
+décompresser. Malheureusement, cette implantation naïve ne fonctionne tout
+simplement pas. En effet, décompresser un ``chunk'', c'est-à-dire un bout de la
+musique, n'est pas une opération instantané, et donc par conséquent, la lecture
+aurait marqué un temps d'arrêt à la fin de chaque chunk, correspondant à la
+durée de décompression dudit chunk.\\
+Pour pallier à ce problème il faut threader la décompression, à l'aide de deux
+processus séparés. Le premier processus va décompresser les chunks pendant que
+le second va lire les chunks que le premier processus aura décompresser. Comme
+la décompression dure moins longtemps que la lecture, il n'y a pas de temps
+d'arrêt notable lors d'un changement de chunk.\\
 Pour mettre en place cette solution, il nous a fallu penser de façon parallèle,
 en effet si la programmation séquentielle va de soit, il n'en est pas de même
-pour la programmation parallèle.\\
-Ce qui ici est essentielle, est une structure de données partagées entre les
-deux processus (un qui décompresse, un autre qui lit). Pour cela, un buffer est
+pour la programmation parallèle. Et la se pose le premier problème, comment
+communiquer entre ces deux processus?\\
+		\subsubsection{Le buffer}
+Ce qui ici est essentiel, est une structure de données partagées entre les
+deux processus. Pour cela, un buffer est
 tout approprié. En effet, lorsque le processus de lecture a besoin de données
 décompressées, il va simplement récupérer le prochain élément du buffer, et
 lorsque le processus de décompression a fini de décompresser, il va tout
@@ -63,7 +70,7 @@ Notre buffer est néanmoins plus complexe qu'une simple file, en effet, il faut
 qu'il puisse gérer les accès concurrentiels de la part des deux processus. Pour
 cela, on utilise des ``mutex'' pour protéger les zones critiques, plus
 précisément, l'ajout et le retrait d'un élément. De plus, pour des raisons
-d'économies de mémoire, il est judicieux que le processus de décompression ne
+d'économies de mémoire et d'activité du processeur, il est judicieux que le processus de décompression ne
 soit pas toujours actif, en effet, lorsqu'un chunk est décompressé, il contient
 uniquement des échantillons, tels qu'ils sont codés dans un fichier wav, tout
 décompresser en une seule fois reviendrai a avoir le fichier wav intégralement
@@ -74,6 +81,7 @@ lorsque celui-ci est plein, le processus de décompression va tout simplement
 attendre que ce dernier se vide. La ``bonne taille'' a été déterminée et est une
 taille de buffer de trois, c'est-à-dire que le buffer ne peut contenir que
 trois chunks.\\
+		\subsubsection{Sortie audio}
 Lorsque tout ceci fut mis en place, il ne restait plus qu'à utiliser ce que nous
 avions commencé à mettre en place à la soutenance dernière, en prévision de
 cette lecture en streaming, la lecture d'un fichier wav. Ici, lorsque l'on
