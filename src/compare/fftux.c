@@ -37,7 +37,6 @@ int main(int argc, char **argv) {
 	if (input->BitsPerSample == 16) {
 	    m = input->Data[i];
 	    i++;
-	    if (m > 127) { m = m - 255; }
 	    A[v] = 256*m + k;
 	} else {
 	    A[v] = k;
@@ -45,6 +44,7 @@ int main(int argc, char **argv) {
 	if (input->NumChannels > 1)
 	    i += (input->BitsPerSample / 8);
     }
+
     /* prepare fft with fftw*/
     rdata = fftw_malloc(n * sizeof(fftw_complex));
     idata = fftw_malloc(n * sizeof(fftw_complex));
@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
        real frequency of each power line in the spectrum*/
     m = 0;
     for (i = 0; i < (n / 2); i++) {
-	absval = sqrt(idata[i] * idata[i]);
+	absval = sqrt(idata[i] * idata[i]) / n;
 	cc = (double)m * correction;
 	sprintf(erg, "%f %f\n", cc, absval);
 	fputs(erg, file);
