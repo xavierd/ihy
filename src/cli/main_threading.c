@@ -1,80 +1,88 @@
 #include <main_threading.h>
 
-static void encode_ihy(int nbcpu)
+typedef struct s_son {
+	pid_t pid;
+	int numchunk;
+	int pipe[2];
+} t_son;
+
+static void proceed_chunk(int outfd, int sonid)
 {
-    pid_t *children;
-    int *pipes;
+    char buf[128];	
+
+    strcpy(buf, "mfvp");
+    buf[4] = sonid + 48;
+    buf[5] = 0;
+    write(outfd, buf, 128);
+}
+
+void encode_ihy(int nbcpu, int nbchunks)
+{
+    t_son *sons;
+    int nbsons;
     int i;
+    char isson;
+    int donechunks;
     char buf[128];
 
-    children = malloc(nbcpu * sizeof(pid_t));
-    pipes = malloc(nbcpu * 2 * 2 * sizeof(int));
+    sons = malloc(nbcpu * sizeof(t_son));
 
-    for (i = 0; i < nbcpu; i++)
-    {
-	pipe(&pipes[4 * i + 2 * 0]);
-	pipe(&pipes[4 * i + 2 * 1]);
-    }
-
+    nbsons = 0;
     i = 0;
-    while ((i < nbcpu) && (children[i] = fork()))
+    isson = 0;
+    donechunks = 0;
+    while ((i < nbcpu) && (!isson))
     {
-	i++;
+	sons[i].numchunk = donechunks;
+	pipe(sons[i].pipe);
+	if (!(sons[i].pid = fork()))
+	{
+	    isson = 1;
+	}
+	else
+	{
+	    nbsons++;
+	    i++;
+	    donechunks++;
+	}
     }
 
-    if (i == nbcpu)
+    if (!isson)
     {
-	for (i = 0; i < nbcpu; i++)
+	while ((nbsons > 0) && (!isson))
 	{
-	    close(pipes[4 * i + 2 * 0 + 1]);
-	    close(pipes[4 * i + 2 * 1 + 0]);
-	}
+	    pid_t pid;
 
-	strcpy(buf, "mpvf");
-	for (i = 0; i < nbcpu; i++)
-	{
-	    buf[4] = i + 48;
-	    buf[5] = 0;
-	    write(pipes[4 * i + 2 * 1 + 1], buf, 5);
-	    printf("le pere a envoye au fils %i : %s\n", i, buf);
-	    close(pipes[4 * i + 2 * 1 + 1]);
-	}
-	for (i = 0; i < nbcpu; i++)
-	{
-	    wait(NULL);
+	    pid = wait(NULL);
+	    nbsons--;
+	    i = 0;
+	    while (sons[i].pid != pid)
+	    {
+		i++;
+	    }
+	    read(sons[i].pipe[0], buf, 128);
+	    close(sons[i].pipe[0]);
+	    close(sons[i].pipe[1]);
+	    printf("%s\n", buf);
+	    if (donechunks < nbchunks)
+	    {
+		sons[i].numchunk = donechunks;
+		pipe(sons[i].pipe);
+		if (!(sons[i].pid = fork()))
+		{
+		    isson = 1;
+		    proceed_chunk(sons[i].pipe[1], i);
+		}
+		else
+		{
+		    donechunks++;
+		    nbsons++;
+		}
+	    }
 	}
     }
     else
     {
-	int nbchild;
-
-	nbchild = 0;
-	while (children[nbchild])
-	{
-	    nbchild++;
-	}
-
-	for (i = 0; i < nbcpu; i++)
-	{
-	    if (i == nbchild)
-	    {
-		close(pipes[4 * i + 2 * 0 + 0]);
-		close(pipes[4 * i + 2 * 1 + 1]);
-	    }
-	    else
-	    {
-		close(pipes[4 * i + 0 * 2 + 0]);
-		close(pipes[4 * i + 0 * 2 + 1]);
-		close(pipes[4 * i + 1 * 2 + 0]);
-		close(pipes[4 * i + 1 * 2 + 1]);
-	    }
-	}
-
-	srandom(nbchild);
-	usleep(random() / 1000);
-	read(pipes[4 * nbchild + 2 * 1 + 0], buf, 5);
-	close(pipes[4 * nbchild + 2 * 1 + 0]);
-	buf[5] = 0;
-	printf("le fils %i a recu : %s\n", nbchild, buf);
+	proceed_chunk(sons[i].pipe[1], i);
     }
 }

@@ -172,6 +172,8 @@ static void print_help()
     printf(	"  -x IN.ihy OUT.wav		: extract OUT from IN\n");
     printf(	"  -r IN.ihy			: play IN\n");
     printf(	"  -h				: display this help\n");
+
+    encode_ihy(8, 10);
 }
 
 int main(int argc, char **argv)

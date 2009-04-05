@@ -2,5 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/wait.h>
 
-static void encode_ihy(int nbcpu);
+void encode_ihy(int nbcpu, int nbchunks);
