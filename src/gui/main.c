@@ -171,31 +171,31 @@ int main(int argc, char **argv)
 
     /* Remplissage de la barre d'outil*/
     gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
-	    GTK_STOCK_NEW,
-	    "Nouveau",
+	    "File",
 	    NULL,
-	    NULL,
-	    NULL,
-	    -1);
-    gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
-	    GTK_STOCK_OPEN,
-	    "Ouvrir",
-	    NULL,
+	    "_File",
 	    NULL,
 	    NULL,
 	    -1);
     gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
-	    GTK_STOCK_SAVE,
-	    "Enregistrer",
+	    "Open",
 	    NULL,
+	    "_Open",
+	    NULL,
+	    NULL,
+	    -1);
+    gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
+	    "Save",
+	    NULL,
+	    "_Save",
 	    NULL,
 	    NULL,
 	    -1);
 
     gtk_toolbar_insert_stock(GTK_TOOLBAR(pToolbar),
-	    GTK_STOCK_QUIT,
-	    "Fermer",
+	    "Quit",
 	    NULL,
+	    "_Quit",
 	    G_CALLBACK(gtk_main_quit),
 	    NULL,
 	    -1);
