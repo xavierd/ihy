@@ -12,7 +12,7 @@ static void proceed_chunk(int outfd, int sonid)
 
     strcpy(buf, "mfvp");
     buf[4] = sonid + 48;
-    buf[5] = ' ';
+    buf[5] = 0;
     write(outfd, buf, 128);
 }
 
@@ -24,7 +24,6 @@ void encode_ihy(int nbcpu, int nbchunks)
     char isson;
     int donechunks;
     char buf[128];
-    FILE *fd;
 
     sons = malloc(nbcpu * sizeof(t_son));
 
@@ -32,14 +31,13 @@ void encode_ihy(int nbcpu, int nbchunks)
     i = 0;
     isson = 0;
     donechunks = 0;
-    fd = fopen("test", "w");
     while ((i < nbcpu) && (!isson))
     {
 	sons[i].numchunk = donechunks;
 	pipe(sons[i].pipe);
 	if (!(sons[i].pid = fork()))
 	{
-	    fprintf(fd,"fils %d\n", i);
+	    printf("fils %d\n", i);
 	    isson = 1;
 	}
 	else
@@ -66,8 +64,7 @@ void encode_ihy(int nbcpu, int nbchunks)
 	    read(sons[i].pipe[0], buf, 128);
 	    close(sons[i].pipe[0]);
 	    close(sons[i].pipe[1]);
-	    fprintf(fd,"%s\n", buf);
-	    fprintf(fd, "nb :%d\n", nbsons);
+	    printf("%s\n", buf);
 	    if (donechunks < nbchunks)
 	    {
 		sons[i].numchunk = donechunks;
@@ -75,8 +72,8 @@ void encode_ihy(int nbcpu, int nbchunks)
 		if (!(sons[i].pid = fork()))
 		{
 		    isson = 1;
-		    fprintf(fd, "%d\n", donechunks);
 		    proceed_chunk(sons[i].pipe[1], i);
+		    _exit(0);
 		}
 		else
 		{
@@ -90,6 +87,6 @@ void encode_ihy(int nbcpu, int nbchunks)
     {
 	close(sons[i].pipe[0]);
 	proceed_chunk(sons[i].pipe[1], i);
-	exit(0);
+	_exit(0);
     }
 }
