@@ -60,7 +60,7 @@ on_expose_event(GtkWidget *widget,
     cairo_save(cr);
     cairo_translate(cr, width / 2, height / 2 );
     cairo_rotate(cr, angle);
-    //cairo_scale(cr, scale, scale);
+    /*cairo_scale(cr, scale, scale);*/
 
     cairo_save(cr);
     cairo_translate(cr, width / 4, height / 4 );
@@ -130,7 +130,6 @@ int main(int argc, char **argv)
     GtkWidget   *pWindow;
     GtkWidget   *pTable;
     GtkWidget   *pButton[3];
-    GtkWidget   *pScale;
     GtkWidget   *pToolbar;
     GtkWidget   *image;
     GtkWidget   *pProgress;
@@ -153,7 +152,7 @@ int main(int argc, char **argv)
 
     pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_add_events (pWindow, GDK_BUTTON_PRESS_MASK);
-    gtk_window_set_default_size(GTK_WINDOW(pWindow), 600, 700);
+    gtk_window_set_default_size(GTK_WINDOW(pWindow), 600, 600);
     gtk_window_set_title(GTK_WINDOW(pWindow), "Ihy Player");
     g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
 
@@ -218,22 +217,15 @@ int main(int argc, char **argv)
     pButton[2] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
 
     /* Insertion des boutons dans la pHBox*/
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[0], TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[1], TRUE, FALSE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox), pButton[2], TRUE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[0], TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[1], TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox), pButton[2], TRUE, TRUE, 0);
     
 
     /* Creation de la barre progress bar */
     pProgress = gtk_progress_bar_new();
     gtk_table_attach(GTK_TABLE(pTable), pProgress,
-	    1, 8, 5, 6,
-	    GTK_EXPAND | GTK_FILL, GTK_EXPAND,
-	    0, 0);
-
-    /*pScale*/
-    pScale = gtk_hscale_new_with_range(0, 10, 1);
-    gtk_table_attach(GTK_TABLE(pTable), pScale,
-	    4, 8, 7, 8,
+	    3, 8, 7, 8,
 	    GTK_EXPAND | GTK_FILL, GTK_EXPAND,
 	    0, 0);
 
@@ -244,8 +236,10 @@ int main(int argc, char **argv)
 	    0, 9, 1, 5,
             GTK_EXPAND, GTK_EXPAND | GTK_FILL,
             0, 0);
-    gtk_table_attach_defaults(GTK_TABLE(pTable), pHBox,
-	    1, 3, 7, 8);   
+    gtk_table_attach(GTK_TABLE(pTable), pHBox,
+	    0, 2, 7, 8,
+            0,0,
+            0,0);   
 
     /* Connection des boutons */
     g_signal_connect_swapped(G_OBJECT(pButton[0]), "clicked", G_CALLBACK(OnPlay), pProgress);
