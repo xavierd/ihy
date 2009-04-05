@@ -173,7 +173,7 @@ static void print_help()
     printf(	"  -r IN.ihy			: play IN\n");
     printf(	"  -h				: display this help\n");
 
-    encode_ihy(8, 10);
+    encode_ihy(8, 25);
 }
 
 int main(int argc, char **argv)

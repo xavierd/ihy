@@ -37,6 +37,7 @@ void encode_ihy(int nbcpu, int nbchunks)
 	pipe(sons[i].pipe);
 	if (!(sons[i].pid = fork()))
 	{
+	    printf("fils %d\n", i);
 	    isson = 1;
 	}
 	else
@@ -72,6 +73,7 @@ void encode_ihy(int nbcpu, int nbchunks)
 		{
 		    isson = 1;
 		    proceed_chunk(sons[i].pipe[1], i);
+		    _exit(0);
 		}
 		else
 		{
@@ -83,6 +85,8 @@ void encode_ihy(int nbcpu, int nbchunks)
     }
     else
     {
+	close(sons[i].pipe[0]);
 	proceed_chunk(sons[i].pipe[1], i);
+	_exit(0);
     }
 }
