@@ -12,7 +12,7 @@ static void proceed_chunk(int outfd, int sonid)
 
     strcpy(buf, "mfvp");
     buf[4] = sonid + 48;
-    buf[5] = 0;
+    buf[5] = ' ';
     write(outfd, buf, 128);
 }
 
@@ -52,7 +52,6 @@ void encode_ihy(int nbcpu, int nbchunks)
 
     if (!isson)
     {
-	nbsons--; /* we don't want the father */
 	while ((nbsons > 0) && (!isson))
 	{
 	    pid_t pid;
@@ -68,7 +67,7 @@ void encode_ihy(int nbcpu, int nbchunks)
 	    close(sons[i].pipe[0]);
 	    close(sons[i].pipe[1]);
 	    fprintf(fd,"%s\n", buf);
-	    //fprintf(fd, "%d\n", nbsons);
+	    fprintf(fd, "nb :%d\n", nbsons);
 	    if (donechunks < nbchunks)
 	    {
 		sons[i].numchunk = donechunks;
@@ -76,12 +75,13 @@ void encode_ihy(int nbcpu, int nbchunks)
 		if (!(sons[i].pid = fork()))
 		{
 		    isson = 1;
+		    fprintf(fd, "%d\n", donechunks);
 		    proceed_chunk(sons[i].pipe[1], i);
 		}
 		else
 		{
 		    donechunks++;
-		    //nbsons++;
+		    nbsons++;
 		}
 	    }
 	}
