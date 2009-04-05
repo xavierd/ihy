@@ -1,0 +1,196 @@
+\documentclass[a4paper,12pt]{article}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{pslatex}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{lscape}
+\selectlanguage{francais}
+
+
+\title{Rapport de Soutenance 2}
+\author{
+Ihy Group : \\
+deguil\_x (Xavier Deguillard)\\
+genite\_n (Nicolas Geniteau)\\
+sezer\_s (Stephane Sezer)\\
+wagnac\_t (Teddy Wagnac)
+}
+
+\begin{document}
+
+\maketitle
+
+\newpage
+
+\section*{Introduction}
+
+\newpage
+
+\tableofcontents
+
+\newpage
+
+\section{Travail accompli}
+	\subsection{Lecture du format}
+Un pré requis la création d'un codec est sa lecture, le format doit
+pouvoir être lu tel quel, et non pas décompressé vers un fichier wav pour
+pouvoir ensuite le lire, on
+perdrait alors tous intérêt d'un tel format. Il faut donc mettre en place un
+système de ``streaming'' dans lequel la décompression et la lecture sont
+simultanés.
+		\subsubsection{Architecture du streaming}
+La première idée qui vient à l'esprit, est d'attendre qu'une partie de la
+musique soit lue pour commencer à décompresser puis lire ce que l'on vient de
+décompresser. Malheureusement, cette implantation naïve ne fonctionne tout
+simplement pas. En effet, décompresser un ``chunk'', c'est-à-dire un bout de la
+musique, n'est pas une opération instantané, et donc par conséquent, la lecture
+aurait marqué un temps d'arrêt à la fin de chaque chunk, correspondant à la
+durée de décompression dudit chunk.\\
+Pour pallier à ce problème il faut threader la décompression, à l'aide de deux
+processus séparés. Le premier processus va décompresser les chunks pendant que
+le second va lire les chunks que le premier processus aura décompresser. Comme
+la décompression dure moins longtemps que la lecture, il n'y a pas de temps
+d'arrêt notable lors d'un changement de chunk.\\
+Pour mettre en place cette solution, il nous a fallu penser de façon parallèle,
+en effet si la programmation séquentielle va de soit, il n'en est pas de même
+pour la programmation parallèle. Et la se pose le premier problème, comment
+communiquer entre ces deux processus?\\
+		\subsubsection{Le buffer}
+Ce qui ici est essentiel, est une structure de données partagées entre les
+deux processus. Pour cela, un buffer est
+tout approprié. En effet, lorsque le processus de lecture a besoin de données
+décompressées, il va simplement récupérer le prochain élément du buffer, et
+lorsque le processus de décompression a fini de décompresser, il va tout
+simplement ajouter les données dans le buffer. On voit ici clairement qu'un
+buffer n'est qu'une simple structure de donnée de type ``fifo''\footnote{first
+in first out}, qui est souvent implanté avec une file.\\
+Notre buffer est néanmoins plus complexe qu'une simple file, en effet, il faut
+qu'il puisse gérer les accès concurrentiels de la part des deux processus. Pour
+cela, on utilise des ``mutex'' pour protéger les zones critiques, plus
+précisément, l'ajout et le retrait d'un élément. De plus, pour des raisons
+d'économies de mémoire et d'activité du processeur, il est judicieux que le processus de décompression ne
+soit pas toujours actif, en effet, lorsqu'un chunk est décompressé, il contient
+uniquement des échantillons, tels qu'ils sont codés dans un fichier wav, tout
+décompresser en une seule fois reviendrai a avoir le fichier wav intégralement
+en mémoire. En plus de cela, la lecture audio de notre format ne doit pas
+impacter les performances de l'ordinateur. Pour régler ces deux soucis, il
+existe une solution plutôt simple, définir une taille maximum pour le buffer, et
+lorsque celui-ci est plein, le processus de décompression va tout simplement
+attendre que ce dernier se vide. La ``bonne taille'' a été déterminée et est une
+taille de buffer de trois, c'est-à-dire que le buffer ne peut contenir que
+trois chunks.\\
+		\subsubsection{Sortie audio}
+Lorsque tout ceci fut mis en place, il ne restait plus qu'à utiliser ce que nous
+avions commencé à mettre en place à la soutenance dernière, en prévision de
+cette lecture en streaming, la lecture d'un fichier wav. Ici, lorsque l'on
+décompresse le ihy, on récupère des bouts de wav, qui correspondent aux chunks
+du format. Il ne reste alors plus qu'à les envoyer à libao, pour que ce dernier
+nous le lise.
+	\subsection{Le type half}
+	\subsection{Ondelettes}
+	\subsection{Threading}
+	\subsection{Huffman suite et fin}
+À la dernière soutenance, nous pouvions utiliser huffman, pour compresser des
+données, néanmoins, nous n'avions pas écrit le code pour la décompression, et
+donc nous ne pouvions pas savoir si cela marchait réellement, nous savions juste
+que cela devrait marcher théoriquement. Nous avons donc écrit le code pour
+décompresser Huffman, et bien sûr, cela n'a pas fonctionné dès le début (ça
+aurait été trop beau). En fait, la technique utilisée à la compression, pour
+l'écriture était mauvaise, après réécriture de cette partie du code, tout
+marchait.\\
+La technique utilisée pour décompresser des données qui ont été précédemment
+compressées via Huffman est simple, on récupère le prochain bit des données
+compressées, puis si il s'agit d'un 0, on recommence le procédé sur le fils
+gauche de l'arbre, si c'est un 1, à droite. Enfin le caractère non compressé est
+celui que l'on trouve lorsque l'on arrive en racine de l'arbre de Huffman, que
+l'on avait, à la compression, sauvé dans le fichier. Pour décompresser
+totalement le fichier, on recommence ce petit
+procédé tant qu'il y a des caractères dans celui-ci.\\
+Contrairement à notre première idée, Huffman n'est pas appliqué sur tout le
+fichier, il n'y a pas un arbre unique pour tout le fichier. En fait, chaque
+chunk possède son propre arbre de Huffman, premièrement, cela permet d'avoir un
+arbre de Huffman qui est beaucoup plus précis, en contrepartie, l'arbre de
+Huffman doit être écrit pour chaque chunk. Il fallait donc trouver le bon
+compromis, afin d'avoir une compression optimale. À cause des ondelettes, la
+taille d'un chunk doit être une puissance de deux, les tests pour l'optimalité
+de Huffman ont donc été assez facile à réaliser. Sans avoir fait de tests (et
+même avant d'avoir commencer Huffman), nous avions fixé la taille d'un chunk
+comme étant équivalente à 65536 échantillons, et coup de chance pour nous, il
+s'agit de la taille optimale pour Huffman, un chunk deux fois plus gros, ou deux
+fois plus petit, grossis la taille du fichier final de quelques
+kilo-octets.\\
+	\subsection{Interface graphique}
+	\subsection{Site web}
+	\subsection{Portage sur iPhone}
+Aujourd'hui, les codecs audio sont de plus en plus utilisés sur des
+ordinateur possédant une puissance plus que limite, j'ai nommé les iPods
+et dérives. Pour qu'un codec soit considère comme utilisable, il faut
+qu'il puisse être utilise sur ces plateformes, cela montre qu'il n'est
+pas nécessaire d'avoir un ordinateur très puissant pour pouvoir lire le
+format. C'est également une preuve d'un codec bien réalise, celui ci
+étant alors portable et donc théoriquement lisible sur tous les
+appareils.\\
+L'année dernière apple a sorti un SDK\footnote{software developpement
+kit} permettant de développer des applications pour l'iPhone\footnote{Lorsque
+l'on parle d'iPhone, on parle également d'iPod Touch, qui sont identiques au
+niveau plateforme de développement}, ceci en
+utilisant les outils ainsi que la documentation officielle, et ce de façon gratuite.
+C'est l'occasion rêvée de montrer que notre codec est a la fois
+portable et léger.\\
+		\subsubsection{Reunir les outils}
+Première étape donc, absolument indispensable a la réalisation du
+portage, la mise en place d'un environnement de cross-compilation,
+c'est-à-dire, un compilateur, et les outils associés,  pouvant générer du code
+pour iPhone, qui
+tourne sur un ordinateur classique. Le SDK de apple en fournit un, mais
+celui-ci est compatible uniquement avec MAC OSX Leopard, ce que nous ne
+possédons pas. Heureusement, la communauté ``underground'' de l'iPhone
+est assez importante, en cherchant bien, on a réussi a trouver un
+tutoriel expliquant comment se construire un
+``toolchain''\footnote{logiciel et headers complet pour compiler un
+programme} intégral sur Linux. Après cela, nous pouvions compiler et lancer un
+simple Hello World sur l'iPhone.\\
+Mais voila, notre projet n'est pas uniquement fait de C, mais également
+de OCaml. Il a donc fallu trouver une façon de créer un compilateur
+cross-compilateur OCaml
+pour l'iPhone. On a également trouvé un tutoriel très détaillé, fournissant les
+patchs a appliquer aux sources de OCaml, pour que celui-ci génère du code pour
+iPhone.
+		\subsubsection{Compiler le projet}
+Notre projet ne possédant que très peu de dépendance externes, la
+compilation s'est bien déroulée, sauf sur la seule dépendance : libao, la
+bibliothèque nous permettant de lire du son. Après l'avoir retire du
+projet, nous avons teste le bon fonctionnement des autres composants du
+projet, c'est-à-dire la compression et la décompression. Cela a
+fonctionné du premier coup, chose a laquelle je ne m'attendais pas.\\
+		\subsubsection{La sortie audio}
+Libao ne compilant pas, il nous fallait impérativement trouver une autre
+solution pour lire du son. En fouillant dans la documentation de Apple, je suis
+tombé sur un article montrant comment utiliser les ``Audio Queues'', qui est
+décrit comme étant ``la solution pour lire vos sons de façon asynchrone''. La
+description colle exactement avec l'utilisation qu'on veut en avoir.\\
+Dans les grandes lignes, apple a implanté la notion décrite plus haut pour
+les buffers audio, et l'a rendue utilisable via ces Audio Queues. La seule chose
+à faire est de créer une fonction qui sera appelée lorsque le lecteur audio aura
+besoin de nouvelles données. Dans notre cas, cette fonction va tout simplement
+décompresser le fichier ihy et le renvoyer sous la forme d'un flux PCM.\\
+Lorsque cela fut implanter, l'iPhone pouvait lire, de façon théorique, notre
+format. Restait à le vérifier sur l'iPhone. Et là oh surprise, cela
+fonctionnait, de façon totalement fluide. 
+
+\newpage
+
+\section{Tâches prévues}
+	\subsection{Documentation}
+Pour cette ultime soutenance, nous avons prévu d'écrire une documentation du
+format, suffisamment détaillée pour que n'importe qui puisse lire et écrire un
+fichier ihy sans dépendre de notre code. A remplir.
+	\subsection{Comparaison entre les codecs}
+
+\newpage
+
+\section*{Conclusion}
+
+\end{document}
