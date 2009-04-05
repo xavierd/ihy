@@ -48,22 +48,20 @@ filter_directD signal.{0} signal.{1} ;;
 (* FIN TESTS *)
 *)
 
-let removeFirsts (t : float_array) = 
+let removeFirsts (t : float_array) pow = 
   let len = Bigarray.Array1.dim t in
-    for i = len / 2 to len - 1 do
+    for i = len / pow to len - 1 do
       t.{i} <- 0.;
     done;
     ()
 ;;
-abs 
-;;
 
-let removeSeuil (t : float_array) s =
+let removeSeuil (t : float_array) cut s =
   let len = Bigarray.Array1.dim t in
-  let nbrRow = iof ((log (foi len)) /. (log 2.)) in
-    for i = 1 to len - 1 do
-      let echelle = (foi nbrRow) -. ((log (foi i)) /. (log 2.)) in
-	if (abs_float(t.{i} *. (echelle ** 2.)) <= s) then
+(*  let nbrRow = iof ((log (foi len)) /. (log 2.)) in*)
+    for i = 16 to len/cut - 1 do
+(*      let echelle = (foi nbrRow) -. ((log (foi i)) /. (log 2.)) in*)
+	if (abs_float(t.{i}) <= s) then
 	  begin
 	    t.{i} <- 0.;
 	  end
@@ -72,7 +70,7 @@ let removeSeuil (t : float_array) s =
     done;
     ()
 
-let countZero (t : float_array) = 
+let countZero (t : float_array) =
   let len = Bigarray.Array1.dim t in
   let count = ref 0 in
     for i=0 to len - 1 do
@@ -83,17 +81,56 @@ let countZero (t : float_array) =
     done;
     !count
       
+let egalize (t : float_array) cut s =
+  let len = Bigarray.Array1.dim t in
+  let mark = Array.make len 0 in
+(*  let a = ref 0. in
+    for i=16 to len/cut-1 do
+      a := t.{i}
+    done;
+    !a
+*)
+    for i=16 to len/cut-1 do
+      if (mark.(i) = 0) then
+	begin
+	  mark.(i)<-1;
+	  let aux x = 
+	    let a = abs_float(x -. t.{i}) in
+	      ((a <= s) && (x!=0.))
+	  in
+	  let count = ref 1 in
+	  let sum = ref t.{i} in 
+	    for j=i+1 to len/cut-1 do
+	      if ((mark.(j)=0) && (aux t.{j})) then
+		begin
+		  count := !count +1;
+		  sum := !sum +. t.{j};
+		  mark.(j)<-1
+		end
+	      else
+		()
+	    done;
+	    let middle = !sum /. (foi !count) in
+	      for j=i+1 to len/cut-1 do
+		if (mark.(j) = 1) then
+		  begin
+		    t.{j} <- middle;
+		    mark.(j) <- 2;
+		  end
+		else
+		  ()
+	      done
+	end
+      else
+	()
+    done
   
 let compress (t : float_array) =
-  removeFirsts t;
-(*   removeSeuil t 500.; *)
-(*  let count = countZero t in
-    print_int count;
-    print_newline ();
-    print_int (iof ((foi count) /. (foi (Bigarray.Array1.dim t)) *. 100.)); 
-    print_newline ();
-    print_newline ();*)
-    t      
+  removeFirsts t 2;
+  (*removeSeuil t 1 250.;*)
+  egalize t 2 30.;
+  (*removeSeuil t 2 500.;*)
+  t      
 
 let coef =
 (*   (2. ** (-.(1.)/.(2.))) *)
