@@ -225,13 +225,15 @@ int main(int argc, char **argv)
     /* Creation de la barre progress bar */
     pProgress = gtk_progress_bar_new();
     gtk_table_attach(GTK_TABLE(pTable), pProgress,
-	    3, 8, 7, 8,
+	    2, 9, 7, 8,
 	    GTK_EXPAND | GTK_FILL, GTK_EXPAND,
 	    0, 0);
 
     /* Insertion des barres des tâches, des images, et de la Box */
-    gtk_table_attach_defaults(GTK_TABLE(pTable), pToolbar,
-	    0, 9, 0, 1);
+    gtk_table_attach(GTK_TABLE(pTable), pToolbar,
+	    0, 1, 0, 1,
+            0, 0,
+            0, 0);
     gtk_table_attach(GTK_TABLE(pTable), image,
 	    0, 9, 1, 5,
             GTK_EXPAND, GTK_EXPAND | GTK_FILL,
