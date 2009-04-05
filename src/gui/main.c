@@ -41,7 +41,7 @@ on_expose_event(GtkWidget *widget,
     static gdouble scale2 = 1;
     static gdouble delta2 = 0.01;
 
-    gtk_window_get_size(GTK_WINDOW(widget), &width, &height);
+    gdk_drawable_get_size(GDK_PIXMAP(data), &width, &height);
 
     /* je dit a cairo de dessiner sur data qui est un GdkPixMap */
     cr = gdk_cairo_create(GDK_DRAWABLE(data));
