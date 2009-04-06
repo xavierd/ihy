@@ -70,7 +70,8 @@ Notre buffer est néanmoins plus complexe qu'une simple file, en effet, il faut
 qu'il puisse gérer les accès concurrentiels de la part des deux processus. Pour
 cela, on utilise des ``mutex'' pour protéger les zones critiques, plus
 précisément, l'ajout et le retrait d'un élément. De plus, pour des raisons
-d'économies de mémoire et d'activité du processeur, il est judicieux que le processus de décompression ne
+d'économies de mémoire et d'activité du processeur, il est judicieux que le
+processus de décompression ne
 soit pas toujours actif, en effet, lorsqu'un chunk est décompressé, il contient
 uniquement des échantillons, tels qu'ils sont codés dans un fichier wav, tout
 décompresser en une seule fois reviendrai a avoir le fichier wav intégralement
@@ -110,8 +111,9 @@ totalement le fichier, on recommence ce petit
 procédé tant qu'il y a des caractères dans celui-ci.\\
 Contrairement à notre première idée, Huffman n'est pas appliqué sur tout le
 fichier, il n'y a pas un arbre unique pour tout le fichier. En fait, chaque
-chunk possède son propre arbre de Huffman, premièrement, cela permet d'avoir un
-arbre de Huffman qui est beaucoup plus précis, en contrepartie, l'arbre de
+chunk possède son propre arbre de Huffman, cela permet d'avoir un arbre de
+Huffman qui est beaucoup plus précis et donc, de gagner en compression, en
+contrepartie, l'arbre de
 Huffman doit être écrit pour chaque chunk. Il fallait donc trouver le bon
 compromis, afin d'avoir une compression optimale. À cause des ondelettes, la
 taille d'un chunk doit être une puissance de deux, les tests pour l'optimalité
@@ -122,7 +124,6 @@ s'agit de la taille optimale pour Huffman, un chunk deux fois plus gros, ou deux
 fois plus petit, grossis la taille du fichier final de quelques
 kilo-octets.\\
 	\subsection{Interface graphique}
-	\subsection{Site web}
 	\subsection{Portage sur iPhone}
 Aujourd'hui, les codecs audio sont de plus en plus utilisés sur des
 ordinateur possédant une puissance plus que limite, j'ai nommé les iPods
@@ -179,6 +180,18 @@ décompresser le fichier ihy et le renvoyer sous la forme d'un flux PCM.\\
 Lorsque cela fut implanter, l'iPhone pouvait lire, de façon théorique, notre
 format. Restait à le vérifier sur l'iPhone. Et là oh surprise, cela
 fonctionnait, de façon totalement fluide. 
+	\subsection{Site web}
+Ce dernier n'a pas beaucoup évolué, au niveau de l'interface depuis la dernière
+soutenance. Néanmoins, des changements non visible ont été fait. En effet, à la
+dernière soutenance, le site n'était absolument pas valide avec la norme w3c, et
+présentait un total de 19 erreurs, cela faisait beaucoup pour une seule
+page\ldots\\
+De plus, des news ont été ajoutées, pour que les internautes puissent connaître,
+sans à avoir à regarder le code et les messages déposés sur le git, l'avancement
+du projet, les nouvelles fonctionnalités, ainsi que les futures. Une news fait
+même office de tutoriel pour compiler et utiliser le codec ihy sur un iphone
+(voir ci-dessus), cette dernière expliquant très précisément les différentes
+étapes à suivre pour que tout fonctionne.
 
 \newpage
 
@@ -186,8 +199,30 @@ fonctionnait, de façon totalement fluide.
 	\subsection{Documentation}
 Pour cette ultime soutenance, nous avons prévu d'écrire une documentation du
 format, suffisamment détaillée pour que n'importe qui puisse lire et écrire un
-fichier ihy sans dépendre de notre code. A remplir.
+fichier ihy sans dépendre de notre code. Il s'agit d'un pré requis pour
+l'utilisation de n'importe quel codec. Seul les firmes multinationales
+maîtrisant à la fois le système d'exploitation et les logiciels, peut se
+permettre de ne pas donner les spécifications d'un codec.\\
+Cette documentation contiendra plusieurs choses. Premièrement, la description
+complète des ``headers'' du format, ces derniers étant indispensable à la
+décompression du fichier. Deuxièmement, une description des algorithmes
+utilisés, ou pouvant être utilisés. Et enfin, l'ordonnancement des données dans
+le fichier compressé, comme par exemple, la façon dont l'arbre de Huffman est
+stocké.
 	\subsection{Comparaison entre les codecs}
+Un élément indispensable lors de la finalisation d'un codec audio (ou vidéo),
+est sa comparaison avec les codecs existants. En effet, un nouveau codec ne
+faisant rien de nouveau, compressant moins bien, ou ayant une qualité à l'écoute
+moins bonne a peu de chances d'être utilisé.\\
+Il faudra donc, montrer les points forts de notre codecs fasse aux concurents
+que sont par exemple le mp3, ogg, wma, etc. Tout en essayant de masquer au
+maximum les points faible de notre codec\footnote{Cette partie aurait pu être
+nommée ``Publicité''}.\\
+Les points comparés seront donc, la qualité d'écoute, un facteur extrêmement
+objectif, ne pouvant être chiffré, la taille du fichier final, le spectre audio,
+qui devrai confirmer les résultats du premier test, et enfin, la rapidité de
+compression et de décompression, ainsi que la charge CPU lors de la lecture d'un
+fichier.
 
 \newpage
 
