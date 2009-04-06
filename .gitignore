@@ -1,5 +1,6 @@
 ihyconvert
 ihyplayer
+fftux
 *.o
 *.pdf
 *.cm[ix]
@@ -7,4 +8,6 @@ ihyplayer
 *.wav
 *.aux
 *.log
+*.dat
+*.png
 tags
