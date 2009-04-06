@@ -105,7 +105,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 	    input->DataBlocSize / (input->BitsPerSample / 8));
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
 
-    encode_ihy(8, output->NbChunk, input, output);
+    encode_ihy(2, output->NbChunk, input, output);
 
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
