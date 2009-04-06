@@ -54,9 +54,12 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 {
     t_son *sons;
     int nbsons;
+    int donechunks;
     int i;
     char isson;
-    int donechunks;
+
+    if (nbchunks < nbcpu)
+	nbcpu = nbchunks;
 
     sons = malloc(nbcpu * sizeof(t_son));
 
@@ -87,6 +90,9 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 	    pid_t pid;
 	    int shmid;
 	    void *shmaddr;
+	    int chunksize;
+	    uint8_t *values;
+	    int rpipe;
 
 	    pid = wait(NULL);
 	    nbsons--;
@@ -95,11 +101,14 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 	    {
 		i++;
 	    }
-	    read(sons[i].pipe[0], &shmid, sizeof(int));
+	    pipefd = sons[i].pipe[0];
+	    chunksize = sons[i].numchunk;
+	    read(rpipe, &shmid, sizeof(int));
 	    shmaddr = shmat(shmid, NULL, 0);
-	    read(sons[i].pipe[0], &(output->DataChunks[sons[i].numchunk].ChunkSize), sizeof(uint32_t));
-	    output->DataChunks[sons[i].numchunk].Values = malloc(output->DataChunks[sons[i].numchunk].ChunkSize);
-	    memcpy(output->DataChunks[sons[i].numchunk].Values, shmaddr, output->DataChunks[sons[i].numchunk].ChunkSize);
+	    read(rpipe, &chunksize, sizeof(uint32_t));
+	    values = malloc(chunksize);
+	    output->DataChunks[numchunk].Values = values;
+	    memcpy(values, shmaddr, chunksize);
 	    shmdt(shmaddr);
 	    shmctl(shmid, IPC_RMID, NULL);
 	    close(sons[i].pipe[0]);
@@ -111,7 +120,12 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 		if (!(sons[i].pid = fork()))
 		{
 		    isson = 1;
-		    proceed_chunk(sons[i].pipe[1], sons[i].numchunk, input, output);
+		    proceed_chunk(
+			sons[i].pipe[1],
+			sons[i].numchunk,
+			input,
+			output
+		    );
 		    _exit(0);
 		}
 		else
