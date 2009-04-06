@@ -6,7 +6,8 @@ typedef struct s_son {
     int pipe[2];
 } t_son;
 
-static void proceed_chunk(int outfd, int chunkid, wav_data *input, ihy_data *output)
+static void
+proceed_chunk (int outfd, int chunkid, wav_data *input, ihy_data *output)
 {
     size_t size = 0;
     size_t real_size = 0;
@@ -43,11 +44,19 @@ static void proceed_chunk(int outfd, int chunkid, wav_data *input, ihy_data *out
 	);
     free(oldValue);
 
-    shmid = shmget(IPC_PRIVATE, output->DataChunks[i].ChunkSize, IPC_CREAT | SHM_R | SHM_W);
+    shmid = shmget(
+	IPC_PRIVATE,
+	output->DataChunks[i].ChunkSize,
+	IPC_CREAT | SHM_R | SHM_W
+    );
     write(outfd, &shmid, sizeof(int));
     write(outfd, &(output->DataChunks[i].ChunkSize), sizeof(uint32_t));
     shmaddr = shmat(shmid, NULL, 0);
-    memcpy(shmaddr, output->DataChunks[i].Values, output->DataChunks[i].ChunkSize);
+    memcpy(
+	shmaddr,
+	output->DataChunks[i].Values,
+	output->DataChunks[i].ChunkSize
+    );
 }
 
 void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
@@ -101,13 +110,13 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 	    {
 		i++;
 	    }
-	    pipefd = sons[i].pipe[0];
+	    rpipe = sons[i].pipe[0];
 	    chunksize = sons[i].numchunk;
 	    read(rpipe, &shmid, sizeof(int));
 	    shmaddr = shmat(shmid, NULL, 0);
 	    read(rpipe, &chunksize, sizeof(uint32_t));
 	    values = malloc(chunksize);
-	    output->DataChunks[numchunk].Values = values;
+	    output->DataChunks[sons[i].numchunk].Values = values;
 	    memcpy(values, shmaddr, chunksize);
 	    shmdt(shmaddr);
 	    shmctl(shmid, IPC_RMID, NULL);

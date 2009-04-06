@@ -137,12 +137,13 @@ static void compress_wav(char *input_filename, char *output_filename,
 
 static void print_help()
 {
-    printf(	"Usage : ihyconvert [mode] [file ...]\n");
+    printf(	"Usage : ihyconvert [options] [mode] [file ...]\n");
     printf(	"Official converter of the ihy codec\n\n");
-    printf(	"  -c IN.wav OUT.ihy		: compress IN into OUT\n");
-    printf(	"  -x IN.ihy OUT.wav		: extract OUT from IN\n");
-    printf(	"  -r IN.ihy			: play IN\n");
-    printf(	"  -h				: display this help\n");
+    printf(	"  -c IN.wav OUT.ihy	: compress IN into OUT\n");
+    printf(	"  -x IN.ihy OUT.wav	: extract OUT from IN\n");
+    printf(	"  -r IN.ihy		: play IN\n");
+    printf(	"  -j N			: set the number of created processes to N (default 2)\n");
+    printf(	"  -h			: display this help\n");
 }
 
 int main(int argc, char **argv)
