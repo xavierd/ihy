@@ -30,6 +30,7 @@ int main(int argc, char **argv) {
 
     /* read data and fill "A"-array */
     A = malloc(n * sizeof(double));
+    /*
     i = 0;
     for (v=0;v<n;v++) {
 	k = input->Data[i];
@@ -43,6 +44,17 @@ int main(int argc, char **argv) {
 	}
 	if (input->NumChannels > 1)
 	    i += (input->BitsPerSample / 8);
+    }
+    */
+
+    v = 0;
+    for (i = 0;
+	 i < input->DataBlocSize;
+	 i += (input->BitsPerSample / 8) + input->NumChannels)
+    {
+	memcpy(&k, &input->Data[i], input->BitsPerSample / 8);
+	A[v] = k;
+	v++;
     }
 
     /* prepare fft with fftw*/
