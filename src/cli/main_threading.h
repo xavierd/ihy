@@ -1,3 +1,6 @@
+#ifndef DEF_MAIN_THREADING
+#define DEF_MAIN_THREADING
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -14,3 +17,5 @@
 #include <utils/half.h>
 
 void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output);
+
+#endif
