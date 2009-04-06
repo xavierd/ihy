@@ -165,7 +165,18 @@ La premiere etape et de supprimer les coefficients correspondants aux
 petites echelles. En effet ceux-ci influent globalement sur les hautes
 frequences qui ne sont pas percu par l'oreille humaine. On peut donc
 deja supprimer la moitier des coefficients.
-
+\subsubsection{Suppression des coefficients proches de zero}
+La deuxieme etape est de supprimer tout les coefficients relativement
+prochent de zero. La encore ces coefficients agissent que tres peu sur
+le signal final. Il a donc fallut trouver une valeur limite pour
+laquel on pouvait considerer que coefficients en dessous de cette
+valeur etait negligeable pour l'oreille.
+\subsubsection{Egalisation}
+La derniere etape est l'egalisation des valeurs. En effet Huffman est
+efficace si on a de nombreuses valeurs similaires. On parcourt donc le
+tableau de coefficients en recherchant les valeurs qui sont
+relativement proches puis on les remplacent par la valeur
+moyenne. Encore une fois, il a fallut trouver cette limite.
 	\subsection{Threading}
 	\subsection{Huffman suite et fin}
 À la dernière soutenance, nous pouvions utiliser huffman, pour compresser des
