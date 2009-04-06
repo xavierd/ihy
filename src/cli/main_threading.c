@@ -6,24 +6,55 @@ typedef struct s_son {
 	int pipe[2];
 } t_son;
 
-static void proceed_chunk(int outfd, int sonid)
+static void proceed_chunk(int outfd, int chunkid, wav_data *input, ihy_data *output)
 {
-    char buf[128];	
+    size_t size = 0;
+    size_t real_size = 0;
+    unsigned int i;
+    uint8_t *oldValue;
 
-    strcpy(buf, "mfvp");
-    buf[4] = sonid + 48;
-    buf[5] = 0;
-    write(outfd, buf, 128);
+    i = chunkid;
+
+    size = CHUNK_SIZE * (input->BitsPerSample / 8);
+    /* avoid garbage on the last chunk */
+    if (i == output->NbChunk - 1)
+	real_size = input->DataBlocSize % CHUNK_SIZE;
+    else
+	real_size = size;
+    output->DataChunks[i].Values = malloc(sizeof(float) * CHUNK_SIZE);
+    output->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
+    wavelets_direct(input->Data + (i * size), size, real_size,
+	input->BitsPerSample / 8, input->NumChannels,
+	(float *)output->DataChunks[i].Values);
+    oldValue = output->DataChunks[i].Values;
+    output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
+	(float *)oldValue,
+	output->DataChunks[i].ChunkSize / sizeof(float)
+    );
+    output->DataChunks[i].ChunkSize /= 2;
+    free(oldValue);
+    oldValue = output->DataChunks[i].Values;
+    output->DataChunks[i].Values =
+	huffman_encode(
+	output->DataChunks[i].Values,
+	&output->DataChunks[i].ChunkSize
+	);
+    free(oldValue);
+    write(outfd, &(output->DataChunks[i].ChunkSize), sizeof(uint32_t)); 
+    write(
+	outfd,
+	output->DataChunks[i].Values,
+	output->DataChunks[i].ChunkSize
+    ); 
 }
 
-void encode_ihy(int nbcpu, int nbchunks)
+void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 {
     t_son *sons;
     int nbsons;
     int i;
     char isson;
     int donechunks;
-    char buf[128];
 
     sons = malloc(nbcpu * sizeof(t_son));
 
@@ -37,7 +68,6 @@ void encode_ihy(int nbcpu, int nbchunks)
 	pipe(sons[i].pipe);
 	if (!(sons[i].pid = fork()))
 	{
-	    printf("fils %d\n", i);
 	    isson = 1;
 	}
 	else
@@ -61,10 +91,11 @@ void encode_ihy(int nbcpu, int nbchunks)
 	    {
 		i++;
 	    }
-	    read(sons[i].pipe[0], buf, 128);
+	    read(sons[i].pipe[0], &(output->DataChunks[sons[i].numchunk].ChunkSize), sizeof(uint32_t));
+	    output->DataChunks[sons[i].numchunk].Values = malloc(output->DataChunks[sons[i].numchunk].ChunkSize);
+	    read(sons[i].pipe[0], output->DataChunks[sons[i].numchunk].Values, output->DataChunks[sons[i].numchunk].ChunkSize);
 	    close(sons[i].pipe[0]);
 	    close(sons[i].pipe[1]);
-	    printf("%s\n", buf);
 	    if (donechunks < nbchunks)
 	    {
 		sons[i].numchunk = donechunks;
@@ -72,7 +103,7 @@ void encode_ihy(int nbcpu, int nbchunks)
 		if (!(sons[i].pid = fork()))
 		{
 		    isson = 1;
-		    proceed_chunk(sons[i].pipe[1], i);
+		    proceed_chunk(sons[i].pipe[1], sons[i].numchunk, input, output);
 		    _exit(0);
 		}
 		else
@@ -86,7 +117,7 @@ void encode_ihy(int nbcpu, int nbchunks)
     else
     {
 	close(sons[i].pipe[0]);
-	proceed_chunk(sons[i].pipe[1], i);
+	proceed_chunk(sons[i].pipe[1], sons[i].numchunk, input, output);
 	_exit(0);
     }
 }
