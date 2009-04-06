@@ -10,7 +10,7 @@
 #include <codecs//wav.h>
 #include <compression/huffman.h>
 
-#define CHUNK_SIZE 2048
+#define CHUNK_SIZE 65536
 
 /* just return the number of chunk needed */
 int get_nbChunk(const int chunk_size, const int nb);
