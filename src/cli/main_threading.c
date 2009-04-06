@@ -1,9 +1,9 @@
 #include <main_threading.h>
 
 typedef struct s_son {
-	pid_t pid;
-	int numchunk;
-	int pipe[2];
+    pid_t pid;
+    int numchunk;
+    int pipe[2];
 } t_son;
 
 static void proceed_chunk(int outfd, int chunkid, wav_data *input, ihy_data *output)
@@ -12,6 +12,7 @@ static void proceed_chunk(int outfd, int chunkid, wav_data *input, ihy_data *out
     size_t real_size = 0;
     unsigned int i;
     uint8_t *oldValue;
+    int tempsize;
 
     i = chunkid;
 
@@ -40,7 +41,7 @@ static void proceed_chunk(int outfd, int chunkid, wav_data *input, ihy_data *out
 	&output->DataChunks[i].ChunkSize
 	);
     free(oldValue);
-    write(outfd, &(output->DataChunks[i].ChunkSize), sizeof(uint32_t)); 
+    write(outfd, &(output->DataChunks[i].ChunkSize), sizeof(uint32_t));
     write(
 	outfd,
 	output->DataChunks[i].Values,
