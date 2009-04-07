@@ -211,9 +211,14 @@ processeur pour apercevoir que Caml n'utilisait en effet qu'un seul coeur.\\
 Pour r\'esoudre ce probl\`eme, nous utilisons donc des forks.
 ``Les camls'' etant parfaitement isol\'es, nous evitons tout probleme de garbage collector et nous pouvons ainsi effecuter les calculs de facon parfaitement parral\`ele.
 		\subsubsection{Les pipes}
-Pour comuniquer entre les processus cr\'ee avec les forks, qui ont chacun une m\'emoire s\'epar\'ee, nous devions trouver un moyen de partager les donn\'ees entre les processus.\\
-En g\'en\'eral, la solution se nomme pipe. Mais malheuresement pour nous, un pipe
-est trop petit (!!), en effet un chunk ne rentrait pas int\'egrallement dedans, pour la petite histoire, un chunk fait en g\'en\'eral plus de 65000 octets.
+Pour comuniquer entre les processus cr\'ee avec les forks, qui ont chacun une m\'emoire s\'epar\'ee, nous devions trouver un moyen de partager les donn\'ees.\\
+En g\'en\'eral, la solution se nomme pipe. Mais malheuresement pour nous, un pipe est trop petit (!!), en effet un chunk ne rentre pas int\'egrallement dedans, pour la petite histoire, un chunk fait en g\'en\'eral plus de 65000 octets.\\
+En fait il est possible de lire d'un cot\'e du pipe en \'ecrivant de l'autre mais nous avons trouv\'e une solution plus simple : la shared memory.
+		\subsubsection{Shared memory}
+Les segments de shm sont une des techniques de communication inter-processus existants sur les syst\`emes d'exploitation actuels. Le concept est simple :  on cree un segment de memoire partag\'ee, puis on s'y ``attache'' pour pouvoir ecrire dedans. Chaque segment \'etant identifi\'e par un entier unique, plusieurs processus peuvent s'y connecter tr\`es simplement. D'ailleurs, lors de la terminaison d'un programme, les segments cr\'e\'es ne sonts pas detruits et le seul moyen de s'en debarasser est un reboot (ou alors de les suppprimer \`a la main avec un autre programme).
+		\subsubsection{Architecture du threading}
+Pour la paralelisation de notre application, nous avons utilis\'e un m\'elange des deux techniques cit\'ees au dessus. En effet, le processus principal (que nous appellerons le p\`ere) va se forker N fois (nous verrons ce point un peu plus bas), et chaque fils saura quel chunk traiter gr\^ace \`a une variable qui est initialis\'ee dans le p\`ere avant le fork. Le p\`ere cr\'ee aussi un pipe qui nous serivra plus tard. Apr\`es cela, le fils effectue le traitement, cr\'ee un segment de m\'emoire partag\'ee, \'ecrit le resultat dans ce dernier et \'ecrit l'identifiant du shm suivi de sa taille dans le pipe. La routine exit(0) est ensuite appell\'ee pour tuer le fils qui vient de finir son travail. Le p\`ere effectuant un wait(NULL) (qui est bloquant) reprend alors son activit\'e d\`es qu'un fils a termin\'e, lis le contenu du pipe pour recup\'erer les donn\'es et s'atttache au segment m\'emoire cr\'e\'e par le fils. Il stock le resultat dans la structure de sortie du fichier ihy et recree un fils si besoin est (si il reste des chunks a traiter).\\
+Le nombre de fils cr\'e\'es est actuellement defini par une option de la commande ihyconvert. En effet ./ihyconvert -j 8 cr\'eera 8 fils, a la mani\`ere de la commande make.
 	\subsection{Huffman suite et fin}
 À la derni\`ere soutenance, nous pouvions utiliser huffman, pour compresser des
 donn\'ees, n\'eanmoins, nous n'avions pas \'ecrit le code pour la d\'ecompression, et
