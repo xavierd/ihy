@@ -196,7 +196,7 @@ efficace si on a de nombreuses valeurs similaires. On parcourt donc le
 tableau de coefficients en recherchant les valeurs qui sont
 relativement proches puis on les remplace par la valeur
 moyenne. Encore une fois, il a fallut trouver cette limite.
-	\subsection{Parralelisme}
+	\subsection{Parallelisme}
 Blabla
 	\subsection{Huffman suite et fin}
 À la dernière soutenance, nous pouvions utiliser huffman, pour compresser des
@@ -246,10 +246,10 @@ décidé d'utiliser une Table de 9 lignes et 9 colonnes. En effet, c'est un cont
 de GTK+ qui utilise une grille invisible pour attacher les widgets. Donc il suffit 
 d'intégrer les widgets dans la table et de les positionner grâce à des coordonnés.
 Ce qui est plus avantageux qu'une Box qui elle positionne les widgets quasiment 
-alléatoirement. Grâce à cette table, notre interface détient une barre de progression 
+aléatoirement. Grâce à cette table, notre interface détient une barre de progression 
 et les boutons standard d'un lecteur audio comme à la première soutenance, mais aussi 
 une barre de menu et une zone de dessin (nous y reviendrons plus tard). Pour les boutons, 
-nous avons tout de même utilisé une Box pour les contenirs avec une dimension précise et un 
+nous avons tout de même utilisé une Box pour les contenirs  avec une dimension précise et un 
 espace entre eux nul. Comme pour la dernière soutenance, la jauge se remplit quand
 le bouton "Play" est activé, avec le même principe que la dernière fois. De plus, nous avons une 
 barre de menu qui ne contient pour le moment que l'option "File". Dedans, on peut y trouver les boutons
@@ -258,7 +258,7 @@ récupérer un fichier de format Ihy dans son disque afin de pouvoir l'ouvrir et
 le bouton "Quit" qui permet tout simplement de fermer l'application.
 	\subsubsection{La zone de dessin}
 Pour cette soutenance, nous devions intégrer dans notre interface une zone afin
-d'entamer le spectrographe. Pour se faire, nous avons décidé d'utilisé Cairo.
+d'entamer le spectrographe. Pour se faire, nous avons décidé d'utiliséser cairo.
 Cairo est une bibliothèque logicielle graphique libre qui définit une API de
 rendu vectoriel 2D indépendante du matériel. De plus, cairo est parfaitement
 utilisable avec GTK+. Nous avons donc aujourd'hui, une zone de dessin de
@@ -272,7 +272,7 @@ mouvemente est réalisé grâce à la fonction cairo-scale.\\
 Cependant, cette petite zone de dessin nous a posé problème pour l'intégration dans
 notre interface. En effet, la fonction qui permet de créé la zone de dessin avec
 les bibliothèques de cairo ne crée pas un widget directement. Ce qui est quelque
-peut embétant car la fonction qui permet d'intégré quelque chose dans une table
+peut embétant car la fonction qui permet d'intégré er quelque chose dans une table
 n'accepte que les widgets. Par conséquent , nous décidons de créer un GdkPixmap
 qui contiendra la zone de dessin et qui sera détenue dans un widget grâce à la
 fonction gtk-pixmap-new().  
@@ -280,7 +280,7 @@ fonction gtk-pixmap-new().
 Donc, pour la dernière soutenance, nous espérons terminer l'interface avec
 l'intégration d'une playlist, de la fonction qui dessine dans la zone de
 dessin en fonction de la musique, et en activant quelques widgets en plus. Pour
-le moment, voici notre interface actuel 
+le moment, voici notre interface actuelle :
 \begin{center}
 \includegraphics[scale=0.50]{img/Player.png}
 \end{center}
