@@ -90,6 +90,22 @@ décompresse le ihy, on récupère des bouts de wav, qui correspondent aux chunk
 du format. Il ne reste alors plus qu'à les envoyer à libao, pour que ce dernier
 nous le lise.
 	\subsection{Le type half}
+Un des gros problèmes que nous avions lors de la première soutenance se situait
+dans la place que prenait le stockage des échantillons sous forme de flotants.\\
+Nous avons donc reglé le problème en utilisant le type half float qui n'existe
+pas nativement en C.\\
+Pour rappel, un flotant demi-precision est codé sur 16 bits, le premier servant
+à definir le signe, les 5 suivants, l'exposant et les 10 derniers, la
+mantisse.\\
+Pour implémenter ce type, nous avons utilisé les bit fields qui permettent de
+définir une structure contenant (pour notre cas) des entiers non-signés de n
+bits, n'étant pas forcément multiple de 8.\\
+Les conversions float vers half et half vers float sont effectuées en utilisant
+une union : le schéma d'un half est calqué sur un uint16\_t et est stocké tel
+quel dans le fichier de sortie.\\
+Nous revenons donc à un fichier de taille identique au wav d'entrée (en effet,
+dans la très grande majorité des cas, les échantillons sont codés sur des
+entiers de 16 bits dans un fichier wav).
 	\subsection{Ondelettes}
 A la soutenance precedente, nous avions implemente l'ondelette de
 haar. Il s'agit de l'ondelette la plus simple a mettre en oeuvre mais
@@ -116,7 +132,7 @@ L'implementation de ces ondelettes nous ont cause de nombreux
 problemes que nous n'avions pas prevus.\\
 Premierement, la comprehension mathematique de cet outil n'a pas ete
 facile car il nous manquait encore des bases (tel que les Series de
-Fourriers que nous voyons que maintenant). Heuresement notre
+Fourriers que nous ne voyons que maintenant). Heuresement notre
 professeur de mathematiques nous a conseille un excelent livre sur les
 ondelettes de Stephane Mallat qui nous a permis de combler certaines
 de nos lacunes. Une fois que nous avions compris les differents
@@ -262,7 +278,7 @@ l'intégration d'une playlist, de la fonction qui dessine dans la zone de
 dessin en fonction de la musique, et en activant quelques widgets en plus. Pour
 le moment, voici notre interface actuel 
 \begin{center}
-\includegraphics[scale=0.50]{Player.png}
+\includegraphics[scale=0.50]{img/Player.png}
 \end{center}
 
 \newpage
