@@ -91,6 +91,92 @@ du format. Il ne reste alors plus qu'à les envoyer à libao, pour que ce dernie
 nous le lise.
 	\subsection{Le type half}
 	\subsection{Ondelettes}
+A la soutenance precedente, nous avions implemente l'ondelette de
+haar. Il s'agit de l'ondelette la plus simple a mettre en oeuvre mais
+n'est pas la plus adapte pour la compression d'un signal audio.
+Nous avons donc voulu en tester une autre. De nombreuses recherches
+nous ont appris que la famille d'ondelette de Daubechies donnaient en
+general de bons resultats mais que cela pouvait varier en fonction du
+signal a compresser.\\
+\subsubsection{Ondelettes de Daubechies}
+Les ondelettes de Daubechies est une famille d'ondelettes respectants
+certaines proprietes bien precises. Il s'agit de l'ondelette ayant le
+plus petit support compact pour un nombre choisi de moments nuls. Pour
+p moments nuls, le support de l'ondelette correspondante est de 2p. En
+effet, il a ete demontre par Ingrid Daubechies que toute ondellette a
+p moments nuls a au moins 2p coefficients non nuls. Or les ondelettes
+de Daubechies en ont exactement 2p. On peut donc dire qu'elles est
+optimal en ce qui concerne les moments nuls.\\
+Il existe donc une infinite d'ondelettes de cette famille qui sont
+caracterise par le nombre de moment nul. Haar est par exemple une
+ondelette de Daubechies avec un moment nul. Il reste donc plus qu'a
+implementer cette ondelette pour un p quelconque.
+\subsubsection{Implementation des ondellettes de Daubechies}
+L'implementation de ces ondelettes nous ont cause de nombreux
+problemes que nous n'avions pas prevus.\\
+Premierement, la comprehension mathematique de cet outil n'a pas ete
+facile car il nous manquait encore des bases (tel que les Series de
+Fourriers que nous voyons que maintenant). Heuresement notre
+professeur de mathematiques nous a conseille un excelent livre sur les
+ondelettes de Stephane Mallat qui nous a permis de combler certaines
+de nos lacunes. Une fois que nous avions compris les differents
+theoremes, il fallait encore les transformer en algorithmes utilisable
+dans notre projet. Ca a ete plus dur que ce que nous pensions.\\
+La, nous avons rencontre un nouveau probleme auquel nous n'avions pas
+pense : les coefficients de bords. En effet, les ondelletes est un
+principe mathematique qui s'applique sur un signal infini. Or dans
+notre cas, le signal a bien evidement un debut et une
+fin. Concretement, pour la transformee par ondelette, on a besoin des
+valeurs precedentes pour les premieres valeurs et les suivantes pour
+les dernieres valeurs alors qu'elles n'existent pas. Il existe 3
+methodes pour pallier ces effets de bords. La premiere consiste a
+rendre le signal periodique et de le rendre cyclique. C'est assez
+simple de le mettre en place mais cela entraine de grands coefficents
+aux extremites et n'ont plus reelement de sens physique. Ce n'est donc
+pas adapte pour la compression du signal.\\
+Une deuxieme solution existe mais uniquement sur les ondelettes
+symetrique or il a ete prouve que Haar est la seule a l'etre. Or Haar
+n'a pas ce probleme d'effet de bord car son support est de seulement
+2.\\
+Nous avons adopte une autre methode qui consiste a utiliser des
+ondelettes de bords adaptees, ayant le meme nombre de moments nuls
+afin d'eviter de grands coefficients de bords. Cette methode est celle
+qui donne les meilleurs resultats mais est aussi la plus dur a mettre
+en oeuvre. Nous avons eu beaucoup de mal a cause du manque
+d'informations sur cette technique.\\
+Nous avons rencontre un dernier probleme algorithmique. En effet, la
+formule general de la transforme par ondelette a une complexite bien
+trop eleve (on arrivait a plusieurs heures pour la compression de
+quelques minutes de musique). Nous avons donc du optimise
+l'algorithme, comme nous l'avions fait pour Haar, en fonction de
+p.\\\\
+Ces nombreux soucis nous ont donc quelque peu ralenti dans notre
+avancee et pour le moment seul la compression avec l'ondelette de
+Daubechies marche correctement. Il restera donc encore a faire la
+decompression pour la prochaine soutenance.
+\subsection{Traitements des coefficients}
+Une fois la transformee par ondelette effectue, nous recuperons un
+grand nombres de coefficients qu'il faut encore traiter pour avoir une
+bonne compression avec huffman. Pour que ce soit efficace, il faut
+avoir un maximum de valeurs identiques. Pour cela, nous appliquons
+pour le moments trois filtres differents.
+\subsubsection{Suppression des coefficients de petites echelles}
+La premiere etape et de supprimer les coefficients correspondants aux
+petites echelles. En effet ceux-ci influent globalement sur les hautes
+frequences qui ne sont pas percu par l'oreille humaine. On peut donc
+deja supprimer la moitier des coefficients.
+\subsubsection{Suppression des coefficients proches de zero}
+La deuxieme etape est de supprimer tout les coefficients relativement
+prochent de zero. La encore ces coefficients agissent que tres peu sur
+le signal final. Il a donc fallut trouver une valeur limite pour
+laquel on pouvait considerer que coefficients en dessous de cette
+valeur etait negligeable pour l'oreille.
+\subsubsection{Egalisation}
+La derniere etape est l'egalisation des valeurs. En effet Huffman est
+efficace si on a de nombreuses valeurs similaires. On parcourt donc le
+tableau de coefficients en recherchant les valeurs qui sont
+relativement proches puis on les remplacent par la valeur
+moyenne. Encore une fois, il a fallut trouver cette limite.
 	\subsection{Threading}
 	\subsection{Huffman suite et fin}
 À la dernière soutenance, nous pouvions utiliser huffman, pour compresser des
