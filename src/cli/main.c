@@ -13,6 +13,7 @@
 #include <audio_output/wav_streaming.h>
 #include <audio_output/ihy_streaming.h>
 #include <utils/half.h>
+#include <main_threading.h>
 
 static void *thread_play_ihy(void *data)
 {
@@ -95,8 +96,6 @@ static void compress_wav(char *input_filename, char *output_filename)
 {
     ihy_data *output;
     wav_data *input;
-    unsigned int i;
-    uint8_t *oldValue;
 
     output = create_ihy();
     input = create_wav();
@@ -105,37 +104,9 @@ static void compress_wav(char *input_filename, char *output_filename)
     output->NbChunk = get_nbChunk(CHUNK_SIZE,
 	    input->DataBlocSize / (input->BitsPerSample / 8));
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
-    for (i = 0; i < output->NbChunk; i++)
-    {
-	size_t size = 0;
-	size_t real_size = 0;
 
-	size = CHUNK_SIZE * (input->BitsPerSample / 8);
-	/* avoid garbage on the last chunk */
-	if (i == output->NbChunk - 1)
-	    real_size = input->DataBlocSize % CHUNK_SIZE;
-	else
-	    real_size = size;
-	output->DataChunks[i].Values = malloc(sizeof(float) * CHUNK_SIZE);
-	output->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
-	wavelets_direct(input->Data + (i * size), size, real_size,
-		input->BitsPerSample / 8, input->NumChannels,
-		(float *)output->DataChunks[i].Values);
-	oldValue = output->DataChunks[i].Values;
-	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
-	    (float *)oldValue,
-	    output->DataChunks[i].ChunkSize / sizeof(float)
-	);
-	output->DataChunks[i].ChunkSize /= 2;
-	free(oldValue);
-	oldValue = output->DataChunks[i].Values;
-	output->DataChunks[i].Values =
-	    huffman_encode(
-		output->DataChunks[i].Values,
-		&output->DataChunks[i].ChunkSize
-		);
-	free(oldValue);
-    };
+    encode_ihy(8, output->NbChunk, input, output);
+
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
     output->FileID[2] = 'X';
@@ -165,7 +136,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 
 static void print_help()
 {
-    printf(	"Usage : ihyconvert [OPTION] [FILEs]\n");
+    printf(	"Usage : ihyconvert [mode] [file ...]\n");
     printf(	"Official converter of the ihy codec\n\n");
     printf(	"  -c IN.wav OUT.ihy		: compress IN into OUT\n");
     printf(	"  -x IN.ihy OUT.wav		: extract OUT from IN\n");
