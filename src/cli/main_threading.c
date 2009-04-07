@@ -111,12 +111,12 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 		i++;
 	    }
 	    rpipe = sons[i].pipe[0];
-	    chunksize = sons[i].numchunk;
 	    read(rpipe, &shmid, sizeof(int));
 	    shmaddr = shmat(shmid, NULL, 0);
 	    read(rpipe, &chunksize, sizeof(uint32_t));
 	    values = malloc(chunksize);
 	    output->DataChunks[sons[i].numchunk].Values = values;
+	    output->DataChunks[sons[i].numchunk].ChunkSize = chunksize;
 	    memcpy(values, shmaddr, chunksize);
 	    shmdt(shmaddr);
 	    shmctl(shmid, IPC_RMID, NULL);
