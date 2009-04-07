@@ -124,13 +124,13 @@ let egalize (t : float_array) cut s =
       else
 	()
     done
-  
+
 let compress (t : float_array) =
-  (*removeFirsts t 2;*)
+  removeFirsts t 2;
   (*removeSeuil t 1 250.;*)
-  (*egalize t 2 30.;*)
+  egalize t 2 30.;
   (*removeSeuil t 2 500.;*)
-  t      
+  t
 
 let coef =
 (*   (2. ** (-.(1.)/.(2.))) *)
