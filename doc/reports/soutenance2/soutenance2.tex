@@ -209,18 +209,21 @@ comme étant équivalente à 65536 échantillons, et coup de chance pour nous, i
 s'agit de la taille optimale pour Huffman, un chunk deux fois plus gros, ou deux
 fois plus petit, grossis la taille du fichier final de quelques
 kilo-octets.\\
+
+\newpage
+
 	\subsection{Interface graphique}
 À la première soutenance, nous avions une interface graphique basique avec une 
 barre de progression et les boutons standard d'un lecteur audio. Cette dernière 
 nous a permis de nous familiariser avec cet outil qui n'est rien d'autre que 
-GTK+. Et donc, pour cette soutenance, notre interface à quelque peu évoluée grâce 
+GTK+. Maitenant, pour cette soutenance, notre interface à quelque peu évoluée grâce 
 notamment à l'intégration de cairo dans notre projet...
 	\subsubsection{La structure de l'interface}
 Dans notre premiere ébauche d'interface, nous utilisions des box pour placer les
 différents widgets dans la fenêtre. Mais ce n'est pas la meilleure solution si 
 on veut placer ses widgets à des endroits précis. Donc nous avons tout simplement 
 décidé d'utiliser une Table de 9 lignes et 9 colonnes. En effet, c'est un container 
-de GTK+ qui utilise grille invisible pour attacher les widgets. Donc il suffit 
+de GTK+ qui utilise une grille invisible pour attacher les widgets. Donc il suffit 
 d'intégrer les widgets dans la table et de les positionner grâce à des coordonnés.
 Ce qui est plus avantageux qu'une Box qui elle positionne les widgets quasiment 
 alléatoirement. Grâce à cette table, notre interface détient une barre de progression 
@@ -228,12 +231,42 @@ et les boutons standard d'un lecteur audio comme à la première soutenance, mai
 une barre de menu et une zone de dessin (nous y reviendrons plus tard). Pour les boutons, 
 nous avons tout de même utilisé une Box pour les contenirs avec une dimension précise et un 
 espace entre eux nul. Comme pour la dernière soutenance, la jauge se remplit quand
-le PLAY est activé, avec le même principe que la dernière fois. De plus, nous avons une 
-barre de menu qui ne contient que l'option "File". Dedans, on peut y trouver les boutons
+le bouton "Play" est activé, avec le même principe que la dernière fois. De plus, nous avons une 
+barre de menu qui ne contient pour le moment que l'option "File". Dedans, on peut y trouver les boutons
 "New" qui servira certainement à créer une nouvelle playlist, "Open" qui lui servira à 
 récupérer un fichier de format Ihy dans son disque afin de pouvoir l'ouvrir et enfin 
-le bouton "Quit" qui permet tout simplement de fermer l'application.  
- 
+le bouton "Quit" qui permet tout simplement de fermer l'application.
+	\subsubsection{La zone de dessin}
+Pour cette soutenance, nous devions intégrer dans notre interface une zone afin
+d'entamer le spectrographe. Pour se faire, nous avons décidé d'utilisé Cairo.
+Cairo est une bibliothèque logicielle graphique libre qui définit une API de
+rendu vectoriel 2D indépendante du matériel. De plus, cairo est parfaitement
+utilisable avec GTK+. Nous avons donc aujourd'hui, une zone de dessin de
+dimension 500x500, en fond noir, avec pour le moment dedans, deux étoiles en
+mouvement. La première étoile, réalise un mouvement de translation et rotatif 
+grâce aux fonctions cairo-translate() et cairo-rotate() toute deux issues de la
+bibliothèque de cairo. Tandis que la seconde étoile, elle, réalise un
+mouvement de translation et rotatif mais aussi un mouvement d'échelle qui
+provoque une impression de va et vien de l'étoile dans la zone de dessin. Ce
+mouvemente est réalisé grâce à la fonction cairo-scale.\\
+Cependant, cette petite zone de dessin nous a posé problème pour l'intégration dans
+notre interface. En effet, la fonction qui permet de créé la zone de dessin avec
+les bibliothèques de cairo ne crée pas un widget directement. Ce qui est quelque
+peut embétant car la fonction qui permet d'intégré quelque chose dans une table
+n'accepte que les widgets. Par conséquent , nous décidons de créer un GdkPixmap
+qui contiendra la zone de dessin et qui sera détenue dans un widget grâce à la
+fonction gtk-pixmap-new().  
+	\subsubsection{Pour la prochaine fois...}
+Donc, pour la dernière soutenance, nous espérons terminer l'interface avec
+l'intégration d'une playlist, de la fonction qui dessine dans la zone de
+dessin en fonction de la musique, et en activant quelques widgets en plus. Pour
+le moment, voici notre interface actuel 
+\begin{center}
+\includegraphics[scale=0.50]{Player.png}
+\end{center}
+
+\newpage
+
 	\subsection{Portage sur iPhone}
 Aujourd'hui, les codecs audio sont de plus en plus utilisés sur des
 ordinateur possédant une puissance plus que limite, j'ai nommé les iPods
