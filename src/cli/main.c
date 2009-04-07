@@ -92,7 +92,8 @@ static void extract_ihy(char *input_filename, char *output_filename)
     destroy_ihy(input);
 }
 
-static void compress_wav(char *input_filename, char *output_filename)
+static void compress_wav(char *input_filename, char *output_filename,
+			 int nb_threads)
 {
     ihy_data *output;
     wav_data *input;
@@ -105,7 +106,7 @@ static void compress_wav(char *input_filename, char *output_filename)
 	    input->DataBlocSize / (input->BitsPerSample / 8));
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
 
-    encode_ihy(8, output->NbChunk, input, output);
+    encode_ihy(nb_threads, output->NbChunk, input, output);
 
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
@@ -136,12 +137,13 @@ static void compress_wav(char *input_filename, char *output_filename)
 
 static void print_help()
 {
-    printf(	"Usage : ihyconvert [mode] [file ...]\n");
+    printf(	"Usage : ihyconvert [options] [mode] [file ...]\n");
     printf(	"Official converter of the ihy codec\n\n");
-    printf(	"  -c IN.wav OUT.ihy		: compress IN into OUT\n");
-    printf(	"  -x IN.ihy OUT.wav		: extract OUT from IN\n");
-    printf(	"  -r IN.ihy			: play IN\n");
-    printf(	"  -h				: display this help\n");
+    printf(	"  -c IN.wav OUT.ihy	: compress IN into OUT\n");
+    printf(	"  -x IN.ihy OUT.wav	: extract OUT from IN\n");
+    printf(	"  -r IN.ihy		: play IN\n");
+    printf(	"  -j N			: set the number of created processes to N (default 2)\n");
+    printf(	"  -h			: display this help\n");
 }
 
 int main(int argc, char **argv)
@@ -150,6 +152,7 @@ int main(int argc, char **argv)
     int i;
     int is_thread_playing_ihy = 0;
     ihy_data *input_to_play;
+    int nb_threads = 2;
 
     if (argc == 1)
     {
@@ -177,7 +180,7 @@ int main(int argc, char **argv)
 	{
 	    printf("Compressing data ... ");
 	    fflush(stdout);
-	    compress_wav(argv[argc - i + 1], argv[argc - i + 2]);
+	    compress_wav(argv[argc - i + 1], argv[argc - i + 2], nb_threads);
 	    i -= 3;
 	    printf("DONE\n");
 	}
@@ -187,6 +190,11 @@ int main(int argc, char **argv)
 	    input_to_play = create_ihy();
 	    read_ihy(argv[argc - i + 1], input_to_play);
 	    pthread_create(&play, NULL, thread_play_ihy, input_to_play);
+	    i -= 2;
+	}
+	else if (!strcmp(argv[argc - i], "-j"))
+	{
+	    nb_threads = atoi(argv[argc - i + 1]);
 	    i -= 2;
 	}
 	else
