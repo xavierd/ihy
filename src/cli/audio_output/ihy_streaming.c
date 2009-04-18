@@ -58,12 +58,15 @@ static void *ihy_filling_buffer(void *data)
 		to_add->samplesSize / sizeof(uint16_t));
 	free(oldValues);
 	to_add->samplesSize *= 2;
+	oldValues = malloc(to_add->samplesSize * 2);
 	wavelets_inverse((float *)to_add->samples,
 			 to_add->samplesSize / sizeof(float),
 			 ihy->Channels,
-			 to_add->samples,
+			 oldValues,
 			 0);
-	to_add->samplesSize = to_add->samplesSize / 2; /*samplesize = 16bits*/
+	free(to_add->samples);
+	to_add->samples = oldValues;
+	to_add->samplesSize = 2 * to_add->samplesSize / 2; /*samplesize = 16bits*/
 	buffer_add(to_add, buffer);
 	i++;
     }
@@ -76,7 +79,7 @@ void play_ihy_streaming(ihy_data *ihy)
     pthread_t playing_thread, filling_buffer_thread;
     struct ihy_streaming_data data;
 
-    buffer = buffer_init(3); /* max 10 elements */
+    buffer = buffer_init(3); /* max 3 elements */
     data.ihy = ihy;
     data.buffer = buffer;
     pthread_create(&filling_buffer_thread, NULL, &ihy_filling_buffer, &data);
