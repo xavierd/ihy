@@ -67,10 +67,21 @@ void wavelets_direct(const int8_t *samples,
 	    res[i / nbChannels] = 0.0f;
 	camlArray = c_array_to_caml(res, resSize);
 	camlArray = wavelets_direct_fun(camlArray);
-	memcpy(out + (j * resSize), Data_bigarray_val(camlArray),
-						      resSize * sizeof(float));
+	memcpy(out + (j * resSize) / 2, Data_bigarray_val(camlArray),
+						 (resSize / 2) * sizeof(float));
     }
     free(res);
+}
+
+/* just fill the necessary 0 at the end of the chunk */
+static float *fill_zero(const float *chunk, const size_t nb)
+{
+    float *res;
+
+    res = calloc(nb * 2, sizeof(float));
+    memcpy(res, chunk, nb * sizeof(float));
+
+    return res;
 }
 
 /* compute the result of the OCaml function "Haar_Reverse"
@@ -90,8 +101,11 @@ void wavelets_inverse(float *chunk,
 
     for (k = 0; k < nbChannels; k++)
     {
-	camlArray = c_array_to_caml(chunk + k * (nbelmts / nbChannels), nbelmts / nbChannels);
+	valf = fill_zero(chunk + k * (nbelmts / nbChannels),
+							(nbelmts / nbChannels));
+	camlArray = c_array_to_caml(valf, (nbelmts / nbChannels));
 	camlArray = wavelets_reverse_fun(camlArray);
+	free(valf);
 
 	j = k;
 	valf = (float *)(Data_bigarray_val(camlArray));
@@ -99,7 +113,7 @@ void wavelets_inverse(float *chunk,
 	{
 	    val = valf[i];
 	    *(int16_t *)(out + offset + (j * nbChannels)) = val;
-	    j = j + sizeof(int16_t);
+	    j = j + sizeof(int16_t) * 2;
 	}
     }
 }
