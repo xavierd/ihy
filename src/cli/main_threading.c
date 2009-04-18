@@ -24,8 +24,8 @@ proceed_chunk (int outfd, int chunkid, wav_data *input, ihy_data *output)
 	real_size = input->DataBlocSize % CHUNK_SIZE;
     else
 	real_size = size;
-    output->DataChunks[i].Values = malloc(sizeof(float) * CHUNK_SIZE);
-    output->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
+    output->DataChunks[i].Values = malloc(sizeof(float) * (CHUNK_SIZE / 2));
+    output->DataChunks[i].ChunkSize = (CHUNK_SIZE / 2)* sizeof(float);
     wavelets_direct(input->Data + (i * size), size, real_size,
 	input->BitsPerSample / 8, input->NumChannels,
 	(float *)output->DataChunks[i].Values);
