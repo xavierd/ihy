@@ -3,6 +3,7 @@ CROSSLIBDIR=/home/xavier/src/iPhone/toolchain/toolchain/pre/lib
 
 CAMLC=${CROSSBINDIR}/ocamlopt
 CAMLFLAGS=-output-obj bigarray.cmxa
+LDID=${CROSSBINDIR}/ldid
 OCAMLPATH=${shell ${CROSSBINDIR}/ocamlc -where}
 
 CC=${CROSSBINDIR}/arm-apple-darwin9-gcc
@@ -17,7 +18,7 @@ else
 	OUTPUT=
 endif
 
-CSRC=codecs/wav.c audio_output/ao.c codecs/ihy.c audio_output/ihy_streaming.c compression/wavelet.c compression/huffman.c utils/queue.c utils/buffer.c utils/half.c main_threading.c main.c
+CSRC=codecs/wav.c audio_output/ao.c codecs/ihy.c audio_output/ihy_streaming.c compression/wavelet.c compression/huffman.c utils/queue.c utils/buffer.c utils/half.c main.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=compression/wavelets/haar.ml
 CAMLINTERFACE=compression/wavelets/haar.mli
@@ -32,6 +33,7 @@ all: ${EXEC}
 
 ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
 	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
+#	${LDID} -S ${OUTPUT}${EXEC}
 
 %.o: %.c %.h
 	${CC} ${CFLAGS} -c $< -o $@
