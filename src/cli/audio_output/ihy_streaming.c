@@ -58,7 +58,7 @@ static void *ihy_filling_buffer(void *data)
 		to_add->samplesSize / sizeof(uint16_t));
 	free(oldValues);
 	to_add->samplesSize *= 2;
-	oldValues = malloc(to_add->samplesSize * 2);
+	oldValues = calloc(to_add->samplesSize * 2, 1);
 	wavelets_inverse((float *)to_add->samples,
 			 to_add->samplesSize / sizeof(float),
 			 ihy->Channels,
