@@ -26,7 +26,7 @@ static void *ihy_playing(void *data)
      * at least, 1 element
      */
     while (buffer_isempty(buffer))
-	usleep(50);
+	usleep(50000);
     while (!buffer_isempty(buffer))
     {
 	to_play = buffer_get(buffer);
