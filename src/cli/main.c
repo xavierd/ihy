@@ -9,6 +9,7 @@
 #include <codecs/wav.h>
 #include <codecs/ihy.h>
 #include <compression/wavelet.h>
+#include <compression/quantization.h>
 #include <compression/huffman.h>
 #include <audio_output/wav_streaming.h>
 #include <audio_output/ihy_streaming.h>
@@ -28,6 +29,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     uint32_t offset;
     unsigned int i;
     uint8_t *oldValue;
+    ihy_chunk *chunk;
 
     input = create_ihy();
     read_ihy(input_filename, input);
@@ -66,26 +68,22 @@ static void extract_ihy(char *input_filename, char *output_filename)
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
     {
-	oldValue = input->DataChunks[i].Values;
-	input->DataChunks[i].Values =
-	    huffman_decode(
-		    input->DataChunks[i].Values,
-		    &input->DataChunks[i].ChunkSize
-		    );
+	chunk = &input->DataChunks[i];
+	oldValue = chunk->Values;
+	chunk->Values = huffman_decode(chunk->Values, &chunk->ChunkSize);
 	free(oldValue);
-	oldValue = input->DataChunks[i].Values;
-	input->DataChunks[i].Values = (uint8_t *)halfarray_to_float(
-	    (uint16_t *)oldValue,
-	    input->DataChunks[i].ChunkSize / sizeof(uint16_t)
-	);
-	input->DataChunks[i].ChunkSize *= 2;
+	oldValue = chunk->Values;
+	chunk->Values = (uint8_t *)halfarray_to_float(
+	    (uint16_t *)oldValue, chunk->ChunkSize / sizeof(uint16_t));
+	chunk->ChunkSize *= 2;
 	free(oldValue);
-	wavelets_inverse((float *)input->DataChunks[i].Values,
-		(input->DataChunks[i].ChunkSize / sizeof(float)),
+	dequantizate(chunk->Values, chunk->ChunkSize / sizeof(float), 80.0f);
+	wavelets_inverse((float *)chunk->Values,
+		(chunk->ChunkSize / sizeof(float)),
 		input->Channels,
 		output->Data,
 		offset);
-	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 4;
+	offset += (chunk->ChunkSize / sizeof(float)) * 4;
     };
     write_wav(output, output_filename);
     destroy_wav(output);

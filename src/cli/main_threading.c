@@ -30,6 +30,7 @@ proceed_chunk (int outfd, int chunkid, wav_data *input, ihy_data *output)
 	input->BitsPerSample / 8, input->NumChannels,
 	(float *)output->DataChunks[i].Values);
     oldValue = output->DataChunks[i].Values;
+    quantizate((float *)oldValue, output->DataChunks[i].ChunkSize / sizeof(float), 80.0f);
     output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
 	(float *)oldValue,
 	output->DataChunks[i].ChunkSize / sizeof(float)
