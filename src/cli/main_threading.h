@@ -12,6 +12,7 @@
 
 #include <compression/wavelet.h>
 #include <compression/huffman.h>
+#include <compression/quantization.h>
 #include <codecs/wav.h>
 #include <codecs/ihy.h>
 #include <utils/half.h>
