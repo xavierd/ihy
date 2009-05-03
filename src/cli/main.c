@@ -77,7 +77,8 @@ static void extract_ihy(char *input_filename, char *output_filename)
 	    (uint16_t *)oldValue, chunk->ChunkSize / sizeof(uint16_t));
 	chunk->ChunkSize *= 2;
 	free(oldValue);
-	dequantizate(chunk->Values, chunk->ChunkSize / sizeof(float), 80.0f);
+	dequantizate((float *)chunk->Values, chunk->ChunkSize / sizeof(float),
+									80.0f);
 	wavelets_inverse((float *)chunk->Values,
 		(chunk->ChunkSize / sizeof(float)),
 		input->Channels,
