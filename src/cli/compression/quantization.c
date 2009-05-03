@@ -11,9 +11,17 @@ static int sign(float x)
 void quantizate(float *x, const size_t n, const float factor)
 {
     size_t i;
+    int min, max;
 
     for (i = 0; i < n; i++)
+    {
 	x[i] = sign(x[i]) * floorf(abs(x[i] / factor));
+	if (x[i] > max)
+	    max = x[i];
+	else if (x[i] < min)
+	    min = x[i];
+    }
+    printf("min : %d, max : %d\n", min, max);
 }
 
 void dequantizate(float *x, const size_t n, const float factor)
