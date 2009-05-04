@@ -30,21 +30,30 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
     wavelets_direct(input->Data + (i * size), size, real_size,
 	input->BitsPerSample / 8, input->NumChannels,
 	(float *)output->DataChunks[i].Values);
-    oldValue = output->DataChunks[i].Values;
-    quantizate((float *)oldValue, output->DataChunks[i].ChunkSize / sizeof(float), 40.0f);
-    output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
-	(float *)oldValue,
-	output->DataChunks[i].ChunkSize / sizeof(float)
-    );
-    output->DataChunks[i].ChunkSize /= 2;
-    free(oldValue);
-    oldValue = output->DataChunks[i].Values;
-    output->DataChunks[i].Values =
-	huffman_encode(
-	output->DataChunks[i].Values,
-	&output->DataChunks[i].ChunkSize
-	);
-    free(oldValue);
+    /* While size is not good */
+    do
+    {
+	void *tmp;
+
+	oldValue = output->DataChunks[i].Values;
+	size = output->DataChunks[i].ChunkSize / sizeof(float);
+	oldValue = quantizate((float *)oldValue, &size, 80.0f);
+	/*
+	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
+		(float *)oldValue,
+		output->DataChunks[i].ChunkSize / sizeof(float)
+		);
+	output->DataChunks[i].ChunkSize /= 2;
+	free(oldValue);
+	oldValue = output->DataChunks[i].Values;
+	*/
+	tmp = oldValue;
+	oldValue = huffman_encode(tmp, &size);
+	free(tmp);
+    }
+    while (!size /* is not acceptable */);
+    output->DataChunks[i].ChunkSize = size;
+    output->DataChunks[i].Values = oldValue;
 
     shmid = shmget(
 	IPC_PRIVATE,
