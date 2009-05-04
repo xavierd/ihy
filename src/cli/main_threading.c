@@ -7,7 +7,8 @@ typedef struct s_son {
 } t_son;
 
 static void
-proceed_chunk (int outfd, int chunkid, wav_data *input, ihy_data *output)
+proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
+						    ihy_data *output)
 {
     size_t size = 0;
     size_t real_size = 0;
@@ -30,7 +31,7 @@ proceed_chunk (int outfd, int chunkid, wav_data *input, ihy_data *output)
 	input->BitsPerSample / 8, input->NumChannels,
 	(float *)output->DataChunks[i].Values);
     oldValue = output->DataChunks[i].Values;
-    quantizate((float *)oldValue, output->DataChunks[i].ChunkSize / sizeof(float), 80.0f);
+    quantizate((float *)oldValue, output->DataChunks[i].ChunkSize / sizeof(float), 40.0f);
     output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
 	(float *)oldValue,
 	output->DataChunks[i].ChunkSize / sizeof(float)
@@ -60,7 +61,8 @@ proceed_chunk (int outfd, int chunkid, wav_data *input, ihy_data *output)
     );
 }
 
-void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
+void encode_ihy(int nbcpu, int nbchunks, int quality, wav_data *input,
+						      ihy_data *output)
 {
     t_son *sons;
     int nbsons;
@@ -133,6 +135,7 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
 		    proceed_chunk(
 			sons[i].pipe[1],
 			sons[i].numchunk,
+			quality,
 			input,
 			output
 		    );
@@ -149,7 +152,7 @@ void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output)
     else
     {
 	close(sons[i].pipe[0]);
-	proceed_chunk(sons[i].pipe[1], sons[i].numchunk, input, output);
+	proceed_chunk(sons[i].pipe[1], sons[i].numchunk, quality, input, output);
 	_exit(0);
     }
 }

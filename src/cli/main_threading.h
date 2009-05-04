@@ -17,6 +17,7 @@
 #include <codecs/ihy.h>
 #include <utils/half.h>
 
-void encode_ihy(int nbcpu, int nbchunks, wav_data *input, ihy_data *output);
+void encode_ihy(int nbcpu, int nbchunks, int quality, wav_data *input,
+						      ihy_data *output);
 
 #endif
