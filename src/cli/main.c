@@ -78,7 +78,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
 	chunk->ChunkSize *= 2;
 	free(oldValue);
 	dequantizate((float *)chunk->Values, chunk->ChunkSize / sizeof(float),
-									80.0f);
+									40.0f);
 	wavelets_inverse((float *)chunk->Values,
 		(chunk->ChunkSize / sizeof(float)),
 		input->Channels,
@@ -92,7 +92,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
 }
 
 static void compress_wav(char *input_filename, char *output_filename,
-			 int nb_threads)
+			 int nb_threads, int quality)
 {
     ihy_data *output;
     wav_data *input;
@@ -105,7 +105,7 @@ static void compress_wav(char *input_filename, char *output_filename,
 	    input->DataBlocSize / (input->BitsPerSample / 8));
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
 
-    encode_ihy(nb_threads, output->NbChunk, input, output);
+    encode_ihy(nb_threads, output->NbChunk, quality, input, output);
 
     output->FileID[0] = 'S';
     output->FileID[1] = 'N';
@@ -142,6 +142,7 @@ static void print_help()
     printf("  -x IN.ihy OUT.wav\t: extract OUT from IN\n");
     printf("  -r IN.ihy\t\t: play IN\n");
     printf("  -j N\t\t\t: set the number of created processes to N (default 2)\n");
+    printf("  -q N\t\t\t: set the quality of the output to N (default 5)\n");
     printf("  -h\t\t\t: display this help\n");
 }
 
@@ -152,6 +153,7 @@ int main(int argc, char **argv)
     int is_thread_playing_ihy = 0;
     ihy_data *input_to_play;
     int nb_threads = 2;
+    int q = 5;
 
     if (argc == 1)
     {
@@ -179,7 +181,7 @@ int main(int argc, char **argv)
 	{
 	    printf("Compressing data ... ");
 	    fflush(stdout);
-	    compress_wav(argv[argc - i + 1], argv[argc - i + 2], nb_threads);
+	    compress_wav(argv[argc - i + 1], argv[argc - i + 2], nb_threads, q);
 	    i -= 3;
 	    printf("DONE\n");
 	}
@@ -194,6 +196,11 @@ int main(int argc, char **argv)
 	else if (!strcmp(argv[argc - i], "-j"))
 	{
 	    nb_threads = atoi(argv[argc - i + 1]);
+	    i -= 2;
+	}
+	else if (!strcmp(argv[argc - i], "-q"))
+	{
+	    q = atoi(argv[argc - i + 1]);
 	    i -= 2;
 	}
 	else
