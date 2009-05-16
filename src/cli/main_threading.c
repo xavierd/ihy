@@ -16,58 +16,49 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
     uint8_t *oldValue;
     int shmid;
     void *shmaddr;
+    ihy_chunk *chunk;
 
     i = chunkid;
 
+    chunk = &output->DataChunks[i];
     size = CHUNK_SIZE * (input->BitsPerSample / 8);
     /* avoid garbage on the last chunk */
     if (i == output->NbChunk - 1)
 	real_size = input->DataBlocSize % CHUNK_SIZE;
     else
 	real_size = size;
-    output->DataChunks[i].Values = malloc(sizeof(float) * (CHUNK_SIZE / 2));
-    output->DataChunks[i].ChunkSize = (CHUNK_SIZE / 2)* sizeof(float);
+    chunk->Values = malloc(sizeof(float) * (CHUNK_SIZE / 2));
+    chunk->ChunkSize = (CHUNK_SIZE / 2)* sizeof(float);
     wavelets_direct(input->Data + (i * size), size, real_size,
 	input->BitsPerSample / 8, input->NumChannels,
-	(float *)output->DataChunks[i].Values);
+	(float *)chunk->Values);
     /* While size is not good */
     do
     {
 	void *tmp;
 
-	oldValue = output->DataChunks[i].Values;
-	size = output->DataChunks[i].ChunkSize / sizeof(float);
-	oldValue = quantizate((float *)oldValue, &size, 80.0f);
+	oldValue = chunk->Values;
+	size = chunk->ChunkSize / sizeof(float);
+	oldValue = quantizate((float *)oldValue, &size, 10.0f);
 	/*
-	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
-		(float *)oldValue,
-		output->DataChunks[i].ChunkSize / sizeof(float)
-		);
-	output->DataChunks[i].ChunkSize /= 2;
+	tmp = floatarray_to_half((float *)oldValue, size);
+	size /= 2;
 	free(oldValue);
-	oldValue = output->DataChunks[i].Values;
+	oldValue = chunk->Values;
 	*/
 	tmp = oldValue;
 	oldValue = huffman_encode(tmp, &size);
 	free(tmp);
     }
     while (!size /* is not acceptable */);
-    output->DataChunks[i].ChunkSize = size;
-    output->DataChunks[i].Values = oldValue;
+    chunk->ChunkSize = size;
+    chunk->Values = oldValue;
 
-    shmid = shmget(
-	IPC_PRIVATE,
-	output->DataChunks[i].ChunkSize,
-	IPC_CREAT | SHM_R | SHM_W
-    );
+    shmid = shmget(IPC_PRIVATE, chunk->ChunkSize, IPC_CREAT | SHM_R | SHM_W);
     write(outfd, &shmid, sizeof(int));
-    write(outfd, &(output->DataChunks[i].ChunkSize), sizeof(uint32_t));
+    write(outfd, &chunk->ChunkSize, sizeof(uint32_t));
     shmaddr = shmat(shmid, NULL, 0);
-    memcpy(
-	shmaddr,
-	output->DataChunks[i].Values,
-	output->DataChunks[i].ChunkSize
-    );
+    memcpy(shmaddr, chunk->Values, chunk->ChunkSize);
 }
 
 void encode_ihy(int nbcpu, int nbchunks, int quality, wav_data *input,
