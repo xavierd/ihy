@@ -128,8 +128,8 @@ let egalize (t : float_array) cut s =
 let compress (t : float_array) =
   removeFirsts t 2;
   (*removeSeuil t 2 80.;*)
-  egalize t 2 30.;
-  removeSeuil t 2 30.;
+(*   egalize t 2 30.; *)
+(*   removeSeuil t 2 30.; *)
 t
 
 let coef =

@@ -86,6 +86,6 @@ void dequantizate(float *x, const size_t n, const float factor)
     for (i = 0; i < n; i++)
     {
 	/*if (x[i] != 0.0f)*/
-	    x[i] = sign(x[i]) * (abs(x[i]) + 0.5f) * factor;
+	x[i] = sign(x[i]) * (abs(x[i]) + 0.5f) * factor;
     }
 }
