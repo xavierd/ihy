@@ -29,7 +29,7 @@ all: ${EXEC}
 
 ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
 	@${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
-	@echo "  LD	${EXE}"
+	@echo "  LD	${EXEC}"
 
 %.o: %.c %.h
 	@${CC} ${CFLAGS} -c $< -o $@
