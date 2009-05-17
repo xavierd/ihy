@@ -35,6 +35,10 @@ ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
 	@${CC} ${CFLAGS} -c $< -o $@
 	@echo "  CC	$<"
 
+%.o: %.c
+	@${CC} ${CFLAGS} -c $< -o $@
+	@echo "  CC	$<"
+
 %_ml.o: %.ml
 	@${CAMLC} ${CAMLFLAGS} -I ./compression/wavelets $< -o $@
 	@echo "  ML	$<"
