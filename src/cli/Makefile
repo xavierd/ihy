@@ -28,16 +28,20 @@ EXEC=ihyconvert
 all: ${EXEC}
 
 ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
-	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
+	@${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
+	@echo "  LD	${EXE}"
 
 %.o: %.c %.h
-	${CC} ${CFLAGS} -c $< -o $@
+	@${CC} ${CFLAGS} -c $< -o $@
+	@echo "  CC	$<"
 
 %_ml.o: %.ml
-	${CAMLC} ${CAMLFLAGS} -I ./compression/wavelets $< -o $@
+	@${CAMLC} ${CAMLFLAGS} -I ./compression/wavelets $< -o $@
+	@echo "  ML	$<"
 
 %.cmi: %.mli
-	${CAMLC} $< -o $@
+	@${CAMLC} $< -o $@
+	@echo "  MLI	$<"
 
 clean:
 	rm -rf ${COBJ}
