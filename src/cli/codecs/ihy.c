@@ -19,6 +19,7 @@ ihy_data *create_ihy()
 void read_ihy(const char *filename, ihy_data *data)
 {
     FILE *file;
+    ihy_chunk chunk;
     uint32_t i;
 
     /* Open file for reading */
@@ -55,14 +56,15 @@ void read_ihy(const char *filename, ihy_data *data)
     data->DataChunks = malloc(data->NbChunk * sizeof(ihy_chunk));
     for (i = 0; i < data->NbChunk; i++)
     {
-	fread(&data->DataChunks[i].ChunkSize, sizeof(uint32_t), 1, file);
-	data->DataChunks[i].Values = malloc(data->DataChunks[i].ChunkSize);
-	fread(
-	    data->DataChunks[i].Values,
-	    sizeof(uint8_t),
-	    data->DataChunks[i].ChunkSize / sizeof(uint8_t),
-	    file
-	);
+	chunk = data->DataChunks[i];
+	fread(&chunk.ChunkSize, sizeof(uint32_t), 1, file);
+	chunk.Values = malloc(chunk.ChunkSize);
+	fread(&chunk.QBitsPerCoefs, sizeof(uint8_t), 1, file);
+	fread(&chunk.QScaleFactor, sizeof(uint16_t), 1, file);
+	fread(&chunk.HUncompressedSize, sizeof(uint32_t), 1, file);
+	fread(chunk.Values, sizeof(uint8_t), chunk.ChunkSize / sizeof(uint8_t),
+									file);
+	data->DataChunks[i] = chunk;
     }
     fclose(file);
 }
@@ -72,6 +74,7 @@ void write_ihy(const ihy_data *data, const char *filename)
 {
     FILE *file;
     uint32_t i;
+    ihy_chunk chunk;
 
     /* Open file for writing */
     file = fopen(filename, "wb");
@@ -98,13 +101,13 @@ void write_ihy(const ihy_data *data, const char *filename)
     fwrite(&data->NbChunk, sizeof(uint32_t), 1, file);
     for (i = 0; i < data->NbChunk; i++)
     {
-	fwrite(&data->DataChunks[i].ChunkSize, sizeof(uint32_t), 1, file);
-	fwrite(
-	    data->DataChunks[i].Values,
-	    sizeof(uint8_t),
-	    data->DataChunks[i].ChunkSize / sizeof(uint8_t),
-	    file
-	);
+	chunk = data->DataChunks[i];
+	fwrite(&chunk.ChunkSize, sizeof(uint32_t), 1, file);
+	fwrite(&chunk.QBitsPerCoefs, sizeof(uint8_t), 1, file);
+	fwrite(&chunk.QScaleFactor, sizeof(uint16_t), 1, file);
+	fwrite(&chunk.HUncompressedSize, sizeof(uint32_t), 1, file);
+	fwrite(chunk.Values, sizeof(uint8_t), chunk.ChunkSize / sizeof(uint8_t),
+									file);
     }
     /* Close file */
     fclose(file);
