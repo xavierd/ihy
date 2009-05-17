@@ -55,7 +55,7 @@ static void *encode(int *x, const size_t n, const int nb_bits, size_t *size)
     return res;
 }
 
-void *quantizate(float *x, size_t *n, const float factor)
+void *quantizate(float *x, size_t *n, const float factor, int *nbbits)
 {
     size_t i;
     int min, max;
@@ -76,16 +76,47 @@ void *quantizate(float *x, size_t *n, const float factor)
     max = max > min ? max : min;
     min = nb_bits(max);
     res = encode(q, *n, min, n);
+    *nbbits = min;
     return res;
 }
 
-void dequantizate(float *x, const size_t n, const float factor)
+static int next_nb(uint8_t **tab, int nbbits, int *offset)
+{
+    int res;
+
+    res = 0;
+    while (nbbits > 0)
+    {
+	res = (res << 1) + ith_bit(**tab, *offset);
+	*offset += 1;
+	if (*offset == 8)
+	{
+	    (*tab)++;
+	    *offset = 0;
+	}
+	nbbits--;
+    }
+}
+
+float *dequantizate(float *x, size_t *n, const float factor, int nbbits)
 {
     size_t i;
+    size_t nb_elmts = ((*n * nbbits) / 8);
+    float *res = malloc(nb_elmts * sizeof(float));
+    int nb;
+    int offset;
 
+    /*
     for (i = 0; i < n; i++)
     {
-	/*if (x[i] != 0.0f)*/
 	x[i] = sign(x[i]) * (abs(x[i]) + 0.5f) * factor;
     }
+    */
+    offset = 0;
+    for (i = 0; i < nb_elmts; i++)
+    {
+	nb = next_nb(&x, nbbits, &offset);
+	res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;
+    }
+    return res;
 }
