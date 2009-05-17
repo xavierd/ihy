@@ -96,9 +96,10 @@ static int next_nb(uint8_t **tab, int nbbits, int *offset)
 	}
 	nbbits--;
     }
+    return res;
 }
 
-float *dequantizate(float *x, size_t *n, const float factor, int nbbits)
+float *dequantizate(uint8_t *x, size_t *n, const float factor, int nbbits)
 {
     size_t i;
     size_t nb_elmts = ((*n * nbbits) / 8);
@@ -118,5 +119,6 @@ float *dequantizate(float *x, size_t *n, const float factor, int nbbits)
 	nb = next_nb(&x, nbbits, &offset);
 	res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;
     }
+    *n = nb_elmts * sizeof(float);
     return res;
 }
