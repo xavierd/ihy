@@ -9,6 +9,9 @@
 typedef struct ihy_chunk
 {
     uint32_t		ChunkSize;
+    uint8_t		QBitsPerCoefs;
+    uint16_t		QScaleFactor;
+    uint32_t		HUncompressedSize;
     uint8_t		*Values;
 } ihy_chunk;
 
