@@ -29,6 +29,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     uint32_t offset;
     unsigned int i;
     uint8_t *oldValue;
+    size_t size;
     ihy_chunk *chunk;
 
     input = create_ihy();
@@ -72,18 +73,24 @@ static void extract_ihy(char *input_filename, char *output_filename)
 	oldValue = chunk->Values;
 	chunk->Values = huffman_decode(chunk->Values, &chunk->ChunkSize);
 	free(oldValue);
+	/*
 	oldValue = chunk->Values;
 	chunk->Values = (uint8_t *)halfarray_to_float(
 	    (uint16_t *)oldValue, chunk->ChunkSize / sizeof(uint16_t));
 	chunk->ChunkSize *= 2;
 	free(oldValue);
-	dequantizate((float *)chunk->Values, chunk->ChunkSize / sizeof(float),
-									10.0f);
+	*/
+	size = chunk->ChunkSize / sizeof(float);
+	oldValue = dequantizate(chunk->Values, &size, chunk->QScaleFactor,
+							chunk->QBitsPerCoefs);
+	free(chunk->Values);
+	chunk->Values = oldValue;
 	wavelets_inverse((float *)chunk->Values,
-		(chunk->ChunkSize / sizeof(float)),
+		(size / sizeof(float)),
 		input->Channels,
 		output->Data,
 		offset);
+	chunk->ChunkSize = size;
 	offset += (chunk->ChunkSize / sizeof(float)) * 4;
     };
     write_wav(output, output_filename);

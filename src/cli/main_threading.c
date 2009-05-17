@@ -15,6 +15,7 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
     unsigned int i;
     uint8_t *oldValue;
     int shmid;
+    int nbbits;
     void *shmaddr;
     ihy_chunk *chunk;
 
@@ -39,7 +40,7 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
 
 	oldValue = chunk->Values;
 	size = chunk->ChunkSize / sizeof(float);
-	oldValue = quantizate((float *)oldValue, &size, 10.0f);
+	oldValue = quantizate((float *)oldValue, &size, 10.0f, &nbbits);
 	/*
 	tmp = floatarray_to_half((float *)oldValue, size);
 	size /= 2;
@@ -51,12 +52,16 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
 	free(tmp);
     }
     while (!size /* is not acceptable */);
+    chunk->QBitsPerCoefs = nbbits;
+    chunk->QScaleFactor = 10.0f;
     chunk->ChunkSize = size;
     chunk->Values = oldValue;
 
     shmid = shmget(IPC_PRIVATE, chunk->ChunkSize, IPC_CREAT | SHM_R | SHM_W);
     write(outfd, &shmid, sizeof(int));
     write(outfd, &chunk->ChunkSize, sizeof(uint32_t));
+    write(outfd, &chunk->QBitsPerCoefs, sizeof(uint8_t));
+    write(outfd, &chunk->QScaleFactor, sizeof(uint16_t));
     shmaddr = shmat(shmid, NULL, 0);
     memcpy(shmaddr, chunk->Values, chunk->ChunkSize);
 }
@@ -102,7 +107,7 @@ void encode_ihy(int nbcpu, int nbchunks, int quality, wav_data *input,
 	    pid_t pid;
 	    int shmid;
 	    void *shmaddr;
-	    int chunksize;
+	    int chunksize, nbbits, factor;
 	    uint8_t *values;
 	    int rpipe;
 
@@ -117,9 +122,13 @@ void encode_ihy(int nbcpu, int nbchunks, int quality, wav_data *input,
 	    read(rpipe, &shmid, sizeof(int));
 	    shmaddr = shmat(shmid, NULL, 0);
 	    read(rpipe, &chunksize, sizeof(uint32_t));
+	    read(rpipe, &nbbits, sizeof(uint8_t));
+	    read(rpipe, &factor, sizeof(uint16_t));
 	    values = malloc(chunksize);
 	    output->DataChunks[sons[i].numchunk].Values = values;
 	    output->DataChunks[sons[i].numchunk].ChunkSize = chunksize;
+	    output->DataChunks[sons[i].numchunk].QBitsPerCoefs = nbbits;
+	    output->DataChunks[sons[i].numchunk].QScaleFactor = factor;
 	    memcpy(values, shmaddr, chunksize);
 	    shmdt(shmaddr);
 	    shmctl(shmid, IPC_RMID, NULL);
