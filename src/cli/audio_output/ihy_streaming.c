@@ -62,12 +62,13 @@ static void *ihy_filling_buffer(void *data)
 	free(oldValues);
 	to_add->samplesSize *= 2;
 	*/
-	size = to_add->samplesSize / sizeof(float);
+	size = to_add->samplesSize;
 	oldValues =  (uint8_t *)dequantizate(to_add->samples, &size,
 				    chunk.QScaleFactor, chunk.QBitsPerCoefs);
 	free(to_add->samples);
 	to_add->samples = oldValues;
-	oldValues = calloc(to_add->samplesSize * 2, 1);
+	size *= 4;
+	oldValues = calloc(size, 1);
 	wavelets_inverse((float *)to_add->samples,
 			 size / sizeof(float),
 			 ihy->Channels,
