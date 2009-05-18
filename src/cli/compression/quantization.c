@@ -18,12 +18,13 @@ static int nb_bits(int a)
 	nb++;
 	max *= 2;
     }
-    return nb;
+    return (nb + 1); /* needed for the sign */
 }
 
 #define ith_bit(number, i)		\
     (((number) >> ((i) - 1)) & 1)
 
+/* seems OK */
 static void *encode(int *x, const size_t n, const int nb_bits, size_t *size)
 {
     void *res;
@@ -33,16 +34,19 @@ static void *encode(int *x, const size_t n, const int nb_bits, size_t *size)
     char buf;
     int offset;
 
-    *size = /*1 +*/ ((nb_bits * n) / 8);
+    *size = ((nb_bits * n) / 8) + 1;
     res = malloc(*size);
     tab = res;
     offset = 0;
     buf = 0;
     for (i = 0; i < n; i++)
     {
+	/* sign */
+	if (x[i] < 0)
+	    x[i] = (~x[i] + 1) | ith_bit(x[i], 8 * sizeof(int)) << (nb_bits-1);
 	for (j = 0; j < nb_bits; j++)
 	{
-	    buf |= ith_bit(x[i], j) << (7 - offset++);
+	    buf |= ith_bit(x[i], nb_bits - j) << (7 - offset++);
 	    if (offset == 8)
 	    {
 		*tab = buf;
@@ -52,6 +56,7 @@ static void *encode(int *x, const size_t n, const int nb_bits, size_t *size)
 	    }
 	}
     }
+    *tab = buf;
     return res;
 }
 
@@ -77,48 +82,57 @@ void *quantizate(float *x, size_t *n, const float factor, int *nbbits)
     min = nb_bits(max);
     res = encode(q, *n, min, n);
     *nbbits = min;
+    free(q);
     return res;
 }
 
 static int next_nb(uint8_t **tab, int nbbits, int *offset)
 {
     int res;
+    int sign;
 
     res = 0;
+    sign = ith_bit(**tab, 8 - *offset);
+    *offset += 1;
+    nbbits--;
     while (nbbits > 0)
     {
-	res = (res << 1) + ith_bit(**tab, *offset);
-	*offset += 1;
 	if (*offset == 8)
 	{
 	    (*tab)++;
 	    *offset = 0;
 	}
+	res = (res << 1) | ith_bit(**tab, 8 - *offset);
+	*offset += 1;
 	nbbits--;
     }
+    if (*offset == 8)
+    {
+	(*tab)++;
+	*offset = 0;
+    }
+    if (sign)
+	res = -res;
     return res;
 }
 
 float *dequantizate(uint8_t *x, size_t *n, const float factor, int nbbits)
 {
     size_t i;
-    size_t nb_elmts = ((*n * nbbits) / 8);
+    size_t nb_elmts = (((*n - 1) * 8) / nbbits);
     float *res = malloc(nb_elmts * sizeof(float));
     int nb;
     int offset;
 
-    /*
-    for (i = 0; i < n; i++)
-    {
-	x[i] = sign(x[i]) * (abs(x[i]) + 0.5f) * factor;
-    }
-    */
     offset = 0;
     for (i = 0; i < nb_elmts; i++)
     {
 	nb = next_nb(&x, nbbits, &offset);
-	res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;
+	if (nb == 0)
+	    res[i] = 0.0f;
+	else
+	    res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;
     }
-    *n = nb_elmts * sizeof(float);
+    *n = nb_elmts;
     return res;
 }
