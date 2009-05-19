@@ -31,9 +31,9 @@ typedef struct huffman_tree
 uint8_t *huffman_encode(const void *varray, size_t *n);
 
 /* decode the data
- * *n will contain the size of the array returned
+ * n is the size of the array returned (in byte)
  */
-void *huffman_decode(const void *varray, size_t *n);
+void *huffman_decode(const void *varray, size_t n);
 
 /* release the memory used by a huffman tree */
 void destroy_huffman(huffman_tree *B);

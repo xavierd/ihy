@@ -188,8 +188,10 @@ uint8_t *huffman_encode(const void *varray, size_t *n)
     H = build_huffman(varray, *n);
     put_code_on_huffman(H, 0, 0);
     build_code(H, code);
+    /*
     *((size_t *)res) = *n;
     sentry += sizeof(size_t);
+    */
     huffman_write_tree(H, &sentry);
     shift = 0;
     to_write = 0;
@@ -280,26 +282,29 @@ static int8_t get_next_letter(uint8_t **array,
 }
 
 /* decode the data
+ * n is the uncompressed size
  */
-void *huffman_decode(const void *varray, size_t *n)
+void *huffman_decode(const void *varray, const size_t n)
 {
     int shift = 0;
     uint8_t *array, *res;
     huffman_tree *H;
-    const size_t uncompressed_size = *((size_t *)varray);
+    /*const size_t uncompressed_size = *((size_t *)varray);*/
     unsigned int index = 0;
 
     array = (uint8_t *)varray;
+    /*
     array += sizeof(size_t);
-    res = malloc(uncompressed_size);
+    */
+    res = malloc(n);
     H = huffman_read_tree(&array);
-    while (index < uncompressed_size)
+    while (index < n)
     {
 	res[index] = get_next_letter(&array, &shift, H);
 	index++;
     };
     destroy_huffman(H);
-    *n = uncompressed_size;
+    /**n = uncompressed_size;*/
     return (void *)res;
 }
 
