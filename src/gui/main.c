@@ -27,7 +27,8 @@ void OnStop(GtkWidget *pWidget, gpointer data);
 char* title(const char* chaine);
 void OnAdd(GtkWidget *pWidget, gpointer data);
 GtkListStore *pListStore;
-gdouble dFraction;
+gboolean stop = TRUE;
+gboolean pause = TRUE;
 
 enum {
     TEXT_COLUMN,
@@ -110,7 +111,7 @@ on_expose_event(GtkWidget *widget,
 
     scale += delta;
     angle += 0.01;
-     
+
     /*Here we draw the second star*/
     if ( scale2 < 0.01 ) {
 	delta2 = -delta2;
@@ -156,7 +157,6 @@ int main(int argc, char **argv)
     GtkWidget   *pNotebook;
     gchar       *sTabLabel;
     GtkWidget   *pTabLabel;
-    gchar       *sTabLabel2;
     GtkWidget   *pTabLabel2;
     GtkWidget   *pVBox;
     GtkWidget   *pVBox2;
@@ -180,8 +180,8 @@ int main(int argc, char **argv)
     gtk_window_set_default_size(GTK_WINDOW(pWindow), 500, 500);
     gtk_window_set_title(GTK_WINDOW(pWindow), "Ihy Player");
     g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
- 
-        /* Creation de la GtkBox verticale */
+
+    /* Creation de la GtkBox verticale */
     pVBox = gtk_vbox_new(FALSE, 0);
     /* Ajout de la GtkVBox dans la fenetre */
     gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), quit);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file);
 
-      gtk_box_pack_start(GTK_BOX(pVBox), menubar, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(pVBox), menubar, FALSE, FALSE, 0);
 
     /* Creation du GtkNotebook */
     pNotebook = gtk_notebook_new();
@@ -231,7 +231,6 @@ int main(int argc, char **argv)
 
     /* The Table */
     pTable=gtk_table_new(9,9,FALSE);
-    //gtk_container_add(GTK_CONTAINER(pWindow), GTK_WIDGET(pTable));
 
     /* Creation de la GtkBox verticale */
     pVBox2 = gtk_vbox_new(FALSE, 0);
@@ -326,7 +325,6 @@ int main(int argc, char **argv)
     g_signal_connect_swapped(G_OBJECT(pButton[2]), "clicked", G_CALLBACK(OnStop), pProgress);
     g_signal_connect(G_OBJECT(quit), "activate",G_CALLBACK(gtk_main_quit), NULL);
     g_signal_connect(G_OBJECT(pButton[3]), "clicked", G_CALLBACK(OnAdd), NULL);
-    //g_signal_connect(G_OBJECT(pButton), "clicked", G_CALLBACK(OnButton), pNotebook);
 
     gtk_widget_show_all(pWindow);
 
@@ -345,21 +343,21 @@ char* title(const char* chaine)
     char *chaine2;
     long i = 0;
     long j = 0;
-    
+
     chaine2 = malloc(78* sizeof(char)); 
     while (chaine[i] != '\0')
     {
-     	if (chaine[i] != '/')
-        {
-        	chaine2[j] = chaine[i];
-                j++;
-                i++;       
-	}
-        else 
+	if (chaine[i] != '/')
 	{
-		j = 0;
-                i++;
-        }
+	    chaine2[j] = chaine[i];
+	    j++;
+	    i++;       
+	}
+	else 
+	{
+	    j = 0;
+	    i++;
+	}
     }
     chaine2[j]='\0';
     return chaine2;
@@ -394,16 +392,16 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 
 	    /* Recuperation du chemin */
 	    sChemin = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(pFileSelection));
-            sTitle = title(sChemin);
+	    sTitle = title(sChemin);
 
 	    /* Creation de la nouvelle ligne */
 	    gtk_list_store_append(pListStore, &pIter);
 
-            /* Mise a jour des donnees */
-           gtk_list_store_set(pListStore, &pIter,
-			TEXT_COLUMN, sTitle,
-			TOGGLE_COLUMN, TRUE,
-			-1);
+	    /* Mise a jour des donnees */
+	    gtk_list_store_set(pListStore, &pIter,
+		    TEXT_COLUMN, sTitle,
+		    TOGGLE_COLUMN, TRUE,
+		    -1);
 
 	    g_free(sChemin);
 	    break;
@@ -413,35 +411,52 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
     gtk_widget_destroy(pFileSelection);
 }
 
+gint j = 0;
+
 void OnPlay(GtkWidget *pWidget, gpointer data)
 {
     gint i;
     gint iTotal = 2000;
+    gdouble dFraction;
 
     /* Initialisation */
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
-    for(i = 0 ; i <= iTotal ; ++i)
+    for(i = j ; i <= iTotal ; ++i)
     {
-	dFraction = (gdouble)i / (gdouble)iTotal;
+	if (stop && pause)
+	{
+	    dFraction = (gdouble)i / (gdouble)iTotal;
 
-	/* Modification of the progress bar */
-	gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
-
-
-	/* we give the hand to GTK+ */
-	gtk_main_iteration ();
-    }
+	    /* Modification of the progress bar */
+	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
+	    /* we give the hand to GTK+ */
+	    gtk_main_iteration ();
+	    j=j+1;
+	}
+	else if (!pause)
+	{
+	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
+	}
+	else if (!stop)
+	{
+	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
+	    j=0;
+	}
+    }  
+    stop = TRUE;
+    pause = TRUE;
 
 } 
 
 void OnPause(GtkWidget *pWidget, gpointer data)
 {
-    /* Tu fixe la fonction de du bouton "pause" ici*/
+    pause = !pause;
 }
 
 void OnStop(GtkWidget *pWidget, gpointer data)
 {
-    dFraction = gtk_progress_bar_get_fraction(GTK_PROGRESS_BAR(pWidget));
-    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
+    stop = !stop;
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
+    j=0;
 }
