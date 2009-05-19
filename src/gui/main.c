@@ -3,6 +3,7 @@
 #include <math.h>
 #include <cairo.h>
 #include <gdk/gdkkeysyms.h>
+#include <glib/gprintf.h>
 
 
 int points[11][2] = { 
@@ -23,6 +24,16 @@ int points[11][2] = {
 void OnPlay(GtkWidget *pWidget, gpointer data);
 void OnPause(GtkWidget *pWidget, gpointer data);
 void OnStop(GtkWidget *pWidget, gpointer data);
+char* title(const char* chaine);
+void OnAdd(GtkWidget *pWidget, gpointer data);
+GtkListStore *pListStore;
+gdouble dFraction;
+
+enum {
+    TEXT_COLUMN,
+    TOGGLE_COLUMN,
+    N_COLUMN
+};
 
     static gboolean
 on_expose_event(GtkWidget *widget,
@@ -129,7 +140,7 @@ int main(int argc, char **argv)
 {
     GtkWidget   *pWindow;
     GtkWidget   *pTable;
-    GtkWidget   *pButton[3];
+    GtkWidget   *pButton[8];
     GtkWidget   *image;
     GtkWidget   *pProgress;
     GdkColormap *cmap = NULL;
@@ -142,7 +153,19 @@ int main(int argc, char **argv)
     GtkWidget   *open;
     GtkWidget   *quit;
     GtkWidget   *sep;
-    
+    GtkWidget   *pNotebook;
+    gchar       *sTabLabel;
+    GtkWidget   *pTabLabel;
+    gchar       *sTabLabel2;
+    GtkWidget   *pTabLabel2;
+    GtkWidget   *pVBox;
+    GtkWidget   *pVBox2;
+    GtkWidget   *pHBox2;
+    GtkWidget   *pListView;
+    GtkWidget   *pScrollbar;
+    GtkTreeViewColumn   *pColumn;
+    GtkCellRenderer   *pCellRenderer;
+
     GtkAccelGroup *accel_group = NULL; /*For the MenuBar*/
 
     int width, height;
@@ -157,6 +180,11 @@ int main(int argc, char **argv)
     gtk_window_set_default_size(GTK_WINDOW(pWindow), 500, 500);
     gtk_window_set_title(GTK_WINDOW(pWindow), "Ihy Player");
     g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+ 
+        /* Creation de la GtkBox verticale */
+    pVBox = gtk_vbox_new(FALSE, 0);
+    /* Ajout de la GtkVBox dans la fenetre */
+    gtk_container_add(GTK_CONTAINER(pWindow), pVBox);
 
     /*The MenuBar*/
     menubar = gtk_menu_bar_new();
@@ -182,9 +210,65 @@ int main(int argc, char **argv)
     gtk_menu_shell_append(GTK_MENU_SHELL(filemenu), quit);
     gtk_menu_shell_append(GTK_MENU_SHELL(menubar), file);
 
+      gtk_box_pack_start(GTK_BOX(pVBox), menubar, FALSE, FALSE, 0);
+
+    /* Creation du GtkNotebook */
+    pNotebook = gtk_notebook_new();
+    gtk_box_pack_start(GTK_BOX(pVBox), pNotebook, TRUE, TRUE, 0);
+    /* Position des onglets : en haut */
+    gtk_notebook_set_tab_pos(GTK_NOTEBOOK(pNotebook), GTK_POS_TOP);
+    /* Ajout des boutons de navigation */
+    gtk_notebook_set_scrollable(GTK_NOTEBOOK(pNotebook), TRUE);
+    sTabLabel = g_strdup_printf("Spectrum");
+    pTabLabel = gtk_label_new(sTabLabel);
+
+    g_free(sTabLabel);
+
+    sTabLabel = g_strdup_printf("Playlist");
+    pTabLabel2 = gtk_label_new(sTabLabel);
+
+    g_free(sTabLabel);
+
     /* The Table */
     pTable=gtk_table_new(9,9,FALSE);
-    gtk_container_add(GTK_CONTAINER(pWindow), GTK_WIDGET(pTable));
+    //gtk_container_add(GTK_CONTAINER(pWindow), GTK_WIDGET(pTable));
+
+    /* Creation de la GtkBox verticale */
+    pVBox2 = gtk_vbox_new(FALSE, 0);
+    /* Ajout de la GtkVBox dans la fenetre */
+    gtk_container_add(GTK_CONTAINER(pWindow), pVBox2);
+
+    /* Insertion de la page */
+    gtk_notebook_append_page(GTK_NOTEBOOK(pNotebook), pTable, pTabLabel);
+    gtk_notebook_append_page(GTK_NOTEBOOK(pNotebook), pVBox2, pTabLabel2);
+
+    /* Playlist */
+    pHBox2 = gtk_hbox_new(TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(pVBox2), pHBox2, FALSE, FALSE, 0);
+    /* Creation du modele */
+    pListStore = gtk_list_store_new(N_COLUMN, G_TYPE_STRING, G_TYPE_BOOLEAN);
+
+    /* Creation de la vue */
+    pListView = gtk_tree_view_new_with_model(GTK_TREE_MODEL(pListStore));
+
+    /* Creation de la premiere colonne */
+    pCellRenderer = gtk_cell_renderer_text_new();
+    pColumn = gtk_tree_view_column_new_with_attributes("Titre",
+	    pCellRenderer,
+	    "text", TEXT_COLUMN,
+	    NULL);
+
+    /* Ajout de la colonne à la vue */
+    gtk_tree_view_append_column(GTK_TREE_VIEW(pListView), pColumn);
+
+    /* Ajout de la vue a la fenetre */
+    pScrollbar = gtk_scrolled_window_new(NULL, NULL);
+    gtk_box_pack_start(GTK_BOX(pVBox2), pScrollbar, TRUE, TRUE, 0);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(pScrollbar),
+	    GTK_POLICY_AUTOMATIC,
+	    GTK_POLICY_AUTOMATIC);
+    gtk_container_add(GTK_CONTAINER(pScrollbar), pListView);
+    gtk_container_add(GTK_CONTAINER(pWindow), pScrollbar);
 
     /*GtkBox horizontale*/
     pHBox = gtk_hbox_new(TRUE, 0);
@@ -203,12 +287,22 @@ int main(int argc, char **argv)
     pButton[0] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PLAY);
     pButton[1] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_PAUSE);
     pButton[2] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
+    pButton[3] = gtk_button_new_from_stock(GTK_STOCK_ADD);
+    pButton[4] = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
+    pButton[5] = gtk_button_new_from_stock(GTK_STOCK_SAVE);
+    pButton[6] = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
+    pButton[7] = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
 
     /* Buttons in the GtkBox*/
     gtk_box_pack_start(GTK_BOX(pHBox), pButton[0], TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(pHBox), pButton[1], TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(pHBox), pButton[2], TRUE, TRUE, 0);
 
+    gtk_box_pack_start(GTK_BOX(pHBox2), pButton[3], TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox2), pButton[4], TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox2), pButton[5], TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox2), pButton[6], TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(pHBox2), pButton[7], TRUE, TRUE, 0);
 
     /* Progress bar in the table */
     pProgress = gtk_progress_bar_new();
@@ -217,11 +311,6 @@ int main(int argc, char **argv)
 	    GTK_EXPAND | GTK_FILL, GTK_EXPAND,
 	    0, 0);
 
-    /* menu bar, image and GtkBox in the table */
-    gtk_table_attach(GTK_TABLE(pTable), menubar,
-	    0, 9, 0, 1,
-	    GTK_EXPAND | GTK_FILL, GTK_FILL,
-	    0, 0);
     gtk_table_attach(GTK_TABLE(pTable), image,
 	    0, 9, 1, 5,
 	    GTK_EXPAND, GTK_EXPAND | GTK_FILL,
@@ -236,6 +325,8 @@ int main(int argc, char **argv)
     g_signal_connect_swapped(G_OBJECT(pButton[1]), "clicked", G_CALLBACK(OnPause), pProgress);
     g_signal_connect_swapped(G_OBJECT(pButton[2]), "clicked", G_CALLBACK(OnStop), pProgress);
     g_signal_connect(G_OBJECT(quit), "activate",G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(pButton[3]), "clicked", G_CALLBACK(OnAdd), NULL);
+    //g_signal_connect(G_OBJECT(pButton), "clicked", G_CALLBACK(OnButton), pNotebook);
 
     gtk_widget_show_all(pWindow);
 
@@ -249,9 +340,81 @@ int main(int argc, char **argv)
     return EXIT_SUCCESS;
 }
 
+char* title(const char* chaine)
+{
+    char *chaine2;
+    long i = 0;
+    long j = 0;
+    
+    chaine2 = malloc(78* sizeof(char)); 
+    while (chaine[i] != '\0')
+    {
+     	if (chaine[i] != '/')
+        {
+        	chaine2[j] = chaine[i];
+                j++;
+                i++;       
+	}
+        else 
+	{
+		j = 0;
+                i++;
+        }
+    }
+    chaine2[j]='\0';
+    return chaine2;
+}
+
+void OnAdd(GtkWidget *pWidget, gpointer data)
+{
+    GtkWidget *pFileSelection;
+    GtkWidget *pParent;
+    gchar *sChemin;
+    GtkTreeIter pIter;
+    gchar *sTitle;
+
+    pParent = NULL;
+
+    /* Creation de la fenetre de selection */
+    pFileSelection = gtk_file_chooser_dialog_new("Ouvrir...",
+	    GTK_WINDOW(pParent),
+	    GTK_FILE_CHOOSER_ACTION_OPEN,
+	    GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+	    GTK_STOCK_OPEN, GTK_RESPONSE_OK,
+	    NULL);
+    /* On limite les actions a cette fenetre */
+    gtk_window_set_modal(GTK_WINDOW(pFileSelection), TRUE);
+
+
+
+    /* Affichage fenetre */
+    switch(gtk_dialog_run(GTK_DIALOG(pFileSelection)))
+    {
+	case GTK_RESPONSE_OK:
+
+	    /* Recuperation du chemin */
+	    sChemin = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(pFileSelection));
+            sTitle = title(sChemin);
+
+	    /* Creation de la nouvelle ligne */
+	    gtk_list_store_append(pListStore, &pIter);
+
+            /* Mise a jour des donnees */
+           gtk_list_store_set(pListStore, &pIter,
+			TEXT_COLUMN, sTitle,
+			TOGGLE_COLUMN, TRUE,
+			-1);
+
+	    g_free(sChemin);
+	    break;
+	default:
+	    break;
+    }
+    gtk_widget_destroy(pFileSelection);
+}
+
 void OnPlay(GtkWidget *pWidget, gpointer data)
 {
-    gdouble dFraction;
     gint i;
     gint iTotal = 2000;
 
@@ -279,5 +442,6 @@ void OnPause(GtkWidget *pWidget, gpointer data)
 
 void OnStop(GtkWidget *pWidget, gpointer data)
 {
-    /* Tu fixe la fonction de du bouton "stop" ici*/
+    dFraction = gtk_progress_bar_get_fraction(GTK_PROGRESS_BAR(pWidget));
+    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
 }
