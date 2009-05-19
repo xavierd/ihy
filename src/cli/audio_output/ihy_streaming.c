@@ -52,8 +52,8 @@ static void *ihy_filling_buffer(void *data)
     {
 	chunk = ihy->DataChunks[i];
 	to_add = malloc(sizeof(struct ihy_buffer_content));
-	to_add->samplesSize = chunk.ChunkSize;
-	to_add->samples = huffman_decode(chunk.Values, &to_add->samplesSize);
+	to_add->samplesSize = chunk.HUncompressedSize;
+	to_add->samples = huffman_decode(chunk.Values, to_add->samplesSize);
 	/*
 	oldValues = to_add->samples;
 	to_add->samples = (int8_t *)halfarray_to_float(
