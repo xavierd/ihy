@@ -16,9 +16,9 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int ch)
     tmp = chunk->Values;
     tmp = dequantizate(tmp, &size, chunk->QScaleFactor, chunk->QBitsPerCoefs);
     free(chunk->Values);
+    chunk->Values = tmp;
     /* End Quantification */
     /* Wavelets */
     wavelets_inverse(tmp, size, ch, samples, 0);
-    free(tmp);
     /* End Wavelets */
 }
