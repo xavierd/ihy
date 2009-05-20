@@ -1,20 +1,10 @@
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <pthread.h>
-#include <caml/mlvalues.h>
-#include <caml/callback.h>
-#include <caml/bigarray.h>
 
 #include <codecs/wav.h>
 #include <codecs/ihy.h>
-#include <compression/wavelet.h>
-#include <compression/quantization.h>
-#include <compression/huffman.h>
 #include <compression/ihy.h>
-#include <audio_output/wav_streaming.h>
 #include <audio_output/ihy_streaming.h>
-#include <utils/half.h>
 #include <main_threading.h>
 
 static void *thread_play_ihy(void *data)

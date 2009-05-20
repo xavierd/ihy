@@ -2,13 +2,10 @@
 #define DEF_INTERFACE
 
 #include <stdint.h>
+#include <string.h>
 #include <caml/mlvalues.h>
 #include <caml/callback.h>
 #include <caml/bigarray.h>
-
-#include <codecs/ihy.h>
-#include <codecs//wav.h>
-#include <compression/huffman.h>
 
 #define CHUNK_SIZE 65536
 
