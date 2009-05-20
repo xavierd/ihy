@@ -35,7 +35,6 @@ void wavelets_direct(const int8_t *samples,
 void wavelets_inverse(float *chunk,
 		      const size_t chunkSize,
 		      const uint8_t nbChannels,
-		      int8_t *out,
-		      const int offset);
+		      int8_t *out);
 
 #endif
