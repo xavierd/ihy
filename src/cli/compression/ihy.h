@@ -6,6 +6,10 @@
 #include <compression/quantization.h>
 #include <compression/wavelet.h>
 
-void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int ch);
+/*
+ * Uncompress this chunk, and put the uncompressed on samples,
+ * samples should be alloced and had a sufficient size
+ */
+void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels);
 
 #endif
