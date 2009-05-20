@@ -19,5 +19,6 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int ch)
     /* End Quantification */
     /* Wavelets */
     wavelets_inverse(tmp, size, ch, samples, 0);
+    free(tmp);
     /* End Wavelets */
 }
