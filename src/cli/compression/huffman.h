@@ -9,9 +9,9 @@
 
 /*
  * Structure of the compressed data :
- * |uncompressed |huffman |                           |
- * |  size       | tree   |      Data                 |
- * |  4 bytes    |        |                           |
+ * | huffman   |                           |
+ * | tree      |      Data                 |
+ * | 771bytes  |                           |
  */
 
 typedef struct huffman_tree
