@@ -31,6 +31,7 @@ static void *ihy_playing(void *data)
     {
 	to_play = buffer_get(buffer);
 	ao_play_samples(audio_device, to_play->samples, to_play->samplesSize);
+	free(to_play->samples);
 	free(to_play); /* hum quite dangerous */
     }
     ao_close_device(audio_device);
@@ -42,7 +43,7 @@ static void *ihy_filling_buffer(void *data)
     /* contains uncompressed data, (ihy_buffer_content *) */
     t_buffer buffer = ((struct ihy_streaming_data *)data)->buffer;
     ihy_data *ihy = ((struct ihy_streaming_data *)data)->ihy;
-    ihy_chunk chunk;
+    ihy_chunk *chunk;
     struct ihy_buffer_content *to_add;
     unsigned int i = 0;
     void *oldValues;
@@ -50,7 +51,12 @@ static void *ihy_filling_buffer(void *data)
 
     while (i < ihy->NbChunk)
     {
-	chunk = ihy->DataChunks[i];
+	chunk = &ihy->DataChunks[i];
+	to_add = malloc(sizeof(struct ihy_buffer_content));
+	to_add->samples = calloc(CHUNK_SIZE * 2, 1);
+	uncompress_chunk(chunk, to_add->samples, ihy->Channels);
+	to_add->samplesSize = CHUNK_SIZE * 2;
+#if 0
 	to_add = malloc(sizeof(struct ihy_buffer_content));
 	to_add->samplesSize = chunk.HUncompressedSize;
 	to_add->samples = huffman_decode(chunk.Values, to_add->samplesSize);
@@ -75,10 +81,13 @@ static void *ihy_filling_buffer(void *data)
 			 oldValues);
 	free(to_add->samples);
 	to_add->samples = oldValues;
+#endif
 #if 0
 	to_add->samplesSize = 2 * to_add->samplesSize / 2; /*samplesize = 16bits*/
 #endif
+#if 0
 	to_add->samplesSize = size;
+#endif
 	buffer_add(to_add, buffer);
 	i++;
     }

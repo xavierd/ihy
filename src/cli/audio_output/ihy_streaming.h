@@ -6,6 +6,7 @@
 #include <audio_output/ao.h>
 #include <compression/wavelet.h>
 #include <compression/huffman.h>
+#include <compression/ihy.h>
 #include <utils/half.h>
 #include <compression/quantization.h>
 
