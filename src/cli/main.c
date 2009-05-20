@@ -29,8 +29,6 @@ static void extract_ihy(char *input_filename, char *output_filename)
     wav_data *output;
     uint32_t offset;
     unsigned int i;
-    uint8_t *oldValue;
-    size_t size;
     ihy_chunk *chunk;
 
     input = create_ihy();
@@ -62,17 +60,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->DataBlocID[3] = 'a';
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
-    {
-	/*
-	chunk = input->DataChunks[i];
-	offset += chunk.HUncompressedSize;
-	*/
 	offset += CHUNK_SIZE * 2;
-    }
-	/*
-	offset +=
-	    (((size_t *)input->DataChunks[i].Values)[0] / sizeof(uint16_t)) * 4;
-	    */
     output->DataBlocSize = offset;
     output->ChunkSize += output->DataBlocSize;
     output->Data = malloc(output->DataBlocSize * sizeof(char));
@@ -80,32 +68,6 @@ static void extract_ihy(char *input_filename, char *output_filename)
     for (i = 0; i < input->NbChunk; i++)
     {
 	chunk = &input->DataChunks[i];
-#if 0
-	oldValue = chunk->Values;
-	chunk->ChunkSize = chunk->HUncompressedSize;
-	chunk->Values = huffman_decode(chunk->Values, chunk->ChunkSize);
-	free(oldValue);
-	/*
-	oldValue = chunk->Values;
-	chunk->Values = (uint8_t *)halfarray_to_float(
-	    (uint16_t *)oldValue, chunk->ChunkSize / sizeof(uint16_t));
-	chunk->ChunkSize *= 2;
-	free(oldValue);
-	*/
-	/*size = chunk->ChunkSize / sizeof(float);*/
-	size = chunk->ChunkSize;
-	oldValue = dequantizate(chunk->Values, &size, chunk->QScaleFactor,
-							chunk->QBitsPerCoefs);
-	free(chunk->Values);
-	chunk->Values = oldValue;
-	wavelets_inverse((float *)chunk->Values,
-		size,
-		input->Channels,
-		output->Data,
-		offset);
-	chunk->ChunkSize = size;
-	/*offset += (chunk->ChunkSize / sizeof(float)) * 4;*/
-#endif
 	uncompress_chunk(chunk, output->Data + offset, input->Channels);
 	offset += CHUNK_SIZE * 2;
     };
