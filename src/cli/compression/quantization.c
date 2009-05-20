@@ -18,7 +18,7 @@ static int nb_bits(int a)
 	nb++;
 	max *= 2;
     }
-    return (nb + 1); /* needed for the sign */
+    return nb;
 }
 
 #define ith_bit(number, i)		\
