@@ -72,8 +72,7 @@ static void *ihy_filling_buffer(void *data)
 	wavelets_inverse((float *)to_add->samples,
 			 size / sizeof(float),
 			 ihy->Channels,
-			 oldValues,
-			 0);
+			 oldValues);
 	free(to_add->samples);
 	to_add->samples = oldValues;
 #if 0

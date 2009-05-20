@@ -91,8 +91,7 @@ static float *fill_zero(const float *chunk, const size_t nb)
 void wavelets_inverse(float *chunk,
 		      const size_t nbelmts,
 		      const uint8_t nbChannels,
-		      int8_t *out,
-		      const int offset)
+		      int8_t *out)
 {
     value camlArray;
     int16_t val;
@@ -112,7 +111,7 @@ void wavelets_inverse(float *chunk,
 	for (i = 0; i < nbelmts / nbChannels; i++)
 	{
 	    val = valf[i];
-	    *(int16_t *)(out + offset + (j * nbChannels)) = val;
+	    *(int16_t *)(out + (j * nbChannels)) = val;
 	    j = j + sizeof(int16_t) * 2;
 	}
     }
