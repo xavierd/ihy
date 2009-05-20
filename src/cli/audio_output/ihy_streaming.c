@@ -8,7 +8,7 @@ struct ihy_streaming_data
 
 struct ihy_buffer_content
 {
-    uint8_t	*samples;
+    int8_t	*samples;
     uint32_t	samplesSize;
 };
 
@@ -46,8 +46,6 @@ static void *ihy_filling_buffer(void *data)
     ihy_chunk *chunk;
     struct ihy_buffer_content *to_add;
     unsigned int i = 0;
-    void *oldValues;
-    uint32_t size;
 
     while (i < ihy->NbChunk)
     {
@@ -56,38 +54,6 @@ static void *ihy_filling_buffer(void *data)
 	to_add->samples = calloc(CHUNK_SIZE * 2, 1);
 	uncompress_chunk(chunk, to_add->samples, ihy->Channels);
 	to_add->samplesSize = CHUNK_SIZE * 2;
-#if 0
-	to_add = malloc(sizeof(struct ihy_buffer_content));
-	to_add->samplesSize = chunk.HUncompressedSize;
-	to_add->samples = huffman_decode(chunk.Values, to_add->samplesSize);
-	/*
-	oldValues = to_add->samples;
-	to_add->samples = (int8_t *)halfarray_to_float(
-		(uint16_t *)to_add->samples,
-		to_add->samplesSize / sizeof(uint16_t));
-	free(oldValues);
-	to_add->samplesSize *= 2;
-	*/
-	size = to_add->samplesSize;
-	oldValues =  (uint8_t *)dequantizate(to_add->samples, &size,
-				    chunk.QScaleFactor, chunk.QBitsPerCoefs);
-	free(to_add->samples);
-	to_add->samples = oldValues;
-	size *= 4;
-	oldValues = calloc(size, 1);
-	wavelets_inverse((float *)to_add->samples,
-			 size / sizeof(float),
-			 ihy->Channels,
-			 oldValues);
-	free(to_add->samples);
-	to_add->samples = oldValues;
-#endif
-#if 0
-	to_add->samplesSize = 2 * to_add->samplesSize / 2; /*samplesize = 16bits*/
-#endif
-#if 0
-	to_add->samplesSize = size;
-#endif
 	buffer_add(to_add, buffer);
 	i++;
     }

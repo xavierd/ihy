@@ -1,6 +1,6 @@
 #include "ihy.h"
 
-void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int ch)
+void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)
 {
     size_t size;
     void *tmp;
@@ -19,6 +19,6 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int ch)
     chunk->Values = tmp;
     /* End Quantification */
     /* Wavelets */
-    wavelets_inverse(tmp, size, ch, samples);
+    wavelets_inverse(tmp, size, channels, samples);
     /* End Wavelets */
 }
