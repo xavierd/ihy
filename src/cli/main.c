@@ -11,6 +11,7 @@
 #include <compression/wavelet.h>
 #include <compression/quantization.h>
 #include <compression/huffman.h>
+#include <compression/ihy.h>
 #include <audio_output/wav_streaming.h>
 #include <audio_output/ihy_streaming.h>
 #include <utils/half.h>
@@ -79,6 +80,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     for (i = 0; i < input->NbChunk; i++)
     {
 	chunk = &input->DataChunks[i];
+#if 0
 	oldValue = chunk->Values;
 	chunk->ChunkSize = chunk->HUncompressedSize;
 	chunk->Values = huffman_decode(chunk->Values, chunk->ChunkSize);
@@ -103,6 +105,8 @@ static void extract_ihy(char *input_filename, char *output_filename)
 		offset);
 	chunk->ChunkSize = size;
 	/*offset += (chunk->ChunkSize / sizeof(float)) * 4;*/
+#endif
+	uncompress_chunk(chunk, output->Data + offset, input->Channels);
 	offset += CHUNK_SIZE * 2;
     };
     write_wav(output, output_filename);
