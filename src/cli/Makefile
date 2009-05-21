@@ -18,7 +18,10 @@ else
 	OUTPUT=
 endif
 
-CSRC=codecs/wav.c audio_output/ao.c codecs/ihy.c audio_output/ihy_streaming.c compression/wavelet.c compression/huffman.c utils/queue.c utils/buffer.c utils/half.c main.c
+CSRC=codecs/wav.c codecs/ihy.c audio_output/ao.c \
+     audio_output/ihy_streaming.c compression/quantization.c \
+     compression/wavelet.c compression/ihy.c compression/huffman.c \
+     utils/queue.c utils/buffer.c utils/half.c main.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=compression/wavelets/haar.ml
 CAMLINTERFACE=compression/wavelets/haar.mli
@@ -32,17 +35,24 @@ EXEC=ihyconvert
 all: ${EXEC}
 
 ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
-	${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
-#	${LDID} -S ${OUTPUT}${EXEC}
+	@${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
+	@echo "  LD	${EXEC}"
 
 %.o: %.c %.h
-	${CC} ${CFLAGS} -c $< -o $@
+	@${CC} ${CFLAGS} -c $< -o $@
+	@echo "  CC	$<"
+
+%.o: %.c
+	@${CC} ${CFLAGS} -c $< -o $@
+	@echo "  CC	$<"
 
 %_ml.o: %.ml
-	${CAMLC} ${CAMLFLAGS} -I ./compression/wavelets $< -o $@
+	@${CAMLC} ${CAMLFLAGS} -I ./compression/wavelets $< -o $@
+	@echo "  ML	$<"
 
 %.cmi: %.mli
-	${CAMLC} $< -o $@
+	@${CAMLC} $< -o $@
+	@echo "  MLI	$<"
 
 clean:
 	rm -rf ${COBJ}

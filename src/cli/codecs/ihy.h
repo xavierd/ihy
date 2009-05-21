@@ -6,9 +6,20 @@
 #include <string.h>
 #include <stdint.h>
 
+typedef enum ihy_quality
+{
+    poor = 1,
+    medium = 2,
+    good = 3,
+    very_good = 4
+} ihy_quality;
+
 typedef struct ihy_chunk
 {
-    uint32_t		ChunkSize;
+    uint32_t		ChunkSize; /* size of compressed Chunk */
+    uint8_t		QBitsPerCoefs;
+    uint16_t		QScaleFactor;
+    uint32_t		HUncompressedSize;
     uint8_t		*Values;
 } ihy_chunk;
 
@@ -32,6 +43,7 @@ typedef struct ihy_data
     uint32_t		CommentLength;
     char		*Comment;
     /* Data */
+    uint32_t		ChunkSize; /* Size of an uncompressed Chunk */
     uint32_t		NbChunk;
     ihy_chunk		*DataChunks;
 } ihy_data;

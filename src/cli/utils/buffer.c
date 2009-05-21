@@ -26,7 +26,7 @@ t_buffer buffer_init(const int max_size)
 void buffer_add(void *elem, t_buffer buf)
 {
     while (queue_nbelement(buf->queue) == buf->max_size)
-	usleep(100); /* do nothing for 100ms */
+	usleep(100000); /* do nothing for 100ms */
     pthread_mutex_lock(&buf->lock);
     queue_enqueue(elem, buf->queue);
     pthread_mutex_unlock(&buf->lock);

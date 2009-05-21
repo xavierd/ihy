@@ -1,16 +1,9 @@
 #include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
 #include <pthread.h>
-#include <caml/mlvalues.h>
-#include <caml/callback.h>
-#include <caml/bigarray.h>
 
 #include <codecs/wav.h>
 #include <codecs/ihy.h>
-#include <compression/wavelet.h>
-#include <compression/huffman.h>
-#include <utils/half.h>
+#include <compression/ihy.h>
 #include <audio_output/ihy_streaming.h>
 
 static void *thread_play_ihy(void *data)
@@ -25,7 +18,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     wav_data *output;
     uint32_t offset;
     unsigned int i;
-    uint8_t *oldValue;
+    ihy_chunk *chunk;
 
     input = create_ihy();
     read_ihy(input_filename, input);
@@ -56,52 +49,36 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->DataBlocID[3] = 'a';
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
-	offset +=
-	    (((size_t *)input->DataChunks[i].Values)[0] / sizeof(uint16_t)) * 2;
+	offset += input->ChunkSize * 2;
     output->DataBlocSize = offset;
     output->ChunkSize += output->DataBlocSize;
     output->Data = malloc(output->DataBlocSize * sizeof(char));
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
     {
-	oldValue = input->DataChunks[i].Values;
-	input->DataChunks[i].Values =
-	    huffman_decode(
-		    input->DataChunks[i].Values,
-		    &input->DataChunks[i].ChunkSize
-		    );
-	free(oldValue);
-	oldValue = input->DataChunks[i].Values;
-	input->DataChunks[i].Values = (uint8_t *)halfarray_to_float(
-	    (uint16_t *)oldValue,
-	    input->DataChunks[i].ChunkSize / sizeof(uint16_t)
-	);
-	input->DataChunks[i].ChunkSize *= 2;
-	free(oldValue);
-	wavelets_inverse((float *)input->DataChunks[i].Values,
-		(input->DataChunks[i].ChunkSize / sizeof(float)),
-		input->Channels,
-		output->Data,
-		offset);
-	offset += (input->DataChunks[i].ChunkSize / sizeof(float)) * 2;
+	chunk = &input->DataChunks[i];
+	uncompress_chunk(chunk, output->Data + offset, input->Channels);
+	offset += input->ChunkSize * 2;
     };
     write_wav(output, output_filename);
     destroy_wav(output);
     destroy_ihy(input);
 }
 
-static void compress_wav(char *input_filename, char *output_filename)
+static void compress_wav(char *input_filename, char *output_filename,
+			 int quality)
 {
     ihy_data *output;
     wav_data *input;
     unsigned int i;
-    uint8_t *oldValue;
+    ihy_chunk *chunk;
 
     output = create_ihy();
     input = create_wav();
     read_wav(input_filename, input);
 
-    output->NbChunk = get_nbChunk(CHUNK_SIZE,
+    output->ChunkSize = CHUNK_SIZE; /* Default */
+    output->NbChunk = get_nbChunk(output->ChunkSize,
 	    input->DataBlocSize / (input->BitsPerSample / 8));
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
     for (i = 0; i < output->NbChunk; i++)
@@ -109,31 +86,16 @@ static void compress_wav(char *input_filename, char *output_filename)
 	size_t size = 0;
 	size_t real_size = 0;
 
-	size = CHUNK_SIZE * (input->BitsPerSample / 8);
+	size = output->ChunkSize * (input->BitsPerSample / 8);
 	/* avoid garbage on the last chunk */
 	if (i == output->NbChunk - 1)
 	    real_size = input->DataBlocSize % CHUNK_SIZE;
 	else
 	    real_size = size;
-	output->DataChunks[i].Values = malloc(sizeof(float) * CHUNK_SIZE);
-	output->DataChunks[i].ChunkSize = CHUNK_SIZE * sizeof(float);
-	wavelets_direct(input->Data + (i * size), size, real_size,
-		input->BitsPerSample / 8, input->NumChannels,
-		(float *)output->DataChunks[i].Values);
-	oldValue = output->DataChunks[i].Values;
-	output->DataChunks[i].Values = (uint8_t *)floatarray_to_half(
-		(float *)oldValue,
-		output->DataChunks[i].ChunkSize / sizeof(float)
-		);
-	output->DataChunks[i].ChunkSize /= 2;
-	free(oldValue);
-	oldValue = output->DataChunks[i].Values;
-	output->DataChunks[i].Values =
-	    huffman_encode(
-		    output->DataChunks[i].Values,
-		    &output->DataChunks[i].ChunkSize
-		    );
-	free(oldValue);
+	chunk = &output->DataChunks[i];
+	chunk->ChunkSize = output->ChunkSize;
+	chunk->QBitsPerCoefs = quality;
+	compress_chunk(input->Data + (i * size), real_size, input->NumChannels, chunk);
     };
 
     output->FileID[0] = 'S';
@@ -165,12 +127,13 @@ static void compress_wav(char *input_filename, char *output_filename)
 
 static void print_help()
 {
-    printf(	"Usage : ihyconvert [options] [mode] [file ...]\n");
-    printf(	"Official converter of the ihy codec\n\n");
-    printf(	"  -c IN.wav OUT.ihy	: compress IN into OUT\n");
-    printf(	"  -x IN.ihy OUT.wav	: extract OUT from IN\n");
-    printf(	"  -r IN.ihy		: play IN\n");
-    printf(	"  -h			: display this help\n");
+    printf("Usage : ihyconvert [options] [mode] [file ...]\n");
+    printf("Official converter of the ihy codec\n\n");
+    printf("  -c IN.wav OUT.ihy\t: compress IN into OUT\n");
+    printf("  -x IN.ihy OUT.wav\t: extract OUT from IN\n");
+    printf("  -r IN.ihy\t\t: play IN\n");
+    printf("  -q N\t\t\t: set the quality of the output to N (default 3)\n");
+    printf("  -h\t\t\t: display this help\n");
 }
 
 int main(int argc, char **argv)
@@ -179,6 +142,7 @@ int main(int argc, char **argv)
     int i;
     int is_thread_playing_ihy = 0;
     ihy_data *input_to_play;
+    int q = 3;
 
     if (argc == 1)
     {
@@ -206,7 +170,7 @@ int main(int argc, char **argv)
 	{
 	    printf("Compressing data ... ");
 	    fflush(stdout);
-	    compress_wav(argv[argc - i + 1], argv[argc - i + 2]);
+	    compress_wav(argv[argc - i + 1], argv[argc - i + 2], q);
 	    i -= 3;
 	    printf("DONE\n");
 	}
@@ -216,6 +180,11 @@ int main(int argc, char **argv)
 	    input_to_play = create_ihy();
 	    read_ihy(argv[argc - i + 1], input_to_play);
 	    pthread_create(&play, NULL, thread_play_ihy, input_to_play);
+	    i -= 2;
+	}
+	else if (!strcmp(argv[argc - i], "-q"))
+	{
+	    q = atoi(argv[argc - i + 1]);
 	    i -= 2;
 	}
 	else
