@@ -10,10 +10,12 @@ EXEC=fftux
 all: ${EXEC}
 
 ${EXEC}: ${OBJ}
-	${CC} -o ${EXEC} ${OBJ} ${LDFLAGS}
+	@${CC} -o ${EXEC} ${OBJ} ${LDFLAGS}
+	@echo "  LD	${EXEC}"
 
 %.o: %.c
-	${CC} ${CFLAGS} -c $< -o $@
+	@${CC} -o $@ -c $< ${CFLAGS}
+	@echo "  CC	$<"
 
 clean:
 	rm -rf ${OBJ}
