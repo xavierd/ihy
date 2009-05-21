@@ -52,7 +52,7 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     int nbbits;
     ihy_quality quality = chunk->QBitsPerCoefs;
     float factor;
-    size_t actual_bitrate;
+    float actual_bitrate;
     size_t chunk_size;
 
     chunk_size = chunk->ChunkSize;
@@ -75,7 +75,7 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
 	chunk->HUncompressedSize = size;
 	oldValue = huffman_encode(tmp, &size);
 	free(tmp);
-	actual_bitrate = (size * 8) / (chunk_size / 44100.0f);
+	actual_bitrate = (size * 8) / ((float)chunk_size / 44100.0f);
 	actual_bitrate /= 1024;
     }
     while (actual_bitrate > bitrate(quality));
