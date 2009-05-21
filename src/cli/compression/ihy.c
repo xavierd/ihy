@@ -36,7 +36,7 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     memcpy(pow2_samples, samples, size);
     chunk->Values = malloc((chunk->ChunkSize / 2) * sizeof(float));
     size = chunk->ChunkSize * 2;
-    wavelets_direct(pow2_samples, size, size, ch, chunk->Values);
+    wavelets_direct(pow2_samples, size, ch, chunk->Values);
     free(pow2_samples);
     chunk->ChunkSize = (chunk->ChunkSize / 2) * sizeof(float);
     do
