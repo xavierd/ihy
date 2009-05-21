@@ -43,7 +43,6 @@ int get_nbChunk(const int chunk_size, const int nb)
  */
 void wavelets_direct(const int8_t *samples,
 		     const size_t dim, /* size of prec arg */
-		     size_t real_size,
 		     const uint16_t nbChannels,
 		     float *out)
 {
@@ -54,17 +53,14 @@ void wavelets_direct(const int8_t *samples,
     unsigned int i, j;
     value camlArray;
 
-    real_size /= sampleSize / nbChannels;
     for (j = 0; j < nbChannels; j++)
     {
-	for (i = j; i < real_size && i < resSize * nbChannels; i += nbChannels)
+	for (i = j; i < resSize * nbChannels; i += nbChannels)
 	{
 	    /*sample = 0;*/
 	    memcpy(&sample, &samples[i * sampleSize], sampleSize);
 	    res[i / nbChannels] = sample;
 	}
-	for ( ; i < resSize * nbChannels; i += nbChannels)
-	    res[i / nbChannels] = 0.0f;
 	camlArray = c_array_to_caml(res, resSize);
 	camlArray = wavelets_direct_fun(camlArray);
 	memcpy(out + (j * resSize) / 2, Data_bigarray_val(camlArray),

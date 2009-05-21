@@ -20,7 +20,6 @@ int get_nbChunk(const int chunk_size, const int nb);
  */
 void wavelets_direct(const int8_t *samples,
 		     const size_t dim, /* size of prec arg */
-		     size_t real_size,
 		     const uint16_t nbChannels,
 		     float *out);
 
