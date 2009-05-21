@@ -38,6 +38,12 @@ void read_wav(const char *filename, wav_data *data)
     fread(&data->ByteRate, sizeof(uint32_t), 1, file);
     fread(&data->BlockAlign, sizeof(uint16_t), 1, file);
     fread(&data->BitsPerSample, sizeof(uint16_t), 1, file);
+    if (data->BitsPerSample != 16)
+    {
+	/* Never encounter such file, and we don't handle it "correctly" */
+	printf("Wav file not supported : BitsPerSample > 16\n");
+	exit(0);
+    }
     /* Read data */
     fread(data->DataBlocID, sizeof(char), 4, file);
     fread(&data->DataBlocSize, sizeof(uint32_t), 1, file);
