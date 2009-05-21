@@ -71,7 +71,8 @@ void *quantizate(float *x, size_t *n, const float factor, int *nbbits)
     min = max = 0;
     for (i = 0; i < *n; i++)
     {
-	q[i] = sign(x[i]) * floorf(abs(x[i] / factor));
+	q[i] = sign(x[i]) * sqrtf(abs(x[i] / factor));
+	/*q[i] = sign(x[i]) * floorf(abs(x[i] / factor));*/
 	if (q[i] > max)
 	    max = q[i];
 	else if (q[i] < min)
@@ -131,7 +132,8 @@ float *dequantizate(uint8_t *x, size_t *n, const float factor, int nbbits)
 	if (nb == 0)
 	    res[i] = 0.0f;
 	else
-	    res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;
+	    res[i] = sign(nb) * powf(abs(nb), 2) * factor;
+	    /*res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;*/
     }
     *n = nb_elmts;
     return res;
