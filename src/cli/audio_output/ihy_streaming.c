@@ -51,9 +51,9 @@ static void *ihy_filling_buffer(void *data)
     {
 	chunk = &ihy->DataChunks[i];
 	to_add = malloc(sizeof(struct ihy_buffer_content));
-	to_add->samples = calloc(CHUNK_SIZE * 2, 1);
+	to_add->samples = calloc(ihy->ChunkSize * 2, 1);
 	uncompress_chunk(chunk, to_add->samples, ihy->Channels);
-	to_add->samplesSize = CHUNK_SIZE * 2;
+	to_add->samplesSize = ihy->ChunkSize * 2;
 	buffer_add(to_add, buffer);
 	i++;
     }

@@ -22,17 +22,16 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
     i = chunkid;
 
     chunk = &output->DataChunks[i];
-    size = CHUNK_SIZE * (input->BitsPerSample / 8);
+    size = output->ChunkSize * (input->BitsPerSample / 8);
     /* avoid garbage on the last chunk */
     if (i == output->NbChunk - 1)
-	real_size = input->DataBlocSize % CHUNK_SIZE;
+	real_size = input->DataBlocSize % output->ChunkSize;
     else
 	real_size = size;
-    chunk->Values = malloc(sizeof(float) * (CHUNK_SIZE / 2));
-    chunk->ChunkSize = (CHUNK_SIZE / 2)* sizeof(float);
+    chunk->Values = malloc(sizeof(float) * (output->ChunkSize / 2));
+    chunk->ChunkSize = (output->ChunkSize / 2)* sizeof(float);
     wavelets_direct(input->Data + (i * size), size, real_size,
-	input->BitsPerSample / 8, input->NumChannels,
-	(float *)chunk->Values);
+	input->NumChannels, (float *)chunk->Values);
     /* While size is not good */
     do
     {

@@ -50,7 +50,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     output->DataBlocID[3] = 'a';
     offset = 0;
     for (i = 0; i < input->NbChunk; i++)
-	offset += CHUNK_SIZE * 2;
+	offset += input->ChunkSize * 2;
     output->DataBlocSize = offset;
     output->ChunkSize += output->DataBlocSize;
     output->Data = malloc(output->DataBlocSize * sizeof(char));
@@ -59,7 +59,7 @@ static void extract_ihy(char *input_filename, char *output_filename)
     {
 	chunk = &input->DataChunks[i];
 	uncompress_chunk(chunk, output->Data + offset, input->Channels);
-	offset += CHUNK_SIZE * 2;
+	offset += input->ChunkSize * 2;
     };
     write_wav(output, output_filename);
     destroy_wav(output);
@@ -76,7 +76,8 @@ static void compress_wav(char *input_filename, char *output_filename,
     input = create_wav();
     read_wav(input_filename, input);
 
-    output->NbChunk = get_nbChunk(CHUNK_SIZE,
+    output->ChunkSize = CHUNK_SIZE; /* Default */
+    output->NbChunk = get_nbChunk(output->ChunkSize,
 	    input->DataBlocSize / (input->BitsPerSample / 8));
     output->DataChunks = malloc(sizeof(ihy_chunk) * output->NbChunk);
 
