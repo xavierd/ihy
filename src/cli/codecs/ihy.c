@@ -52,6 +52,7 @@ void read_ihy(const char *filename, ihy_data *data)
     fread(data->Comment, sizeof(char), data->CommentLength, file);
     data->Comment[data->CommentLength] = '\0';
     /* Read data */
+    fread(&data->ChunkSize, sizeof(uint32_t), 1, file);
     fread(&data->NbChunk, sizeof(uint32_t), 1, file);
     data->DataChunks = malloc(data->NbChunk * sizeof(ihy_chunk));
     for (i = 0; i < data->NbChunk; i++)
@@ -98,6 +99,7 @@ void write_ihy(const ihy_data *data, const char *filename)
     fwrite(&data->CommentLength, sizeof(uint32_t), 1, file);
     fwrite(data->Comment, sizeof(char), strlen(data->Comment), file);
     /* Write data */
+    fwrite(&data->ChunkSize, sizeof(uint32_t), 1, file);
     fwrite(&data->NbChunk, sizeof(uint32_t), 1, file);
     for (i = 0; i < data->NbChunk; i++)
     {

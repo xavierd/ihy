@@ -8,7 +8,7 @@
 
 typedef struct ihy_chunk
 {
-    uint32_t		ChunkSize;
+    uint32_t		ChunkSize; /* size of compressed Chunk */
     uint8_t		QBitsPerCoefs;
     uint16_t		QScaleFactor;
     uint32_t		HUncompressedSize;
@@ -35,6 +35,7 @@ typedef struct ihy_data
     uint32_t		CommentLength;
     char		*Comment;
     /* Data */
+    uint32_t		ChunkSize; /* Size of an uncompressed Chunk */
     uint32_t		NbChunk;
     ihy_chunk		*DataChunks;
 } ihy_data;
