@@ -44,10 +44,10 @@ int get_nbChunk(const int chunk_size, const int nb)
 void wavelets_direct(const int8_t *samples,
 		     const size_t dim, /* size of prec arg */
 		     size_t real_size,
-		     const size_t sampleSize, /* in bytes */
 		     const uint16_t nbChannels,
 		     float *out)
 {
+    const size_t sampleSize = 2;
     size_t resSize = (dim / sampleSize) / nbChannels;
     float *res = malloc(sizeof(float) * resSize);
     int16_t sample; /* je remettrai le switch plus tard */
