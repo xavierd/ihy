@@ -13,9 +13,7 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
     size_t size = 0;
     size_t real_size = 0;
     unsigned int i;
-    uint8_t *oldValue;
     int shmid;
-    int nbbits;
     void *shmaddr;
     ihy_chunk *chunk;
 
@@ -29,6 +27,7 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
     else
 	real_size = size;
     chunk->ChunkSize = output->ChunkSize;
+    chunk->QBitsPerCoefs = quality;
     compress_chunk(input->Data + (i * size), real_size, input->NumChannels, chunk);
 
     shmid = shmget(IPC_PRIVATE, chunk->ChunkSize, IPC_CREAT | SHM_R | SHM_W);
