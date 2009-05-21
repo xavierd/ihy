@@ -23,6 +23,24 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)
     /* End Wavelets */
 }
 
+static size_t bitrate(ihy_quality q)
+{
+    switch(q)
+    {
+	case 1:
+	    return 128;
+	case 2:
+	    return 192;
+	case 3:
+	    return 256;
+	case 4:
+	    return 320;
+	default:
+	    printf("Bad Quality\n");
+	    exit(0);
+    }
+}
+
 /*
  * Assuming chunk->ChunkSize == ihy->ChunkSize
  * Assuming chunk->QBitsPerCoefs == quality
@@ -32,7 +50,8 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     int8_t *pow2_samples;
     void *tmp, *oldValue;
     int nbbits;
-    int quality = chunk->QBitsPerCoefs;
+    ihy_quality quality = chunk->QBitsPerCoefs;
+    float factor;
 
     pow2_samples = calloc(chunk->ChunkSize * 2, 1);
     memcpy(pow2_samples, samples, size);
@@ -41,19 +60,22 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     wavelets_direct(pow2_samples, size, ch, (float *)chunk->Values);
     free(pow2_samples);
     chunk->ChunkSize = (chunk->ChunkSize / 2) * sizeof(float);
+
+    factor = 0.5f;
     do
     {
+	factor *= 2;
 	oldValue = chunk->Values;
 	size = chunk->ChunkSize / sizeof(float);
-	oldValue = quantizate(oldValue, &size, 200.0f, &nbbits);
+	oldValue = quantizate(oldValue, &size, factor, &nbbits);
 	tmp = oldValue;
 	chunk->HUncompressedSize = size;
 	oldValue = huffman_encode(tmp, &size);
 	free(tmp);
     }
-    while (!size);
+    while (size > bitrate(quality));
     chunk->QBitsPerCoefs = nbbits;
-    chunk->QScaleFactor = 200.0f;
+    chunk->QScaleFactor = factor;
     chunk->ChunkSize = size;
     chunk->Values = oldValue;
 }
