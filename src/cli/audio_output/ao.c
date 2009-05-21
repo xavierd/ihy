@@ -10,9 +10,7 @@ static void Callback(void *in, AudioQueueRef inQ, AudioQueueBufferRef out)
     if (dev->Chunk < dev->NbChunk(dev->Data))
     {
 	out->mAudioDataByteSize = dev->DecodeFunction(dev->Data, dev->Chunk, audioBuffer);
-	/*
-	out->mAudioDataByteSize = 65536 * 2;
-	*/
+	/*out->mAudioDataByteSize = 65536 * 2;*/
 	AudioQueueEnqueueBuffer(inQ, out, 0, NULL);
 	dev->Chunk++;
     }
@@ -52,7 +50,7 @@ void ao_play(ao_device *device)
 
     device->isPlaying = true;
     /* OK 'magick number', it's just the buffer size (cannot be changed) */
-    buffersize = device->mDataFormat.mBitsPerChannel * 65536 / 8;
+    buffersize = device->mDataFormat.mBitsPerChannel * 65536 / 4;
     for (i = 0; i < NBBUFFERS; i++)
     {
 	AudioQueueAllocateBuffer(device->queue, buffersize,
