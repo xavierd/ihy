@@ -25,18 +25,20 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)
 
 /*
  * Assuming chunk->ChunkSize == ihy->ChunkSize
+ * Assuming chunk->QBitsPerCoefs == quality
  */
 void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
 {
     int8_t *pow2_samples;
     void *tmp, *oldValue;
     int nbbits;
+    int quality = chunk->QBitsPerCoefs;
 
     pow2_samples = calloc(chunk->ChunkSize * 2, 1);
     memcpy(pow2_samples, samples, size);
     chunk->Values = malloc((chunk->ChunkSize / 2) * sizeof(float));
     size = chunk->ChunkSize * 2;
-    wavelets_direct(pow2_samples, size, ch, chunk->Values);
+    wavelets_direct(pow2_samples, size, ch, (float *)chunk->Values);
     free(pow2_samples);
     chunk->ChunkSize = (chunk->ChunkSize / 2) * sizeof(float);
     do
