@@ -6,6 +6,14 @@
 #include <string.h>
 #include <stdint.h>
 
+typedef enum ihy_quality
+{
+    poor = 1,
+    medium = 2,
+    good = 3,
+    very_good = 4
+} ihy_quality;
+
 typedef struct ihy_chunk
 {
     uint32_t		ChunkSize; /* size of compressed Chunk */
