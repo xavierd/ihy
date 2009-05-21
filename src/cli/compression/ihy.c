@@ -27,13 +27,13 @@ static size_t bitrate(ihy_quality q)
 {
     switch(q)
     {
-	case 1:
+	case poor:
 	    return 128;
-	case 2:
+	case medium:
 	    return 192;
-	case 3:
+	case good:
 	    return 256;
-	case 4:
+	case very_good:
 	    return 320;
 	default:
 	    printf("Bad Quality\n");
@@ -52,7 +52,10 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     int nbbits;
     ihy_quality quality = chunk->QBitsPerCoefs;
     float factor;
+    size_t actual_bitrate;
+    size_t chunk_size;
 
+    chunk_size = chunk->ChunkSize;
     pow2_samples = calloc(chunk->ChunkSize * 2, 1);
     memcpy(pow2_samples, samples, size);
     chunk->Values = malloc((chunk->ChunkSize / 2) * sizeof(float));
@@ -72,8 +75,10 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
 	chunk->HUncompressedSize = size;
 	oldValue = huffman_encode(tmp, &size);
 	free(tmp);
+	actual_bitrate = (size * 8) / (chunk_size / 44100.0f);
+	actual_bitrate /= 1024;
     }
-    while (size > bitrate(quality));
+    while (actual_bitrate > bitrate(quality));
     chunk->QBitsPerCoefs = nbbits;
     chunk->QScaleFactor = factor;
     chunk->ChunkSize = size;

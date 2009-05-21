@@ -118,7 +118,7 @@ static void print_help()
     printf("  -x IN.ihy OUT.wav\t: extract OUT from IN\n");
     printf("  -r IN.ihy\t\t: play IN\n");
     printf("  -j N\t\t\t: set the number of created processes to N (default 2)\n");
-    printf("  -q N\t\t\t: set the quality of the output to N (default 5)\n");
+    printf("  -q N\t\t\t: set the quality of the output to N (default 3)\n");
     printf("  -h\t\t\t: display this help\n");
 }
 
@@ -129,7 +129,7 @@ int main(int argc, char **argv)
     int is_thread_playing_ihy = 0;
     ihy_data *input_to_play;
     int nb_threads = 2;
-    int q = 5;
+    int q = 3;
 
     if (argc == 1)
     {
