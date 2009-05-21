@@ -19,10 +19,12 @@ EXEC=ihyplayer
 all: ${EXEC}
 
 ${EXEC}: ${OBJ}
-	${CC} -o ${OUTPUT}${EXEC} ${OBJ} ${LDFLAGS}
+	@${CC} -o ${OUTPUT}${EXEC} ${OBJ} ${LDFLAGS}
+	@echo "  LD	${EXEC}"
 
-%.o: %.c %.h
-	${CC} -o $@ -c $< ${CFLAGS}
+%.o: %.c
+	@${CC} -o $@ -c $< ${CFLAGS}
+	@echo "  CC	$<"
 
 clean:
 	rm -rf ${OBJ}
