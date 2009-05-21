@@ -28,34 +28,8 @@ proceed_chunk (int outfd, int chunkid, int quality, wav_data *input,
 	real_size = input->DataBlocSize % output->ChunkSize;
     else
 	real_size = size;
-    chunk->Values = malloc(sizeof(float) * (output->ChunkSize / 2));
-    chunk->ChunkSize = (output->ChunkSize / 2)* sizeof(float);
-    wavelets_direct(input->Data + (i * size), size, real_size,
-	input->NumChannels, (float *)chunk->Values);
-    /* While size is not good */
-    do
-    {
-	void *tmp;
-
-	oldValue = chunk->Values;
-	size = chunk->ChunkSize / sizeof(float);
-	oldValue = quantizate((float *)oldValue, &size, 200.0f, &nbbits);
-	/*
-	tmp = floatarray_to_half((float *)oldValue, size);
-	size /= 2;
-	free(oldValue);
-	oldValue = chunk->Values;
-	*/
-	tmp = oldValue;
-	chunk->HUncompressedSize = size;
-	oldValue = huffman_encode(tmp, &size);
-	free(tmp);
-    }
-    while (!size /* is not acceptable */);
-    chunk->QBitsPerCoefs = nbbits;
-    chunk->QScaleFactor = 200.0f;
-    chunk->ChunkSize = size;
-    chunk->Values = oldValue;
+    chunk->ChunkSize = output->ChunkSize;
+    compress_chunk(input->Data + (i * size), real_size, input->NumChannels, chunk);
 
     shmid = shmget(IPC_PRIVATE, chunk->ChunkSize, IPC_CREAT | SHM_R | SHM_W);
     write(outfd, &shmid, sizeof(int));
