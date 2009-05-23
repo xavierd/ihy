@@ -1,16 +1,12 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include <gtk/gtk.h>
 #include <math.h>
 #include <cairo.h>
 #include <gdk/gdkkeysyms.h>
 #include <glib/gprintf.h>
-#include <pthread.h>
 
-#include <codecs/wav.h>
-#include <codecs/ihy.h>
-#include <compression/ihy.h>
-#include <audio_output/ihy_streaming.h>
-#include <main_threading.h>
+#define TAILLE_MAX 20
 
 
 int points[11][2] = { 
@@ -33,9 +29,18 @@ void OnPause(GtkWidget *pWidget, gpointer data);
 void OnStop(GtkWidget *pWidget, gpointer data);
 char* title(const char* chaine);
 void OnAdd(GtkWidget *pWidget, gpointer data);
+static void OnRemove(GtkWidget *pWidget, gpointer data);
+static void OnDown(GtkWidget *pWidget, gpointer data);
+static void OnClear(GtkWidget *pWidget, gpointer data);
+void OnBefore(GtkWidget *pWidget, gpointer data);
+void OnAfter(GtkWidget *pWidget, gpointer data);
+void OnQuit(GtkWidget *pWidget, gpointer data);
 GtkListStore *pListStore;
 gboolean stop = TRUE;
 gboolean pause = TRUE;
+GtkWidget   *quit;
+GtkTreeIter pIter;
+GtkWidget   *pListView;
 
 enum {
     TEXT_COLUMN,
@@ -49,8 +54,6 @@ on_expose_event(GtkWidget *widget,
 	gpointer data) /* last argument of g_signal_connect */
 {
     cairo_t *cr;
-    gint i;
-    gint j; 
 
     gint width, height;
 
@@ -88,6 +91,7 @@ on_expose_event(GtkWidget *widget,
     cairo_scale(cr, scale, scale);
 
     /*We shift the first star into the middle of the window. Rotate it and scale it.*/ 
+    gint i;
 
     for ( i = 0; i < 10; i++ ) {
 	cairo_line_to(cr, points[i][0], points[i][1]);
@@ -99,6 +103,7 @@ on_expose_event(GtkWidget *widget,
     cairo_restore(cr);
 
     /*We shift the second star into the middle of the window. Rotate it and scale it.*/ 
+    gint j; 
 
     for ( j = 0; j < 10; j++ ) {
 	cairo_line_to(cr, points[j][0], points[j][1]);
@@ -159,7 +164,6 @@ int main(int argc, char **argv)
     GtkWidget   *file;
     GtkWidget   *new;
     GtkWidget   *open;
-    GtkWidget   *quit;
     GtkWidget   *sep;
     GtkWidget   *pNotebook;
     gchar       *sTabLabel;
@@ -168,11 +172,10 @@ int main(int argc, char **argv)
     GtkWidget   *pVBox;
     GtkWidget   *pVBox2;
     GtkWidget   *pHBox2;
-    GtkWidget   *pListView;
     GtkWidget   *pScrollbar;
     GtkTreeViewColumn   *pColumn;
     GtkCellRenderer   *pCellRenderer;
-
+    GtkTreeSelection *data;
     GtkAccelGroup *accel_group = NULL; /*For the MenuBar*/
 
     int width, height;
@@ -206,7 +209,7 @@ int main(int argc, char **argv)
     sep = gtk_separator_menu_item_new();
     quit = gtk_image_menu_item_new_from_stock(GTK_STOCK_QUIT, accel_group);
 
-    gtk_widget_add_accelerator(quit, "activate", accel_group, 
+    gtk_widget_add_accelerator(quit, "destroy", accel_group, 
 	    GDK_q, GDK_CONTROL_MASK, GTK_ACCEL_VISIBLE); 
 
     /*The buttons for the MenuBar*/
@@ -295,9 +298,8 @@ int main(int argc, char **argv)
     pButton[2] = gtk_button_new_from_stock(GTK_STOCK_MEDIA_STOP);
     pButton[3] = gtk_button_new_from_stock(GTK_STOCK_ADD);
     pButton[4] = gtk_button_new_from_stock(GTK_STOCK_REMOVE);
-    pButton[5] = gtk_button_new_from_stock(GTK_STOCK_SAVE);
-    pButton[6] = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
-    pButton[7] = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
+    pButton[5] = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
+    pButton[6] = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
 
     /* Buttons in the GtkBox*/
     gtk_box_pack_start(GTK_BOX(pHBox), pButton[0], TRUE, TRUE, 0);
@@ -326,12 +328,17 @@ int main(int argc, char **argv)
 	    0,0,
 	    0,0);   
 
+    data  = gtk_tree_view_get_selection(pListView);
+
     /* Buttons connect */
     g_signal_connect_swapped(G_OBJECT(pButton[0]), "clicked", G_CALLBACK(OnPlay), pProgress);
     g_signal_connect_swapped(G_OBJECT(pButton[1]), "clicked", G_CALLBACK(OnPause), pProgress);
     g_signal_connect_swapped(G_OBJECT(pButton[2]), "clicked", G_CALLBACK(OnStop), pProgress);
-    g_signal_connect(G_OBJECT(quit), "activate",G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(quit), "destroy",G_CALLBACK(OnQuit), NULL);
     g_signal_connect(G_OBJECT(pButton[3]), "clicked", G_CALLBACK(OnAdd), NULL);
+    g_signal_connect(G_OBJECT(pButton[4]), "clicked", G_CALLBACK(OnRemove), data);
+    g_signal_connect(G_OBJECT(pButton[6]), "clicked", G_CALLBACK(OnClear), NULL);
+    g_signal_connect(G_OBJECT(pButton[5]), "clicked", G_CALLBACK(OnDown), data);
 
     gtk_widget_show_all(pWindow);
 
@@ -375,7 +382,6 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
     GtkWidget *pFileSelection;
     GtkWidget *pParent;
     gchar *sChemin;
-    GtkTreeIter pIter;
     gchar *sTitle;
 
     pParent = NULL;
@@ -409,6 +415,7 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 		    TEXT_COLUMN, sTitle,
 		    TOGGLE_COLUMN, TRUE,
 		    -1);
+	    
 
 	    g_free(sChemin);
 	    break;
@@ -418,6 +425,50 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
     gtk_widget_destroy(pFileSelection);
 }
 
+static void OnRemove(GtkWidget *pWidget, gpointer data)
+{
+  GtkTreeModel *model;
+  model = gtk_tree_view_get_model (pListView);
+
+  if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
+      return;
+
+  if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
+       &pIter)) {
+    gtk_list_store_remove(pListStore, &pIter);
+  }
+}
+
+/* fonction pour passé à la musique suivante */
+static void OnDown(GtkWidget *pWidget, gpointer data)
+{
+  GtkTreeModel *model;
+  model = gtk_tree_view_get_model (pListView);
+
+  if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
+      return;
+
+  if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
+       &pIter)) {
+    gtk_tree_model_iter_next(pListStore, &pIter);
+    gtk_tree_selection_select_iter(GTK_TREE_SELECTION(data), &pIter);
+  }
+}
+
+static void OnClear(GtkWidget *pWidget, gpointer data)
+{
+    gtk_list_store_clear(pListStore);
+}
+
+
+
+void OnQuit(GtkWidget *pWidget, gpointer data)
+{
+    stop = !stop;
+    g_signal_connect(G_OBJECT(quit), "destroy",G_CALLBACK(gtk_main_quit), NULL);
+}
+
+
 gint j = 0;
 
 void OnPlay(GtkWidget *pWidget, gpointer data)
@@ -425,6 +476,9 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
     gint i;
     gint iTotal = 2000;
     gdouble dFraction;
+
+    stop = TRUE;
+    pause = TRUE;
 
     /* Initialisation */
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
@@ -451,8 +505,6 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	    j=0;
 	}
     }  
-    stop = TRUE;
-    pause = TRUE;
 
 } 
 
