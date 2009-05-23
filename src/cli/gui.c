@@ -54,16 +54,15 @@ on_expose_event(GtkWidget *widget,
 	gpointer data) /* last argument of g_signal_connect */
 {
     cairo_t *cr;
-
     gint width, height;
+    gint i;
 
     static gdouble angle = 0;
     static gdouble scale = 1;
     static gdouble delta = 0.01;
 
-    static gdouble angle2 = 0;
-    static gdouble scale2 = 1;
-    static gdouble delta2 = 0.01;
+    widget = widget;
+    event = event;
 
     gdk_drawable_get_size(GDK_PIXMAP(data), &width, &height);
 
@@ -84,14 +83,7 @@ on_expose_event(GtkWidget *widget,
     cairo_translate(cr, width / 2, height / 2 );
     cairo_rotate(cr, angle);
 
-    /*Here we make move the second star*/
-    cairo_save(cr);
-    cairo_translate(cr, width / 4, height / 4 );
-    cairo_rotate(cr, angle);
-    cairo_scale(cr, scale, scale);
-
     /*We shift the first star into the middle of the window. Rotate it and scale it.*/ 
-    gint i;
 
     for ( i = 0; i < 10; i++ ) {
 	cairo_line_to(cr, points[i][0], points[i][1]);
@@ -100,19 +92,7 @@ on_expose_event(GtkWidget *widget,
     cairo_close_path(cr);
     cairo_stroke_preserve(cr);
     cairo_fill(cr);
-    cairo_restore(cr);
-
-    /*We shift the second star into the middle of the window. Rotate it and scale it.*/ 
-    gint j; 
-
-    for ( j = 0; j < 10; j++ ) {
-	cairo_line_to(cr, points[j][0], points[j][1]);
-    }
-
-    cairo_close_path(cr);
-    cairo_stroke_preserve(cr);
-    cairo_fill(cr);
-    cairo_restore(cr);
+    /*cairo_restore(cr);*/
 
     /*Here we draw the first star*/
     if ( scale < 0.01 ) {
@@ -123,16 +103,6 @@ on_expose_event(GtkWidget *widget,
 
     scale += delta;
     angle += 0.01;
-
-    /*Here we draw the second star*/
-    if ( scale2 < 0.01 ) {
-	delta2 = -delta2;
-    } else if (scale2 > 0.99) {
-	delta2 = -delta2;
-    }
-
-    scale2 += delta2;
-    angle2 += 0.01;
 
     cairo_destroy(cr);
 
@@ -328,7 +298,7 @@ int main(int argc, char **argv)
 	    0,0,
 	    0,0);   
 
-    data  = gtk_tree_view_get_selection(pListView);
+    data  = gtk_tree_view_get_selection(GTK_TREE_VIEW(pListView));
 
     /* Buttons connect */
     g_signal_connect_swapped(G_OBJECT(pButton[0]), "clicked", G_CALLBACK(OnPlay), pProgress);
@@ -386,6 +356,9 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 
     pParent = NULL;
 
+    pWidget = pWidget;
+    data = data;
+
     /* Creation de la fenetre de selection */
     pFileSelection = gtk_file_chooser_dialog_new("Ouvrir...",
 	    GTK_WINDOW(pParent),
@@ -427,8 +400,13 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 
 static void OnRemove(GtkWidget *pWidget, gpointer data)
 {
+
   GtkTreeModel *model;
-  model = gtk_tree_view_get_model (pListView);
+
+  pWidget = pWidget;
+  data = data;
+
+  model = gtk_tree_view_get_model (GTK_TREE_VIEW(pListView));
 
   if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
       return;
@@ -442,21 +420,26 @@ static void OnRemove(GtkWidget *pWidget, gpointer data)
 /* fonction pour passé à la musique suivante */
 static void OnDown(GtkWidget *pWidget, gpointer data)
 {
+  
   GtkTreeModel *model;
-  model = gtk_tree_view_get_model (pListView);
+
+  pWidget = pWidget;
+  model = gtk_tree_view_get_model (GTK_TREE_VIEW(pListView));
 
   if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
       return;
 
   if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
        &pIter)) {
-    gtk_tree_model_iter_next(pListStore, &pIter);
+    gtk_tree_model_iter_next(GTK_TREE_MODEL(pListStore), &pIter);
     gtk_tree_selection_select_iter(GTK_TREE_SELECTION(data), &pIter);
   }
 }
 
 static void OnClear(GtkWidget *pWidget, gpointer data)
 {
+    pWidget = pWidget;
+    data = data;
     gtk_list_store_clear(pListStore);
 }
 
@@ -464,6 +447,8 @@ static void OnClear(GtkWidget *pWidget, gpointer data)
 
 void OnQuit(GtkWidget *pWidget, gpointer data)
 {
+    pWidget = pWidget;
+    data = data;
     stop = !stop;
     g_signal_connect(G_OBJECT(quit), "destroy",G_CALLBACK(gtk_main_quit), NULL);
 }
@@ -473,9 +458,12 @@ gint j = 0;
 
 void OnPlay(GtkWidget *pWidget, gpointer data)
 {
+    
     gint i;
     gint iTotal = 2000;
     gdouble dFraction;
+
+    data = data;
 
     stop = TRUE;
     pause = TRUE;
@@ -494,6 +482,7 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	    /* we give the hand to GTK+ */
 	    gtk_main_iteration ();
 	    j=j+1;
+
 	}
 	else if (!pause)
 	{
@@ -510,11 +499,15 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 
 void OnPause(GtkWidget *pWidget, gpointer data)
 {
+    pWidget = pWidget;
+    data = data;
     pause = !pause;
 }
 
 void OnStop(GtkWidget *pWidget, gpointer data)
 {
+    pWidget = pWidget;
+    data = data;
     stop = !stop;
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
     j=0;
