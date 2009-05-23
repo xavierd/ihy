@@ -6,6 +6,7 @@
 #include <compression/huffman.h>
 #include <compression/quantization.h>
 #include <compression/wavelet.h>
+#include <utils/half.h>
 
 /*
  * Uncompress this chunk, and put the uncompressed on samples,
