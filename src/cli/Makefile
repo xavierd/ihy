@@ -62,6 +62,6 @@ ${GUIEXEC}: ${COBJ} ${GUIOBJ} ${CAMLCMI} ${CAMLOBJ}
 clean:
 	rm -rf ${COBJ} ${CLIOBJ} ${GUIOBJ}
 	rm -rf ${CAMLOBJ} ${CAMLCMX} ${CAMLCMI} ${CAMLO}
-	rm -rf ${OUTPUT}${EXEC}
+	rm -rf ${OUTPUT}${CLIEXEC} ${OUTPUT}${GUIEXEC}
 
 -include ${OCAMLPATH}/Makefile.config
