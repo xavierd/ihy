@@ -123,7 +123,7 @@ int main(int argc, char **argv)
 {
     GtkWidget   *pWindow;
     GtkWidget   *pTable;
-    GtkWidget   *pButton[8];
+    GtkWidget   *pButton[7];
     GtkWidget   *image;
     GtkWidget   *pProgress;
     GdkColormap *cmap = NULL;
@@ -280,7 +280,6 @@ int main(int argc, char **argv)
     gtk_box_pack_start(GTK_BOX(pHBox2), pButton[4], TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(pHBox2), pButton[5], TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(pHBox2), pButton[6], TRUE, TRUE, 0);
-    gtk_box_pack_start(GTK_BOX(pHBox2), pButton[7], TRUE, TRUE, 0);
 
     /* Progress bar in the table */
     pProgress = gtk_progress_bar_new();
