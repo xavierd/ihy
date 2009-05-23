@@ -4,6 +4,7 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)
 {
     size_t size;
     void *tmp;
+    float factor;
 
     /* Huffman */
     tmp = chunk->Values;
@@ -14,7 +15,8 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)
     /* Quantification */
     size = chunk->ChunkSize;
     tmp = chunk->Values;
-    tmp = dequantizate(tmp, &size, chunk->QScaleFactor, chunk->QBitsPerCoefs);
+    factor = half_to_float(chunk->QScaleFactor);
+    tmp = dequantizate(tmp, &size, factor, chunk->QBitsPerCoefs);
     free(chunk->Values);
     chunk->Values = tmp;
     /* End Quantification */
@@ -64,7 +66,7 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     free(pow2_samples);
     chunk->ChunkSize = (chunk->ChunkSize / 2) * sizeof(float);
 
-    factor = 0.5f;
+    factor = 0.128f;
     do
     {
 	factor *= 2;
@@ -80,7 +82,7 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     }
     while (actual_bitrate > bitrate(quality));
     chunk->QBitsPerCoefs = nbbits;
-    chunk->QScaleFactor = factor;
+    chunk->QScaleFactor = float_to_half(factor);
     chunk->ChunkSize = size;
     chunk->Values = oldValue;
 }
