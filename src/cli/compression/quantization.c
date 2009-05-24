@@ -60,18 +60,36 @@ static void *encode(int *x, const size_t n, const int nb_bits, size_t *size)
     return res;
 }
 
+static int is_pow2(int n)
+{
+    if (!n) /* 0 isn't power of 2 */
+	return 0;
+    while (n)
+    {
+	if (!n % 2)
+	    return 0;
+	n /= 2;
+    }
+    return 1;
+}
+
 void *quantizate(float *x, size_t *n, const float factor, int *nbbits)
 {
     size_t i;
     int min, max;
     void *res;
     int *q;
+    float real_factor = factor;
 
     q = malloc(*n * sizeof(int));
     min = max = 0;
     for (i = 0; i < *n; i++)
     {
-	q[i] = sign(x[i]) * sqrtf(abs(x[i] / factor));
+	if (is_pow2(i))
+	    real_factor *= 1.0f;
+	if (i == *n / 2)
+	    real_factor = factor;
+	q[i] = sign(x[i]) * sqrtf(abs(x[i]) / real_factor);
 	/*q[i] = sign(x[i]) * floorf(abs(x[i] / factor));*/
 	if (q[i] > max)
 	    max = q[i];
@@ -124,15 +142,20 @@ float *dequantizate(uint8_t *x, size_t *n, const float factor, int nbbits)
     float *res = malloc(nb_elmts * sizeof(float));
     int nb;
     int offset;
+    float real_factor = factor;
 
     offset = 0;
     for (i = 0; i < nb_elmts; i++)
     {
+	if (is_pow2(i))
+	    real_factor *= 1.0f;
+	if (i == *n / 2)
+	    real_factor = factor;
 	nb = next_nb(&x, nbbits, &offset);
 	if (nb == 0)
 	    res[i] = 0.0f;
 	else
-	    res[i] = sign(nb) * powf(abs(nb), 2) * factor;
+	    res[i] = sign(nb) * powf(abs(nb), 2) * real_factor;
 	    /*res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;*/
     }
     *n = nb_elmts;
