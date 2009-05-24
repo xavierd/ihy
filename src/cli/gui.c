@@ -318,7 +318,7 @@ int main(int argc, char **argv)
     gtk_widget_set_app_paintable(pWindow, TRUE);
 
     /*speed of the stars*/
-    g_timeout_add(10, (GSourceFunc) time_handler, (gpointer) pWindow);
+    g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
 
     gtk_main();
 
