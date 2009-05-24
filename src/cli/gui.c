@@ -28,7 +28,7 @@ void OnPlay(GtkWidget *pWidget, gpointer data);
 void OnPause(GtkWidget *pWidget, gpointer data);
 void OnStop(GtkWidget *pWidget, gpointer data);
 char* title(const char* chaine);
-char* EstPremier();
+char* GetFirst();
 void OnAdd(GtkWidget *pWidget, gpointer data);
 static void OnRemove(GtkWidget *pWidget, gpointer data);
 static void OnDown(GtkWidget *pWidget, gpointer data);
@@ -37,17 +37,20 @@ void OnBefore(GtkWidget *pWidget, gpointer data);
 void OnAfter(GtkWidget *pWidget, gpointer data);
 void OnQuit(GtkWidget *pWidget, gpointer data);
 GtkListStore *pListStore;
+GtkListStore *pListStore2;
 gboolean stop = TRUE;
 gboolean pause = TRUE;
 GtkWidget   *quit;
 GtkTreeIter pIter;
+GtkTreeIter pIter2;
 GtkWidget   *pListView;
-gchar *sPremier;
+gchar *sTitle;
+gchar *sChemin;
 
 
 
 enum {
-    TEXT_COLUMN,
+    STRING_COLUMN,
     TOGGLE_COLUMN,
     N_COLUMN
 };
@@ -238,7 +241,7 @@ int main(int argc, char **argv)
     pCellRenderer = gtk_cell_renderer_text_new();
     pColumn = gtk_tree_view_column_new_with_attributes("Titre",
 	    pCellRenderer,
-	    "text", TEXT_COLUMN,
+	    "text", STRING_COLUMN,
 	    NULL);
 
     /* Ajout de la colonne à la vue */
@@ -318,7 +321,7 @@ int main(int argc, char **argv)
     gtk_widget_set_app_paintable(pWindow, TRUE);
 
     /*speed of the stars*/
-    g_timeout_add(10, (GSourceFunc) time_handler, (gpointer) pWindow);
+    g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
 
     gtk_main();
 
@@ -350,13 +353,11 @@ char* title(const char* chaine)
     return chaine2;
 }
 
-gint cpt = 0;
 void OnAdd(GtkWidget *pWidget, gpointer data)
 {
     GtkWidget *pFileSelection;
     GtkWidget *pParent;
-    gchar *sChemin;
-    gchar *sTitle;
+
 
     pParent = NULL;
 
@@ -389,28 +390,48 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 
 	    /* Mise a jour des donnees */
 	    gtk_list_store_set(pListStore, &pIter,
-		    TEXT_COLUMN, sTitle,
+		    STRING_COLUMN, sTitle,
+		    TOGGLE_COLUMN, TRUE,
+		    -1);
+
+	    	    /* Creation de la nouvelle ligne */
+	    gtk_list_store_append(pListStore2, &pIter2);
+
+	    /* Mise a jour des donnees */
+	    gtk_list_store_set(pListStore2, &pIter2,
+		    STRING_COLUMN, sChemin,
 		    TOGGLE_COLUMN, TRUE,
 		    -1);
 	    
 
 	    g_free(sChemin);
+            g_free(sTitle);
 	    break;
 	default:
 	    break;
     }
-    if (cpt == 0)
-    {
-       sPremier = sChemin;
-    }
-    cpt++;
     gtk_widget_destroy(pFileSelection);
 }
 
-char* EstPremier()
+char* GetFirst()
 {
-    return sPremier;
+  gboolean valid;
+  gint row_count;
+
+  row_count = 0;
+
+  /* Get the first iter in the list */
+  valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(pListStore2), &pIter2);
+
+  if (valid) 
+  {
+      gtk_tree_model_get (GTK_TREE_MODEL(pListStore2), &pIter2,
+                          STRING_COLUMN, &sChemin,
+                          -1);
+    }
+   return sChemin;
 }
+
 
 static void OnRemove(GtkWidget *pWidget, gpointer data)
 {
@@ -428,7 +449,9 @@ static void OnRemove(GtkWidget *pWidget, gpointer data)
   if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
        &pIter)) {
     gtk_list_store_remove(pListStore, &pIter);
-  }
+    gtk_list_store_remove(pListStore2, &pIter2);
+    gtk_tree_selection_select_iter(GTK_TREE_SELECTION(data), &pIter);
+    } 
 }
 
 /* fonction pour passé à la musique suivante */
@@ -455,8 +478,7 @@ static void OnClear(GtkWidget *pWidget, gpointer data)
     pWidget = pWidget;
     data = data;
     gtk_list_store_clear(pListStore);
-    cpt = 0;
-    sPremier = NULL;
+    gtk_list_store_clear(pListStore2);
 }
 
 
