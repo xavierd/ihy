@@ -28,6 +28,7 @@ void OnPlay(GtkWidget *pWidget, gpointer data);
 void OnPause(GtkWidget *pWidget, gpointer data);
 void OnStop(GtkWidget *pWidget, gpointer data);
 char* title(const char* chaine);
+char* EstPremier();
 void OnAdd(GtkWidget *pWidget, gpointer data);
 static void OnRemove(GtkWidget *pWidget, gpointer data);
 static void OnDown(GtkWidget *pWidget, gpointer data);
@@ -41,6 +42,9 @@ gboolean pause = TRUE;
 GtkWidget   *quit;
 GtkTreeIter pIter;
 GtkWidget   *pListView;
+gchar *sPremier;
+
+
 
 enum {
     TEXT_COLUMN,
@@ -346,6 +350,7 @@ char* title(const char* chaine)
     return chaine2;
 }
 
+gint cpt = 0;
 void OnAdd(GtkWidget *pWidget, gpointer data)
 {
     GtkWidget *pFileSelection;
@@ -394,7 +399,17 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 	default:
 	    break;
     }
+    if (cpt == 0)
+    {
+       sPremier = sChemin;
+    }
+    cpt++;
     gtk_widget_destroy(pFileSelection);
+}
+
+char* EstPremier()
+{
+    return sPremier;
 }
 
 static void OnRemove(GtkWidget *pWidget, gpointer data)
@@ -440,6 +455,8 @@ static void OnClear(GtkWidget *pWidget, gpointer data)
     pWidget = pWidget;
     data = data;
     gtk_list_store_clear(pListStore);
+    cpt = 0;
+    sPremier = NULL;
 }
 
 
