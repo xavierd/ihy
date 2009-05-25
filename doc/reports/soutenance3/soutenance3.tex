@@ -47,6 +47,44 @@ donc présentes à l'identique.
 
 \chapter{Chronologie du projet}
 \section{Première soutenance}
-La première soutenance fut 
+\subsection{L'état du codec}
+Il faut le dire, le codec audio n'était pas très utile à cette époque. En effet,
+celui-ci ne compressait pas la musique, au contraire, il doublait la taille du
+fichier wav original non compressé. En effet, nous passions d'un échantillons
+codé sur 2 octets dans le cas du wav, à un coefficient d'ondelettes codé sur 4
+octets. Les données écrites étant brutes, cela doublait effectivement la taille
+du fichier.\\
+Si l'on excepte ce petit défaut, nous pouvions encoder un fichier ihy, le
+décoder pour obtenir le fichier original. Cela a montré plusieurs choses,
+premièrement, que les ondelettes que nous avions implantés fonctionnent,
+deuxièmement, que l'interface entre le C et le Caml fonctionne également, et
+enfin, que notre fichier ihy est parfaitement lisible, et l'on peut donc en
+extraire sans problèmes les informations dont on a besoin.\\
+Les techniques de compression utilisées étaient inexistantes, la compression via
+l'algorithme de Huffman avait été implanté, mais pas sa décompression. Quand aux
+ondelettes, nous avions implantés l'ondelette la plus simple de toute (mais
+néanmoins très puissante), qui est l'ondelette de Haar.\\
+De plus, nous pouvions lire un fichier wav et utiliser la carte son de
+l'ordinateur pour lire le fichier wav en question, ceci afin de préparer la
+lecture d'un fichier ihy en lui-même que nous n'avions pas à cette soutenance.
+\subsection{L'interface graphique}
+Lors de cette première soutenance, notre interface graphique était des plus
+sobre, elle n'était constitué que de 5 boutons, ainsi que d'une barre de
+progression. Cette dernière se remplissait lorsque l'on appuyait sur le bouton
+``play'', afin de simuler l'avancement d'une musique.
+\subsection{Ce que nous ne savions pas}
+L'informatique n'est pas une science exacte, et nous avons pu le vérifier après
+cette soutenance. En effet, le fichier décompressé étant le même (à l'oreille),
+nous ne nous doutions pas qu'il y avait un problème. En fait, 75\% des
+coefficients d'ondelettes n'étaient pas présent dans le fichier ihy, ils étaient
+remplacés par des caractères ``random'', la faute à un memcpy dont la taille à
+copié avait été mal renseignée.\\
+Néanmoins cette petite erreur nous a appris une chose, les ondelettes sont un
+outil puissant qui avec un peu de travail peuvent donner naissance à un codec
+audio très intéressant\footnote{En réécoutant attentivement le fichier wav en
+sortie, ce dernier était au final assez différent de l'original.}.
+\subsection{Conclusion partielle}
+Une bonne première soutenance donc, qui nous a permis de nous familiariser avec
+les ondelettes ainsi qu'avec le développement sous UNIX en C et Caml.
 
 \end{document}
