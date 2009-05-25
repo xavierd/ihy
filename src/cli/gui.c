@@ -45,6 +45,7 @@ GtkWidget   *quit;
 GtkTreeIter pIter;
 GtkTreeIter pIter2;
 GtkWidget   *pListView;
+GtkWidget   *pListView2;
 gchar *sTitle;
 gchar *sChemin;
 static gdouble angle = 0;
@@ -251,6 +252,12 @@ int main(int argc, char **argv)
 
     /* Creation de la vue */
     pListView = gtk_tree_view_new_with_model(GTK_TREE_MODEL(pListStore));
+
+    /* Creation du modele */
+    pListStore2 = gtk_list_store_new(N_COLUMN, G_TYPE_STRING, G_TYPE_BOOLEAN);
+
+    /* Creation de la vue */
+    pListView2 = gtk_tree_view_new_with_model(GTK_TREE_MODEL(pListStore2));
 
     /* Creation de la premiere colonne */
     pCellRenderer = gtk_cell_renderer_text_new();
