@@ -147,9 +147,10 @@ float *dequantizate(uint8_t *x, size_t *n, const float factor, int nbbits)
     offset = 0;
     for (i = 0; i < nb_elmts; i++)
     {
-	if ((i < *n / 2 && is_pow2(i)) || (i > *n / 2 && is_pow2(i - *n / 2)))
+	if ((i < nb_elmts / 2 && is_pow2(i))
+		|| (i > nb_elmts / 2 && is_pow2(i - nb_elmts / 2)))
 	    real_factor *= 1.0f;
-	if (i == *n / 2)
+	if (i == nb_elmts / 2)
 	    real_factor = factor;
 	nb = next_nb(&x, nbbits, &offset);
 	if (nb == 0)
