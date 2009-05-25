@@ -84,10 +84,10 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     free(pow2_samples);
     chunk->ChunkSize = (chunk->ChunkSize / 2) * sizeof(float);
 
-    actual_bitrate = 1.0f / 0.0f;
-    for (factor = init_factor(quality); actual_bitrate > bitrate(quality);
-	    factor *= 2)
+    factor = init_factor(quality);
+    do
     {
+	factor *= 2;
 	oldValue = chunk->Values;
 	size = chunk->ChunkSize / sizeof(float);
 	oldValue = quantizate(oldValue, &size, factor, &nbbits);
@@ -98,6 +98,7 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
 	actual_bitrate = (size * 8) / ((float)chunk_size / 44100.0f);
 	actual_bitrate /= 1024 / ch;
     }
+    while (actual_bitrate > bitrate(quality));
     chunk->QBitsPerCoefs = nbbits;
     chunk->QScaleFactor = float_to_half(factor);
     chunk->ChunkSize = size;
