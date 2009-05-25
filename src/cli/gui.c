@@ -168,6 +168,8 @@ int main(int argc, char **argv)
     GtkWidget   *pScrollbar;
     GtkTreeViewColumn   *pColumn;
     GtkCellRenderer   *pCellRenderer;
+    GtkTreeViewColumn   *pColumn2;
+    GtkCellRenderer   *pCellRenderer2;
     GtkTreeSelection *data;
     GtkAccelGroup *accel_group = NULL; /*For the MenuBar*/
 
@@ -262,6 +264,13 @@ int main(int argc, char **argv)
     /* Creation de la premiere colonne */
     pCellRenderer = gtk_cell_renderer_text_new();
     pColumn = gtk_tree_view_column_new_with_attributes("Titre",
+	    pCellRenderer,
+	    "text", STRING_COLUMN,
+	    NULL);
+
+    /* Creation de la premiere colonne */
+    pCellRenderer2 = gtk_cell_renderer_text_new();
+    pColumn2 = gtk_tree_view_column_new_with_attributes("Chemin",
 	    pCellRenderer,
 	    "text", STRING_COLUMN,
 	    NULL);
