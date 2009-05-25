@@ -66,7 +66,9 @@ ondelettes, nous avions implantés l'ondelette la plus simple de toute (mais
 néanmoins très puissante), qui est l'ondelette de Haar.\\
 De plus, nous pouvions lire un fichier wav et utiliser la carte son de
 l'ordinateur pour lire le fichier wav en question, ceci afin de préparer la
-lecture d'un fichier ihy en lui-même que nous n'avions pas à cette soutenance.
+lecture d'un fichier ihy en lui-même que nous n'avions pas à cette soutenance.\\
+Nous avions également une petite application graphique nous permettant de
+visualiser les coefficients sur une échelle temps/fréquence.
 \subsection{L'interface graphique}
 Lors de cette première soutenance, notre interface graphique était des plus
 sobre, elle n'était constitué que de 5 boutons, ainsi que d'une barre de
@@ -86,5 +88,31 @@ sortie, ce dernier était au final assez différent de l'original.}.
 \subsection{Conclusion partielle}
 Une bonne première soutenance donc, qui nous a permis de nous familiariser avec
 les ondelettes ainsi qu'avec le développement sous UNIX en C et Caml.
+
+\newpage
+
+\section{Deuxième soutenance}
+\subsection{L'état du codec}
+La deuxième soutenance vit l'apparition d'une véritable compression, avec très
+peu de pertes, en fait ces pertes étaient inaudibles à l'oreille humaine, ce qui
+est le but recherché dans un codec audio : supprimer un maximum d'informations
+inaudibles.\\
+Mais avant cela, nous avons terminé l'algorithme de Huffman, ce qui nous a
+permis d'obtenir, comme la théorie le veut, une compression d'environ 20\%. Nous
+étions hélas encore loin de la taille originale d'un fichier wav. Pour pallier a
+ce problème, nous avons réfléchis à comment réduire significativement la taille
+du fichier, ou vu d'une autre façon : qu'est-ce qui fait grossir le fichier
+inutilement? La réponse a cette question est simple : la taille d'un coefficient
+d'ondelette est deux fois plus gros qu'un échantillon. Nous avons donc codé un
+coefficient sur 16 à l'aide des ``half floats'', ce qui nous permettait nous
+seulement de réduire considérablement la taille du fichier ihy, mais aussi de
+passer en dessous de la taille du fichier wav. Nous pouvions désormais appeler
+notre codec de codec compressif.\\
+Au niveau du travail sur les coefficients non audibles, nous avons réussi à
+rendre 50\% des coefficients nul. En effet, ces derniers représentaient les
+hautes fréquences du signal, qui sont inaudibles à l'oreille humaine. Couplée à
+Huffman, cela nous a permis d'atteindre les 50\% de compression, toujours très
+loin d'un codec comme le mp3 qui compresse ``sans dommages'' jusqu'à 12 fois la
+taille originale.\\
 
 \end{document}
