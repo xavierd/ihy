@@ -6,7 +6,7 @@
 #include <gdk/gdkkeysyms.h>
 #include <glib/gprintf.h>
 
-#define TAILLE_MAX 20
+#define TAILLE_MAX 78
 
 
 int points[11][2] = { 
@@ -40,12 +40,17 @@ GtkListStore *pListStore;
 GtkListStore *pListStore2;
 gboolean stop = TRUE;
 gboolean pause = TRUE;
+gboolean play = FALSE;
 GtkWidget   *quit;
 GtkTreeIter pIter;
 GtkTreeIter pIter2;
 GtkWidget   *pListView;
 gchar *sTitle;
 gchar *sChemin;
+static gdouble angle = 0;
+
+
+
 
 
 
@@ -60,11 +65,10 @@ on_expose_event(GtkWidget *widget,
 	GdkEventExpose *event,
 	gpointer data) /* last argument of g_signal_connect */
 {
+
     cairo_t *cr;
     gint width, height;
     gint i;
-
-    static gdouble angle = 0;
     static gdouble scale = 1;
     static gdouble delta = 0.01;
 
@@ -99,6 +103,7 @@ on_expose_event(GtkWidget *widget,
     cairo_close_path(cr);
     cairo_stroke_preserve(cr);
     cairo_fill(cr);
+
     /*cairo_restore(cr);*/
 
     /*Here we draw the first star*/
@@ -109,9 +114,20 @@ on_expose_event(GtkWidget *widget,
     }
 
     scale += delta;
-    angle += 0.01;
+    if (play && pause && stop) 
+    {
+	angle += 0.01;
+    }
+    else if (!pause)
+    {
+	cairo_save(cr);
+    }
+    else if (!stop)
+    {
+	angle = 0;
+    }
 
-    cairo_destroy(cr);
+    /*cairo_destroy(cr);*/
 
     return FALSE;
 }
@@ -125,16 +141,14 @@ time_handler (GtkWidget *widget)
 }
 
 
-
 int main(int argc, char **argv)
 {
+    GdkPixmap   *pmap = NULL;
     GtkWidget   *pWindow;
+    GtkWidget   *image;
     GtkWidget   *pTable;
     GtkWidget   *pButton[7];
-    GtkWidget   *image;
     GtkWidget   *pProgress;
-    GdkColormap *cmap = NULL;
-    GdkPixmap   *pmap = NULL;
     GtkWidget   *pHBox;
     GtkWidget   *menubar;
     GtkWidget   *filemenu;
@@ -146,6 +160,7 @@ int main(int argc, char **argv)
     gchar       *sTabLabel;
     GtkWidget   *pTabLabel;
     GtkWidget   *pTabLabel2;
+    GdkColormap *cmap = NULL;
     GtkWidget   *pVBox;
     GtkWidget   *pVBox2;
     GtkWidget   *pHBox2;
@@ -320,8 +335,12 @@ int main(int argc, char **argv)
 
     gtk_widget_set_app_paintable(pWindow, TRUE);
 
-    /*speed of the stars*/
-    g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
+    if (gtk_notebook_get_current_page(GTK_NOTEBOOK(pNotebook)) == 0)
+    {
+
+	/*speed of the stars*/
+	g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
+    }
 
     gtk_main();
 
@@ -394,7 +413,7 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 		    TOGGLE_COLUMN, TRUE,
 		    -1);
 
-	    	    /* Creation de la nouvelle ligne */
+	    /* Creation de la nouvelle ligne */
 	    gtk_list_store_append(pListStore2, &pIter2);
 
 	    /* Mise a jour des donnees */
@@ -402,10 +421,10 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 		    STRING_COLUMN, sChemin,
 		    TOGGLE_COLUMN, TRUE,
 		    -1);
-	    
+
 
 	    g_free(sChemin);
-            g_free(sTitle);
+	    g_free(sTitle);
 	    break;
 	default:
 	    break;
@@ -415,62 +434,62 @@ void OnAdd(GtkWidget *pWidget, gpointer data)
 
 char* GetFirst()
 {
-  gboolean valid;
-  gint row_count;
+    gboolean valid;
+    gint row_count;
 
-  row_count = 0;
+    row_count = 0;
 
-  /* Get the first iter in the list */
-  valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(pListStore2), &pIter2);
+    /* Get the first iter in the list */
+    valid = gtk_tree_model_get_iter_first (GTK_TREE_MODEL(pListStore2), &pIter2);
 
-  if (valid) 
-  {
-      gtk_tree_model_get (GTK_TREE_MODEL(pListStore2), &pIter2,
-                          STRING_COLUMN, &sChemin,
-                          -1);
+    if (valid) 
+    {
+	gtk_tree_model_get (GTK_TREE_MODEL(pListStore2), &pIter2,
+		STRING_COLUMN, &sChemin,
+		-1);
     }
-   return sChemin;
+    return sChemin;
 }
 
 
 static void OnRemove(GtkWidget *pWidget, gpointer data)
 {
 
-  GtkTreeModel *model;
+    GtkTreeModel *model;
 
-  pWidget = pWidget;
-  data = data;
+    pWidget = pWidget;
+    data = data;
 
-  model = gtk_tree_view_get_model (GTK_TREE_VIEW(pListView));
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW(pListView));
 
-  if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
-      return;
+    if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
+	return;
 
-  if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
-       &pIter)) {
-    gtk_list_store_remove(pListStore, &pIter);
-    gtk_list_store_remove(pListStore2, &pIter2);
-    gtk_tree_selection_select_iter(GTK_TREE_SELECTION(data), &pIter);
+    if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
+		&pIter)) {
+	gtk_list_store_remove(pListStore, &pIter);
+	gtk_list_store_remove(pListStore2, &pIter2);
+	gtk_tree_selection_select_iter(GTK_TREE_SELECTION(data), &pIter);
     } 
 }
 
 /* fonction pour passé à la musique suivante */
 static void OnDown(GtkWidget *pWidget, gpointer data)
 {
-  
-  GtkTreeModel *model;
 
-  pWidget = pWidget;
-  model = gtk_tree_view_get_model (GTK_TREE_VIEW(pListView));
+    GtkTreeModel *model;
 
-  if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
-      return;
+    pWidget = pWidget;
+    model = gtk_tree_view_get_model (GTK_TREE_VIEW(pListView));
 
-  if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
-       &pIter)) {
-    gtk_tree_model_iter_next(GTK_TREE_MODEL(pListStore), &pIter);
-    gtk_tree_selection_select_iter(GTK_TREE_SELECTION(data), &pIter);
-  }
+    if (gtk_tree_model_get_iter_first(model, &pIter) == FALSE) 
+	return;
+
+    if (gtk_tree_selection_get_selected(GTK_TREE_SELECTION(data), &model,
+		&pIter)) {
+	gtk_tree_model_iter_next(GTK_TREE_MODEL(pListStore), &pIter);
+	gtk_tree_selection_select_iter(GTK_TREE_SELECTION(data), &pIter);
+    }
 }
 
 static void OnClear(GtkWidget *pWidget, gpointer data)
@@ -496,8 +515,8 @@ gint j = 0;
 
 void OnPlay(GtkWidget *pWidget, gpointer data)
 {
-    
-    gint i;
+
+    gint k;
     gint iTotal = 2000;
     gdouble dFraction;
 
@@ -505,15 +524,16 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 
     stop = TRUE;
     pause = TRUE;
+    play = TRUE;
 
     /* Initialisation */
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
-    for(i = j ; i <= iTotal ; ++i)
+    for(k = j ; k <= iTotal ; ++k)
     {
 	if (stop && pause)
 	{
-	    dFraction = (gdouble)i / (gdouble)iTotal;
+	    dFraction = (gdouble)k / (gdouble)iTotal;
 
 	    /* Modification of the progress bar */
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
@@ -531,8 +551,7 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 	    j=0;
 	}
-    }  
-
+    }
 } 
 
 void OnPause(GtkWidget *pWidget, gpointer data)
@@ -549,4 +568,5 @@ void OnStop(GtkWidget *pWidget, gpointer data)
     stop = !stop;
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
     j=0;
+    angle=0;
 }
