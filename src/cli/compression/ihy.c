@@ -43,6 +43,24 @@ static size_t bitrate(ihy_quality q)
     }
 }
 
+static float init_factor(ihy_quality q)
+{
+    switch(q)
+    {
+	case poor:
+	    return 50.0f;
+	case medium:
+	    return 25.0f;
+	case good:
+	    return 5.0f;
+	case very_good:
+	    return 1.0f;
+	default:
+	    printf("Bad Quality\n");
+	    exit(0);
+    }
+}
+
 /*
  * Assuming chunk->ChunkSize == ihy->ChunkSize
  * Assuming chunk->QBitsPerCoefs == quality
@@ -66,10 +84,10 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
     free(pow2_samples);
     chunk->ChunkSize = (chunk->ChunkSize / 2) * sizeof(float);
 
-    factor = 0.128f;
-    do
+    actual_bitrate = 1.0f / 0.0f;
+    for (factor = init_factor(quality); actual_bitrate > bitrate(quality);
+	    factor *= 2)
     {
-	factor *= 2;
 	oldValue = chunk->Values;
 	size = chunk->ChunkSize / sizeof(float);
 	oldValue = quantizate(oldValue, &size, factor, &nbbits);
@@ -80,7 +98,6 @@ void compress_chunk(int8_t *samples, size_t size, uint16_t ch, ihy_chunk *chunk)
 	actual_bitrate = (size * 8) / ((float)chunk_size / 44100.0f);
 	actual_bitrate /= 1024 / ch;
     }
-    while (actual_bitrate > bitrate(quality));
     chunk->QBitsPerCoefs = nbbits;
     chunk->QScaleFactor = float_to_half(factor);
     chunk->ChunkSize = size;
