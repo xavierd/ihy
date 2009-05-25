@@ -45,6 +45,7 @@ GtkWidget   *quit;
 GtkTreeIter pIter;
 GtkTreeIter pIter2;
 GtkWidget   *pListView;
+GtkWidget   *pListView2;
 gchar *sTitle;
 gchar *sChemin;
 static gdouble angle = 0;
@@ -167,6 +168,8 @@ int main(int argc, char **argv)
     GtkWidget   *pScrollbar;
     GtkTreeViewColumn   *pColumn;
     GtkCellRenderer   *pCellRenderer;
+    GtkTreeViewColumn   *pColumn2;
+    GtkCellRenderer   *pCellRenderer2;
     GtkTreeSelection *data;
     GtkAccelGroup *accel_group = NULL; /*For the MenuBar*/
 
@@ -252,9 +255,22 @@ int main(int argc, char **argv)
     /* Creation de la vue */
     pListView = gtk_tree_view_new_with_model(GTK_TREE_MODEL(pListStore));
 
+    /* Creation du modele */
+    pListStore2 = gtk_list_store_new(N_COLUMN, G_TYPE_STRING, G_TYPE_BOOLEAN);
+
+    /* Creation de la vue */
+    pListView2 = gtk_tree_view_new_with_model(GTK_TREE_MODEL(pListStore2));
+
     /* Creation de la premiere colonne */
     pCellRenderer = gtk_cell_renderer_text_new();
     pColumn = gtk_tree_view_column_new_with_attributes("Titre",
+	    pCellRenderer,
+	    "text", STRING_COLUMN,
+	    NULL);
+
+    /* Creation de la premiere colonne */
+    pCellRenderer2 = gtk_cell_renderer_text_new();
+    pColumn2 = gtk_tree_view_column_new_with_attributes("Chemin",
 	    pCellRenderer,
 	    "text", STRING_COLUMN,
 	    NULL);
