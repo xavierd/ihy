@@ -49,6 +49,7 @@ GtkWidget   *pListView2;
 gchar *sTitle;
 gchar *sChemin;
 static gdouble angle = 0;
+gint j = 0;
 
 
 
@@ -123,7 +124,7 @@ on_expose_event(GtkWidget *widget,
     {
 	cairo_save(cr);
     }
-    else if (!stop)
+    else if ((!stop) || (j==0))
     {
 	angle = 0;
     }
@@ -527,8 +528,6 @@ void OnQuit(GtkWidget *pWidget, gpointer data)
 }
 
 
-gint j = 0;
-
 void OnPlay(GtkWidget *pWidget, gpointer data)
 {
 
@@ -567,6 +566,13 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 	    j=0;
 	}
+ 
+    }
+    if (stop && pause)
+    {
+    	j=0;
+        angle=0;
+        play = !play;
     }
 } 
 
