@@ -85,7 +85,7 @@ void *quantizate(float *x, size_t *n, const float factor, int *nbbits)
     min = max = 0;
     for (i = 0; i < *n; i++)
     {
-	if (is_pow2(i))
+	if ((i < *n / 2 && is_pow2(i)) || (i > *n / 2 && is_pow2(i - *n / 2)))
 	    real_factor *= 1.0f;
 	if (i == *n / 2)
 	    real_factor = factor;
@@ -147,7 +147,7 @@ float *dequantizate(uint8_t *x, size_t *n, const float factor, int nbbits)
     offset = 0;
     for (i = 0; i < nb_elmts; i++)
     {
-	if (is_pow2(i))
+	if ((i < *n / 2 && is_pow2(i)) || (i > *n / 2 && is_pow2(i - *n / 2)))
 	    real_factor *= 1.0f;
 	if (i == *n / 2)
 	    real_factor = factor;
