@@ -1,17 +1,24 @@
 #include "ihy.h"
 
-void interpolate(int16_t *samples, size_t nb, int ch)
+void interpolate(int16_t *samples, size_t nb, size_t ch)
 {
+    static int16_t *last = NULL;
     size_t i;
 
-    ch -= 1;
-    for (i = 1 + ch; i < nb - 1 - ch; i++)
+    if (last)
     {
-	if (samples[i - 1 - ch] && !samples[i] && samples[i + 1 + ch])
+	for (i = 0; i < ch; i++)
 	{
-	    samples[i] = (samples[i - 1 - ch] + samples[i + 1 + ch]) / 2;
+	    if (!last[i + 2])
+		last[i + 2] = (last[i] + samples[i]) / 2;
 	}
     }
+    for (i = ch; i < nb - ch; i++)
+    {
+	if (samples[i - ch] && !samples[i] && samples[i + ch])
+	    samples[i] = (samples[i - ch] + samples[i + ch]) / 2;
+    }
+    last = &samples[nb - 2 * ch];
 }
 
 void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)

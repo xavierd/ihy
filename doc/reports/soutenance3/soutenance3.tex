@@ -142,6 +142,7 @@ A REMPLIR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
 \section{Troisième soutenance}
 \subsection{Nouvelles techniques de compression}
+\subsubsection{N'écrire que ce qui est utile}
 Pour cette troisième et dernière soutenance, nous avons cherché à compresser un
 maximum le signal audio. Pour cela nous avons encore une fois chercher à savoir
 ce qui prenait le plus de place. Première constatation, il ne sert à rien
@@ -149,7 +150,68 @@ d'écrire le ``dernier tableau des coefficients d'ondelettes''. En effet, quoi
 qu'il arrive, on passe tous les coefficients à 0, car il s'agit des coefficients
 représentant les hautes fréquences. Cela nous a permis de gagner un peu plus de
 place.\\
+\subsubsection{La quantification}
 Mais voilà, le fichier ihy est encore trop gros, certes la qualité d'écoute est
-au rendez-vous, mais la taille n'y est pas.
+au rendez-vous, mais la taille n'y est pas. Pour diminuer encore la taille, il
+nous a fallu regarder du coté des codecs concurrents, pour regarder les
+techniques employées. Il y en a une qui est utilisée dans tous les codecs, même
+dans un fichier wav. Il s'agit d'une technique de compression appelée
+quantification.\\
+Cela consiste à passer du monde des nombres flottants au monde des entiers, qui
+sont plus simple et surtout plus facilement compressible. En effet, le half
+float que l'on utilisait jusqu'à présent pour diminuer la taille du fichier
+montrait ses limites pour des coefficients de grande amplitudes, on pouvait
+entendre des artefacts dans le signal reconstitué.\\
+La quantification nous permet donc de transformer tous nos coefficients
+flottants en coefficients entier. La formule que l'on utilisait lors de nos
+premiers tests était la suivante :
+$$ k = sign\left(f\right) * \left\lfloor\left|\frac{f}{factor}\right|
+							    \right\rfloor$$
+Avec $k$ le coefficient quantifié, $f$ le coefficient à quantifié, $sign$ qui
+renvois le signe de $f$ et $factor$ qui est le facteur de quantification, plus
+celui-ci est important, plus la quantification est importante, donc plus
+l'amplitude de $k$ sera faible. La décompression se fait avec la formule
+suivante :
+$$ f = sign\left(k\right) * \left(\left|k\right| + 0,5 \right) * factor$$
+Cela nous permet de retrouver les coefficients flottants précédemment
+quantifiés, en ayant bien entendu un peu de perte. Lors de nos premiers tests
+expérimentaux, nous avons essayés avec un $factor$ de 80. Les résultats étaient
+extrêmement encourageant, en effet, pour un fichier wav de 11méga-octets, nous
+n'avions plus qu'un fichier ihy de 2méga-octets!! Bien évidement, la qualité
+n'était absolument pas au rendez-vous.\\
+Pour diminuer encore la taille du fichier, sans impacter la qualité, on a
+cherché à écrire les coefficients quantifiés sur exactement le nombre de bit
+nécessaire. Par exemple, si l'on avait des coefficients allant de -125 à 110,
+nous pouvions sans aucuns problèmes coder ceux-ci sur 8bits\footnote{il s'agit
+là de l'amplitude de coefficients quantifiés avec un $factor$ de 80}, la taille
+du fichier se retrouvant divisé par 2 par rapport au half float.\\
+Une autre formule nous est venue à l'esprit, qui est directement liée à la façon
+dont l'oreille humaine fonctionne. Un homme va facilement détecter une variation
+de fréquence de 100hertz lorsqu'on se situe dans des fréquences basses, par
+contre, il ne va pas du tout le sentir dans les fréquences hautes. Au niveau des
+coefficients, cela signifie que plus un coefficient est élevé, plus il
+représente une fréquence élevée. Grâce à cette analyse, on a cherché une formule
+nous permettant de refléter ce défaut de l'oreille :
+$$ k = sign\left(f\right) * \left|\frac{f}{factor}\right|^{\frac{3}{4}}$$
+et la décompression :
+$$ f = sign\left(k\right) * \left|k\right|^{\frac{4}{3}} * factor$$
+Ces deux formules nous ont permis d'augmenter considérablement la qualité, mais
+également de diminuer la taille du fichier, le nombre de bit nécessaire pour
+coder un gros coefficient diminue fortement. Le même fichier wav quantifiée à
+l'aide de cette formule nous permet d'avoir une bonne qualité audio à des débits
+binaires faible.
+\subsection{Débits binaire}
+À l'aide de la quantification, nous pouvions désormais jouer sur la taille du
+fichier final, ou plutôt, sur la taille de chaque chunk. En effet, en modifiant
+le $factor$, nous pouvons augmenter la compression, ou au contraire, la
+diminuer. Pour obtenir un débit binaire intéressant, on commence avec un
+$factor$ faible, on compresse à l'aide de la quantification, puis on passe par
+l'algorithme de Huffman. Là deux possibilités : soit la taille est intéressante
+auquel cas on peut continuer, soit elle est encore trop grosse auquel cas il ne
+reste plus qu'à recommencer avec un $factor$ plus important.\\
+Il ne nous restait plus qu'à définir un certains nombre de débits en fonction de
+la qualité audio recherchée. Quatre qualités sont disponible, auxquelles sont
+associées quatre débits binaire, du plus faible au plus important : 128 kbits/s,
+192 kbits/s, 256 kbits/s et 320 kbits/s.
 
 \end{document}
