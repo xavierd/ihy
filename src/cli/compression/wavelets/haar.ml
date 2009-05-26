@@ -15,7 +15,7 @@ let showBig a f =
     f a.{i};
     print_newline ();
   done
-
+    
 let echan signal p bInf bSup =
   let nbrPoints = iof ((bSup -. bInf)/.p) in
   let res = Bigarray.Array1.create (Bigarray.float32)
@@ -125,16 +125,45 @@ let egalize (t : float_array) cut s =
 	()
     done
 
+let hf (t : float_array) =
+  let len = Bigarray.Array1.dim t in
+    for i = len / 4 to (len / 2) - 1 do
+      if (abs_float t.{i}) < 50. then
+	t.{i} <- 0.
+      else
+	()
+    done;
+    ()
+
+let mask (t : float_array) = 
+  let len = Bigarray.Array1.dim t in
+    for i = len / 4 to (len / 2) - 1 do
+      if i mod 2 == 0 then
+	let x = ref 0. in
+	  for j=12 downto 5 do
+	    x := !x +. (abs_float t.{(iof (2.**(foi j))) + i / ((15-j)*2)})
+	  done;
+	  if !x > 150000. then
+	      t.{i} <- 0.
+	  else
+	    ()
+      else
+	()
+    done;
+    ()
+
 let compress (t : float_array) =
-  removeFirsts t 2;
+  (*  hf t;*) 
+  mask t;
+  (*removeFirsts t 2;*)
   (*removeSeuil t 2 80.;*)
 (*   egalize t 2 30.; *)
 (*   removeSeuil t 2 30.; *)
 t
 
 let coef =
-(*   (2. ** (-.(1.)/.(2.))) *)
-  1. /. 2.
+   (2. ** (-.(1.)/.(2.)))
+ (* 1. /. 2.*)
 
 let filter_direct x y =
     coef *. (x +. y)
@@ -143,11 +172,11 @@ let filter_directD x y =
     coef *. (y -. x)
 
 let filter_reverse (y  : float) (x : float) op=
-(*
+
   let coef' = coef *. 2.  in
     (op y x) /. coef'
- *)
-  (op y x)
+
+(*  (op y x) *)
 
 
 let haar_direct (a : float_array) =
