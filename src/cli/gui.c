@@ -56,6 +56,8 @@ gint j = 0;
 
 
 
+
+
 enum {
     STRING_COLUMN,
     TOGGLE_COLUMN,
@@ -353,10 +355,13 @@ int main(int argc, char **argv)
     gtk_widget_set_app_paintable(pWindow, TRUE);
 
     if (gtk_notebook_get_current_page(GTK_NOTEBOOK(pNotebook)) == 0)
+    { 
+        /*speed of the stars*/
+        g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
+    }
+    else
     {
-
-	/*speed of the stars*/
-	g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
+        g_source_remove(30);
     }
 
     gtk_main();
