@@ -34,7 +34,7 @@ Ce rapport sera découpée en plusieurs parties, en premier lieu, la reprise
 intégrale du cahier des charges, pour mettre en relief ce que nous voulions
 faire et ce que nous avons finalement réalisé. En deuxième partie nous verrons
 la chronologie du projet tel que nous l'avons fait. Enfin la dernière partie
-A REMPLIR.\\
+exprimera nos regrets sur ce projet.
 
 \tableofcontents
 
@@ -212,6 +212,81 @@ reste plus qu'à recommencer avec un $factor$ plus important.\\
 Il ne nous restait plus qu'à définir un certains nombre de débits en fonction de
 la qualité audio recherchée. Quatre qualités sont disponible, auxquelles sont
 associées quatre débits binaire, du plus faible au plus important : 128 kbits/s,
-192 kbits/s, 256 kbits/s et 320 kbits/s.
+192 kbits/s, 256 kbits/s et 320 kbits/s.\\
+Ainsi, les chunks contenant peu d'informations seront codés avec un maximum de
+bits, assurant la beauté du signal, alors que les chunks ayant beaucoup
+d'informations seront au contraire sur-compressés impliquant un signal de plus
+en plus détruit, l'oreille a tendance à fait abstraction des défauts.
+\subsection{Ondelettes}
+\subsection{Psychoacoustique}
+\subsection{Interface graphique}
+\subsection{Comparaison inter-codecs}
+La section précédente implique directement celle-ci. Mais que vaut réellement
+notre codec? Est-il performant? Est-il à la hauteur? Remplacera-t'il le mp3 dans
+nos lecteurs portables?\\
+Nous pourrions vous montrer des graphiques, des analyses du spectre audio et
+autres fioritures pour vous prouver que notre codec est à la hauteur. Mais ce
+que cela ne montrerai pas c'est la qualité auditive. Pour cela rien de vaut une
+écoute à l'aveugle, et sur ce point, il faut le dire\footnote{Attention à la
+déception}, le son est inaudible a 128 kbits/s. Le son original est certes
+toujours présent mais perdu au milieu d'un souffle ambiant. Pour faire une
+comparaison avec ce qui a existé, il suffit de reprendre un vieux vinyle qui a
+pris la poussière pendant une dizaine d'année (voir plus) et de l'écouter, il
+suffit d'imaginer le son que cela risque de produire pour grincer des dents et
+avoir peur pour ses oreilles.\\
+Par contre, a des débits plus élevés, c'est à dire 256 kbits/s et 320 kbits/s,
+le son est parfaitement audible et peut même être comparé avec le son original.
+Les seuls différences se situent au niveau des moments ``intense'', ou le
+souffle commence un peu à se faire sentir (il faut néanmoins tendre l'oreille ou
+être habitué).\\
+Il est de notoriété publique que les tests de codecs se font dans des débits
+faibles, et que passer 256kbits/s, tous se ressemble et peu de gens sont capable
+de dire quel codec est meilleur. Le notre en fait heureusement parti.
+\chapter{Regrets}
+Il s'agit bien évidement du fait que notre codec n'est pas en mesure de
+concurrencer les codecs usuellement utilisés tels que le mp3, vorbis, wma, \ldots.
+De plus, quelques algorithmes aurait pu être utilisés autrement, et d'autre
+utilisés.\\
+\section{Algorithme de Huffman}
+Commençons par l'algorithme de Huffman. Dans son implantation actuelle, on doit,
+pour chaque chunk reconstruire un nouvel arbre et le réécrire intégralement.
+Bien sûr cela a l'avantage de produire des arbres localement parfait (dans le
+sens ou il encore de façon optimale), mais cela a l'inconvénient d'avoir à
+écrire l'arbre. Un arbre prend de façon exacte 771 octets, dans notre
+implémentation actuelle, soit 771 octets pour trois-quarts de seconde dans le
+cas d'un signal double canaux. Soit, en chiffrant, 8 kbits/s de base, sans avoir
+aucun signal, ce qui est dans les débits que l'on utilise, peu, mais dans le cas
+d'un véritable codec, ie qui peut encoder a 64 kbits/s, beaucoup.\\
+La solution aurai été d'avoir une base de donnée de plusieurs arbres de Huffman
+et de choisir le meilleur pour chaque chunk.
+\section{Quantification vectorielle}
+La quantification vectorielle, autre technique de quantification est notamment
+utilisée dans le codec vorbis, elle permet de quantifier des flottants de façon
+plus juste qu'une simple quantification, permettant d'avoir le moins de perte
+possible, tout en conservant une très bonne qualité après reconstitution. Il
+s'agit plus ou moins d'une étude statistique des coefficients, avec évolution
+intelligente, implanté à l'aide d'un réseau de neurones.\\
+On peut considérer que cela aurai améliorer grandement la qualité sans impacter
+la taille du fichier.
+\section{Allocateur de bits}
+Derrière ces termes un peu barbare se cache une chose très simple. Plutôt que de
+faire comme on l'a fait, c'est à dire avec un bitrate constant sur tous les
+chunks, il s'agit d'allouer un nombre de bit fixe qui servira pour tout le
+fichier, que l'on peut calculer simplement en multipliant le débit que l'on
+souhaite par la durée de la musique.\\
+Il s'agit ensuite de correctement distribuer l'espace disponible aux chunks les
+plus nécessiteux, c'est-à-dire aux chunks dont la compression déforme le plus le
+signal. Si le procédé est correctement réalisé, on se retrouve avec un signal
+qui ne peut être meilleur pour le bitrate demandé.
+\chapter{Conclusion}
+Pour résumer le projet, je dirai qu'il s'agissait d'un projet plus qu'ambitieux,
+frôlant avec la recherche. En effet, on ne peut pas dire que les ondelettes
+pullulent sur internet. On a essayé, on a presque réussi, il ne faut pas perdre
+également de vue que nous ne sommes que 4 étudiants n'ayant aucune expérience
+dans le domaine de la compression audio, codant sur une durée de 6mois.\\
+Ce projet est donc une belle réussite si l'on considère les éléments
+précédents, malgré le fait qu'il ne réalise pas nos espoirs, à savoir la
+disparition du mp3 et de sa qualité plus que médiocre\footnote{l'hôpital qui se
+fout de la charité}.
 
 \end{document}
