@@ -15,7 +15,8 @@ else
 endif
 
 CSRC=codecs/wav.c codecs/ihy.c audio_output/ao.c audio_output/wav_streaming.c \
-     audio_output/ihy_streaming.c compression/quantization.c \
+     audio_output/ihy_streaming.c audio_output/gui_streaming.c \
+     compression/quantization.c \
      compression/wavelet.c compression/ihy.c compression/huffman.c \
      utils/queue.c utils/buffer.c utils/half.c main_threading.c
 COBJ=${CSRC:.c=.o}
