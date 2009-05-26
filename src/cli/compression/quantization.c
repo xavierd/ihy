@@ -89,7 +89,8 @@ void *quantizate(float *x, size_t *n, const float factor, int *nbbits)
 	    real_factor *= 1.0f;
 	if (i == *n / 2)
 	    real_factor = factor;
-	q[i] = sign(x[i]) * sqrtf(abs(x[i]) / real_factor);
+	/*q[i] = sign(x[i]) * sqrtf(abs(x[i]) / real_factor);*/
+	q[i] = sign(x[i]) * powf(abs(x[i]) / real_factor, 3.0f / 4.0f);
 	/*q[i] = sign(x[i]) * floorf(abs(x[i] / factor));*/
 	if (q[i] > max)
 	    max = q[i];
@@ -156,7 +157,8 @@ float *dequantizate(uint8_t *x, size_t *n, const float factor, int nbbits)
 	if (nb == 0)
 	    res[i] = 0.0f;
 	else
-	    res[i] = sign(nb) * powf(abs(nb), 2) * real_factor;
+	    /*res[i] = sign(nb) * powf(abs(nb), 2) * real_factor;*/
+	    res[i] = sign(nb) * powf(abs(nb), 4.0f / 3.0f) * real_factor;
 	    /*res[i] = sign(nb) * (abs(nb) + 0.5f) * factor;*/
     }
     *n = nb_elmts;
