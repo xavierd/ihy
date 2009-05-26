@@ -9,19 +9,19 @@
 #define TAILLE_MAX 78
 
 
-int points[11][2] = { 
-    { 0, 85 }, 
-    { 75, 75 }, 
-    { 100, 10 }, 
-    { 125, 75 }, 
-    { 200, 85 },
-    { 150, 125 }, 
-    { 160, 190 },
-    { 100, 150 }, 
-    { 40, 190 },
-    { 50, 125 },
-    { 0, 85 } 
-};
+/*int points[11][2] = { 
+  { 0, 85 }, 
+  { 75, 75 }, 
+  { 100, 10 }, 
+  { 125, 75 }, 
+  { 200, 85 },
+  { 150, 125 }, 
+  { 160, 190 },
+  { 100, 150 }, 
+  { 40, 190 },
+  { 50, 125 },
+  { 0, 85 } 
+  };*/
 
 
 void OnPlay(GtkWidget *pWidget, gpointer data);
@@ -36,6 +36,7 @@ static void OnClear(GtkWidget *pWidget, gpointer data);
 void OnBefore(GtkWidget *pWidget, gpointer data);
 void OnAfter(GtkWidget *pWidget, gpointer data);
 void OnQuit(GtkWidget *pWidget, gpointer data);
+void OnStar(GtkWidget *pWidget, gpointer data);
 GtkListStore *pListStore;
 GtkListStore *pListStore2;
 gboolean stop = TRUE;
@@ -48,6 +49,7 @@ GtkWidget   *pListView;
 GtkWidget   *pListView2;
 gchar *sTitle;
 gchar *sChemin;
+GtkWidget   *pNotebook;
 static gdouble angle = 0;
 gint j = 0;
 
@@ -73,8 +75,9 @@ on_expose_event(GtkWidget *widget,
     cairo_t *cr;
     gint width, height;
     gint i;
-    static gdouble scale = 1;
-    static gdouble delta = 0.01;
+    gdouble y,h;
+    /*static gdouble scale = 1;*/
+    /*static gdouble delta = 0.01;*/
 
     widget = widget;
     event = event;
@@ -89,38 +92,63 @@ on_expose_event(GtkWidget *widget,
     cairo_rectangle(cr, 0, 0, width, height);
     cairo_fill(cr);
 
+    y = 450;
+    h = 150;
+
+    for ( i = 1; i <= 10; i++) {
+	cairo_set_source_rgba(cr, 0, 0, 1, 1);
+	cairo_rectangle(cr, 42*i, y, 40, h);
+	cairo_fill(cr);
+    }
+
     /*Choose the color of the stars*/
-    cairo_set_source_rgb(cr, 0, 0.44, 0.7);
-    cairo_set_line_width(cr, 1);
+    /*cairo_set_source_rgb(cr, 0, 0.44, 0.7);
+      cairo_set_line_width(cr, 1);*/
 
     /*Here we make move the first star*/
-    cairo_save(cr);
-    cairo_translate(cr, width / 2, height / 2 );
-    cairo_rotate(cr, angle);
+    /*cairo_save(cr);
+      cairo_translate(cr, width / 2, height / 2 );
+      cairo_rotate(cr, angle);*/
 
     /*We shift the first star into the middle of the window. Rotate it and scale it.*/ 
 
-    for ( i = 0; i < 10; i++ ) {
-	cairo_line_to(cr, points[i][0], points[i][1]);
-    }
+    /*for ( i = 0; i < 10; i++ ) {
+      cairo_line_to(cr, points[i][0], points[i][1]);
+      }
 
-    cairo_close_path(cr);
-    cairo_stroke_preserve(cr);
-    cairo_fill(cr);
+      cairo_close_path(cr);
+      cairo_stroke_preserve(cr);
+      cairo_fill(cr);*/
 
     /*cairo_restore(cr);*/
 
     /*Here we draw the first star*/
-    if ( scale < 0.01 ) {
-	delta = -delta;
-    } else if (scale > 0.99) {
-	delta = -delta;
-    }
+    /*if ( scale < 0.01 ) {
+      delta = -delta;
+      } else if (scale > 0.99) {
+      delta = -delta;
+      }
 
-    scale += delta;
+      scale += delta;*/
+    cairo_save(cr);
+
     if (play && pause && stop) 
     {
-	angle += 0.01;
+	/*angle += 0.01;*/
+	while ((y >= 100) && (h <= 400))
+	{
+	    cairo_restore(cr);
+	    y = y-10;
+	    h = h+10;
+
+	    for ( i = 1; i <= 10; i++) {
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    cairo_save(cr);
+	    /*cairo_destroy(cr);*/
+	}
     }
     else if (!pause)
     {
@@ -131,7 +159,7 @@ on_expose_event(GtkWidget *widget,
 	angle = 0;
     }
 
-    /*cairo_destroy(cr);*/
+    cairo_destroy(cr);
 
     return FALSE;
 }
@@ -160,7 +188,6 @@ int main(int argc, char **argv)
     GtkWidget   *new;
     GtkWidget   *open;
     GtkWidget   *sep;
-    GtkWidget   *pNotebook;
     gchar       *sTabLabel;
     GtkWidget   *pTabLabel;
     GtkWidget   *pTabLabel2;
@@ -349,25 +376,31 @@ int main(int argc, char **argv)
     g_signal_connect(G_OBJECT(pButton[4]), "clicked", G_CALLBACK(OnRemove), data);
     g_signal_connect(G_OBJECT(pButton[6]), "clicked", G_CALLBACK(OnClear), NULL);
     g_signal_connect(G_OBJECT(pButton[5]), "clicked", G_CALLBACK(OnDown), data);
+    /*g_signal_connect(GTK_NOTEBOOK(pNotebook), "select-page", G_CALLBACK(OnStar), data);*/
 
     gtk_widget_show_all(pWindow);
 
     gtk_widget_set_app_paintable(pWindow, TRUE);
 
-    if (gtk_notebook_get_current_page(GTK_NOTEBOOK(pNotebook)) == 0)
-    { 
-        /*speed of the stars*/
-        g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
-    }
-    else
-    {
-        g_source_remove(30);
-    }
+    /*speed of the stars*/
+    g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
 
     gtk_main();
 
     return EXIT_SUCCESS;
 }
+
+/*void OnStar(GtkWidget *pWidget, gpointer data)*/
+/*{
+  pWidget = pWidget;
+  data = data;
+  if (gtk_notebook_get_current_page(GTK_NOTEBOOK(pNotebook)) == 0) 
+  {
+  g_source_remove(30);
+  printf("caca\n");
+  }
+  }*/
+
 
 char* title(const char* chaine)
 {
@@ -571,13 +604,13 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 	    j=0;
 	}
- 
+
     }
     if (stop && pause)
     {
-    	j=0;
-        angle=0;
-        play = !play;
+	j=0;
+	angle=0;
+	play = !play;
     }
 } 
 
