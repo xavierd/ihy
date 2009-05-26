@@ -104,7 +104,7 @@ ce problème, nous avons réfléchis à comment réduire significativement la ta
 du fichier, ou vu d'une autre façon : qu'est-ce qui fait grossir le fichier
 inutilement? La réponse a cette question est simple : la taille d'un coefficient
 d'ondelette est deux fois plus gros qu'un échantillon. Nous avons donc codé un
-coefficient sur 16 à l'aide des ``half floats'', ce qui nous permettait nous
+coefficient sur 16bits à l'aide des ``half floats'', ce qui nous permettait non
 seulement de réduire considérablement la taille du fichier ihy, mais aussi de
 passer en dessous de la taille du fichier wav. Nous pouvions désormais appeler
 notre codec de codec compressif.\\
@@ -114,5 +114,42 @@ hautes fréquences du signal, qui sont inaudibles à l'oreille humaine. Couplée
 Huffman, cela nous a permis d'atteindre les 50\% de compression, toujours très
 loin d'un codec comme le mp3 qui compresse ``sans dommages'' jusqu'à 12 fois la
 taille originale.\\
+Au rang des changements, on peut également noter l'apparition de la lecture du
+fichier ihy en streaming, afin de pouvoir lire directement le fichier, sans
+avoir à le décompresser. Également présent, la compression de façon parallèle
+réalisée à l'aide des ``forks'' et des ``shared memory''
+\subsection{L'interface graphique}
+Cette dernière a bien avancé depuis la soutenance précédente. En effet, nous
+avons désormais une zone de dessin dans laquelle deux étoiles tournent, il
+s'agit là de la première étape vers un spectrographe fonctionnel, en effet, nous
+pouvons désormais dessiner ce que l'on souhaite et l'animer au sein de cette
+zone de dessin. On retrouve bien évidement, comme à la soutenance précédente,
+une barre de progression ainsi que trois boutons : play, pause et stop.
+\subsection{Le petit imprévu}
+Cette soutenance avait un petit imprévu plutôt sympathique. Nous avions porté le
+codec sur iPhone, qui représente en lui-même une petite prouesse technique,
+l'iPhone n'étant absolument pas considéré comme performant. Il faut également
+considérer qu'Apple n'a aucun intérêt a montré comment faire pour lire
+différents codecs que ceux qu'il autorise, il a donc fallu fouiller dans la doc,
+utiliser des fonction assez peu documentées (et utilisées nulle part sur
+internet).\\
+Toujours est-il que cela fonctionne, et donc n'importe qui peut désormais
+écouter un fichier ihy, ou qu'il se trouve, sur un iPhone.
+\subsection{Conclusion partielle}
+A REMPLIR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+\newpage
+
+\section{Troisième soutenance}
+\subsection{Nouvelles techniques de compression}
+Pour cette troisième et dernière soutenance, nous avons cherché à compresser un
+maximum le signal audio. Pour cela nous avons encore une fois chercher à savoir
+ce qui prenait le plus de place. Première constatation, il ne sert à rien
+d'écrire le ``dernier tableau des coefficients d'ondelettes''. En effet, quoi
+qu'il arrive, on passe tous les coefficients à 0, car il s'agit des coefficients
+représentant les hautes fréquences. Cela nous a permis de gagner un peu plus de
+place.\\
+Mais voilà, le fichier ihy est encore trop gros, certes la qualité d'écoute est
+au rendez-vous, mais la taille n'y est pas.
 
 \end{document}

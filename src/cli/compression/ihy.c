@@ -1,5 +1,19 @@
 #include "ihy.h"
 
+void interpolate(int16_t *samples, size_t nb, int ch)
+{
+    size_t i;
+
+    ch -= 1;
+    for (i = 1 + ch; i < nb - 1 - ch; i++)
+    {
+	if (samples[i - 1 - ch] && !samples[i] && samples[i + 1 + ch])
+	{
+	    samples[i] = (samples[i - 1 - ch] + samples[i + 1 + ch]) / 2;
+	}
+    }
+}
+
 void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)
 {
     size_t size;
@@ -23,6 +37,7 @@ void uncompress_chunk(ihy_chunk *chunk, int8_t *samples, int channels)
     /* Wavelets */
     wavelets_inverse(tmp, size, channels, samples);
     /* End Wavelets */
+    interpolate((int16_t *)samples, size * 2, channels);
 }
 
 static size_t bitrate(ihy_quality q)

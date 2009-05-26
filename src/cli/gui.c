@@ -49,6 +49,9 @@ GtkWidget   *pListView2;
 gchar *sTitle;
 gchar *sChemin;
 static gdouble angle = 0;
+gint j = 0;
+
+
 
 
 
@@ -123,7 +126,7 @@ on_expose_event(GtkWidget *widget,
     {
 	cairo_save(cr);
     }
-    else if (!stop)
+    else if ((!stop) || (j==0))
     {
 	angle = 0;
     }
@@ -352,10 +355,13 @@ int main(int argc, char **argv)
     gtk_widget_set_app_paintable(pWindow, TRUE);
 
     if (gtk_notebook_get_current_page(GTK_NOTEBOOK(pNotebook)) == 0)
+    { 
+        /*speed of the stars*/
+        g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
+    }
+    else
     {
-
-	/*speed of the stars*/
-	g_timeout_add(30, (GSourceFunc) time_handler, (gpointer) pWindow);
+        g_source_remove(30);
     }
 
     gtk_main();
@@ -527,8 +533,6 @@ void OnQuit(GtkWidget *pWidget, gpointer data)
 }
 
 
-gint j = 0;
-
 void OnPlay(GtkWidget *pWidget, gpointer data)
 {
 
@@ -567,6 +571,13 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 	    j=0;
 	}
+ 
+    }
+    if (stop && pause)
+    {
+    	j=0;
+        angle=0;
+        play = !play;
     }
 } 
 
