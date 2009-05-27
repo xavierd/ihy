@@ -17,5 +17,4 @@ uninstall:
 
 clean:
 	${MAKE} -C src/cli clean
-	${MAKE} -C src/gui clean
 	${MAKE} -C src/compare clean

@@ -140,11 +140,8 @@ void destroy_gui_streaming(t_playdata played)
     }
     buffer_add(NULL, played->buffer);
     played->pause_status = 0;
-    printf("caca\n");
     pthread_join(played->playing_thread, NULL);
-    printf("caca\n");
     pthread_join(played->filling_thread, NULL);
-    printf("caca\n");
     buffer_destroy(played->buffer);
     free(played);
 }
