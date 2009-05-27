@@ -154,7 +154,7 @@ let mask (t : float_array) =
 
 let compress (t : float_array) =
   (*  hf t;*) 
-  mask t;
+(*   mask t; *)
   (*removeFirsts t 2;*)
   (*removeSeuil t 2 80.;*)
 (*   egalize t 2 30.; *)
@@ -162,8 +162,8 @@ let compress (t : float_array) =
 t
 
 let coef =
-   (2. ** (-.(1.)/.(2.)))
- (* 1. /. 2.*)
+(*    (2. ** (-.(1.)/.(2.))) *)
+  1. /. 2.
 
 let filter_direct x y =
     coef *. (x +. y)
@@ -172,11 +172,11 @@ let filter_directD x y =
     coef *. (y -. x)
 
 let filter_reverse (y  : float) (x : float) op=
-
+(*
   let coef' = coef *. 2.  in
     (op y x) /. coef'
-
-(*  (op y x) *)
+ *)
+ (op y x)
 
 
 let haar_direct (a : float_array) =
