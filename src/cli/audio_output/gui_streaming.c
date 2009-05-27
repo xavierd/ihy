@@ -82,8 +82,8 @@ static void *filling_thread_action(void *data)
 	buffer_add(to_add, data2->buffer);
 	(*data2->current_offset)++;
     }
-
-    buffer_add(NULL, data2->buffer);
+    if (!(*data2->status))
+	buffer_add(NULL, data2->buffer);
 
     return NULL;
 }
@@ -139,8 +139,12 @@ void destroy_gui_streaming(t_playdata played)
 	    free(tmp);
     }
     buffer_add(NULL, played->buffer);
+    played->pause_status = 0;
+    printf("caca\n");
     pthread_join(played->playing_thread, NULL);
+    printf("caca\n");
     pthread_join(played->filling_thread, NULL);
+    printf("caca\n");
     buffer_destroy(played->buffer);
     free(played);
 }
