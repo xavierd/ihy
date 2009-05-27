@@ -45,11 +45,38 @@ et de très bonne qualité et n'est recommandé qu'aux audiophiles.
 Un fichier ihy est composé avant tout d'un header principal sur tout le fichier,
 ainsi qu'un header particulier pour chaque ``chunk''. Un fichier ihy étant
 découpé en plusieurs ``chunks'' de taille fixe.\\
+\subsection{Champs principaux}
 Les 4 premiers octets du fichier, sont les octets de reconnaissance du fichier.
-Il s'agit du ``magick number'' du ihy, qui est égal à :
-\begin{lstlisting}[frame=single]
-SNXT
-\end{lstlisting}
-Suit ensuite, 8 octets représentant la taille totale du fichier ihy.
+Il s'agit du ``magick number'' du ihy, qui est égal à : SNXT
+Suit ensuite, 8 octets\footnote{Sauf contre indication, lorsque l'on parle d'une
+taille, il s'agit d'un nombre non signé}
+représentant la taille totale du fichier ihy, ce dernier
+champs n'est pas indispensable et peut même valoir 0.\\
+Le champs suivant qui est codé sur 2octets, correspond au type de compression
+effectuée sur le fichier. Il s'agit avant tout d'un champ réservé pour de
+futures applications et extensions du codec. Par défaut, lorsque ce champs est
+nul, on y applique les compressions de base (voir plus bas).\\
+Deux champs suivent enfin, le nombre de canaux, sur un octet ainsi que la
+fréquence d'échantillonnage sur 4 octets.\\
+\subsection{Tags audio}
+Notre codec peut également contenir des tags audio, pour que l'identification
+d'une piste soit facilitée. On a donc, dans l'ordre, sur 2 octets, la taille du
+champ artiste qui le suit, sur 2octets encore, la taille du champs suivant
+qui est le titre de la musique. Suivent l'année, sur 2 octets et le genre
+musical sur 1
+octet. Pour le genre, on se référera aux même genres que l'ID3. Enfin les deux
+derniers champs sont dédiés aux commentaire, avec sur 4 octets la taille du
+commentaire qui le suit.
+\subsection{Les données}
+Le header principal se finit sur 3 champs, surement les plus importants. Le
+premier, sur 4 octets, représente la taille non compressée d'un chunk, un chunk
+ayant une taille constante sur tout le fichier.\\
+Le champs suivant, encore sur 4 octets, représente le nombre de chunk que le
+fichier possède. Enfin, le dernier champ est un tableau de chunk et se finit
+avec la fin du fichier.
+\subsection{Format d'un chunk}
+Commençons par le dernier champ, il s'agit des données compressées que l'on ne
+peut pas réellement typer, sa taille est indiquée par le premier champ, qui est
+codé sur 4 octets
 
 \end{document}
