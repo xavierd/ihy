@@ -293,6 +293,16 @@ time_handler (GtkWidget *widget)
     return TRUE;
 }
 
+static gboolean my_quit(GtkWidget *widget)
+{
+    stop = 0;
+    widget = widget;
+    destroy_gui_streaming(playdata);
+    gtk_main_quit();
+
+    return 0;
+}
+
 
 int main(int argc, char **argv)
 {
@@ -338,7 +348,7 @@ int main(int argc, char **argv)
     gtk_widget_add_events (pWindow, GDK_BUTTON_PRESS_MASK);
     gtk_window_set_default_size(GTK_WINDOW(pWindow), 500, 500);
     gtk_window_set_title(GTK_WINDOW(pWindow), "Ihy Player");
-    g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(gtk_main_quit), NULL);
+    g_signal_connect(G_OBJECT(pWindow), "destroy", G_CALLBACK(my_quit), NULL);
 
     /* Creation de la GtkBox verticale */
     pVBox = gtk_vbox_new(FALSE, 0);
