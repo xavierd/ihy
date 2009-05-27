@@ -74,7 +74,7 @@ static void *filling_thread_action(void *data)
 
     data2 = data;
 
-    while (!(*(data2->status)) && (*data2->current_offset <= data2->ihy->NbChunk))
+    while (!(*(data2->status)) && (*data2->current_offset < (int)data2->ihy->NbChunk))
     {
 	chunk = &(data2->ihy->DataChunks[*data2->current_offset]);
 	to_add = calloc(data2->ihy->ChunkSize * 2, 1);
@@ -131,11 +131,12 @@ void destroy_gui_streaming(t_playdata played)
 {
     int *tmp;
 
-    played->stop_status = 0;
+    played->stop_status = 1;
     while (!buffer_isempty(played->buffer))
     {
-	buffer_get(played->buffer);
-	free(tmp);
+	tmp = buffer_get(played->buffer);
+	if (tmp)
+	    free(tmp);
     }
     buffer_add(NULL, played->buffer);
     pthread_join(played->playing_thread, NULL);
