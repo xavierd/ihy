@@ -247,6 +247,54 @@ coefficients correspondaient a quels frequences. La nous avons reussi
 a supprimer certains coefficients qui n'influent pas sur la qualite du
 son mais le gain de place est malheuresement negligeable avec cette technique.
 \subsection{Interface graphique}
+Pour cette dernière soutenance, l'interface graphique est belle et bien achevée.
+En effet, cette dernière contient une Playlist simple d'utilisation et un
+spectrographe qui permet à l'utiliateur de visualiser le spectre de la musique
+qui est entrain de jouer.
+\subsubsection{La Playlist}
+En quelques termes, la Playlist nous permet d'ajouter un élément à jouer au
+lecteur (biensûr au format ihy) et de retirer un élément. On peut aussi parcourir
+la Playlist ou encore la vider.\\
+En réalité, la Playlist est tout simplement un GtkListStore qui est un élément
+de la vague bibliothèque de GTK+ que nous avons utilisé tout au long de l'anné
+pour le projet. Ce dernier est assez simple d'utilisation avec des fonctions
+intuitives comme par exemple, pour ajouter un morceau dans la liste il suffit
+d'appeler la fonction gtk-list-store-append() et la mettre à jour pour un
+éventuel prochain ajout avec gtk-list-store-set(). Pour supprimer c'est aussi
+simple, il suffit de sélectionner un élément qui sera reconnu grâce à la
+fonction gtk-tree-selection-select-iter() et de le supprimer avec la fonction
+gtk-list-store-remove(). Pour la suppression de la liste entièrement et pour la
+parcourir les fonctions utilisées sont similairement intuitives. En effet, pour
+vider la Playlist on utilisera gtk-list-store-clear() et pour la parcourir
+gtk-tree-model-iter-next(), c'est une fonction destiné normalement pour les
+arbres dans GTK+ mais on peut aussi l'appeler pour les listes, il suffit juste
+de précisé dans les paramètres que nous ne sommes pas en présence d'un arbre.
+\subsubsection{La Playlist "invisible"}
+En effet, comme vous pouvez le constater lors de l'ajout de la chanson au format
+ihy dans la Playlist tout ce qui apparaît est le nom du fichier. Or, GTK+ lui,
+lors de la recherche d'un fichier, nous renvois le chemin en chaine de caractère 
+de ce dernier avec la fonction gtk-file-chooser-get-filename(). Donc pour
+afficher juste le nom il a fallu faire un simple parcour de chaine et retenir
+juste ce qui nous intéressait. Mais biensûr, pour la lecture, on avait besoin du
+chemin en entier du fichier afin de pouvoir l'utilisé directement. Donc il a
+fallu créer une nouvelle liste qui ne sera pas afficher et qui elle contient les
+chemins des différentes chansons à écouter et qui se remplit, ce vide ou se
+parcourt en même temps que la Playlist qui elle est évidemment affichée.
+\subsubsection{Le Spectrographe}
+A la soutenance précédente, nous avions deux étoiles en mouvement que nous
+avions chargé grâce à cairo qui est une bibliothèque compatible avec GTK+ et avec
+laquel on peut réaliser des transformations mathématiques. Par la suite, il nous
+fallait faire des formes géométriques qui bougeaient en fonction des fréquences
+du son. On a d'abord dans un premier lieu réussi mettre en mouvement l'étoile
+grâce à l'action du bouton "Play". En effet, lorsqu'on appuyait sur "Play"
+l'étoile qui était tout d'abord initialisé à une position précise, ce mettait à
+bouger et réalisait une rotation. Ensuite, avec le "Pause" l'étoile restait
+immobile à sa place actuel grâce à la fonction cairo-save() et le "Stop"
+réinnitialisait l'étoile à sa position initiale. Donc voilà, tout ça c'était
+bien jolie mais on ne pouvait pas encore réelement parler de spectrographe. Par
+le suite, nous décidâmes de charger toujours grâce à cairo dix rectangles qui
+changerons de dimensions différement en fonction de la fréquence du son. Un
+spectrographe classique en gros. 
 \subsection{Comparaison inter-codecs}
 La section précédente implique directement celle-ci. Mais que vaut réellement
 notre codec? Est-il performant? Est-il à la hauteur? Remplacera-t'il le mp3 dans
