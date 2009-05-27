@@ -136,8 +136,11 @@ internet).\\
 Toujours est-il que cela fonctionne, et donc n'importe qui peut désormais
 écouter un fichier ihy, ou qu'il se trouve, sur un iPhone.
 \subsection{Conclusion partielle}
-A REMPLIR !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
+Cette deuxieme soutenance a ete un grand pas dans l'avancement de
+notre projet. Nous avions enfin un codec utlile qui compressait
+reellement tout en gardant une bonne qualitee. Quel bonheur de pouvoir
+ecouter sa musique encode avec son propre codec sur son ordinateur, ou
+encore mieu, sur son balladeur.
 \newpage
 
 \section{Troisième soutenance}
@@ -218,7 +221,31 @@ bits, assurant la beauté du signal, alors que les chunks ayant beaucoup
 d'informations seront au contraire sur-compressés impliquant un signal de plus
 en plus détruit, l'oreille a tendance à fait abstraction des défauts.
 \subsection{Ondelettes}
+A la soutenance precdente, nous avions implemente la compression par
+une nouvelle famille d'ondelettes, Daubechies. Depuis, nous avons
+egalement fait la decompression, chose qui n'a pas ete facile.\\
+La, nous esperions de biens meilleurs resultats, mais nous
+avons finalement ete decu. En effet, malgres de nombreux tests sur les
+traitements des coefficients nous n'avons pas reussi a avoir de
+meilleurs resultats qu'avec l'ondelette de Haar. Nous sommes donc
+revenu en arriere et avons garde la premiere.
 \subsection{Psychoacoustique}
+Nous avons implementer deux nouvelles techniques de psychoacoustique
+qui nous a permis de supprimer une partie des coefficients sans que ce
+soit audible a l'oreille humaine.
+\subsubsection{Hautes frequences}
+Depuis la soutenance precedante nous enlevons deja les coefficients
+correspondants au hautes frequences. La nous avons affine le
+traitement en supprimant plus de coefficients correspondants aux
+petits variations aux hautes frequences. Nous avons donc deja pu
+gagner un peu de place.
+\subsubsection{Masquage}
+Lorsque a un meme moment nous avons a la fois un signal a basse
+frequence assez fort et un deuxieme a haute frequence, celui-ci est
+masque par le premier. Nous avons donc cherche a comprendre quels
+coefficients correspondaient a quels frequences. La nous avons reussi
+a supprimer certains coefficients qui n'influent pas sur la qualite du
+son mais le gain de place est malheuresement negligeable avec cette technique.
 \subsection{Interface graphique}
 \subsection{Comparaison inter-codecs}
 La section précédente implique directement celle-ci. Mais que vaut réellement
@@ -278,6 +305,15 @@ Il s'agit ensuite de correctement distribuer l'espace disponible aux chunks les
 plus nécessiteux, c'est-à-dire aux chunks dont la compression déforme le plus le
 signal. Si le procédé est correctement réalisé, on se retrouve avec un signal
 qui ne peut être meilleur pour le bitrate demandé.
+\section{Ondelettes}
+Nous avons d'abord implemente l'ondelette de Haar, ce qui a ete
+relativement simple ce qui nous a permis de rapidement atteindre de
+bons resultats. Cependant nous en esperions de bien meilleurs avec
+autre ondelette,  celles de Daubechies. Nous avons ete surpris de
+remarquer que au contraire, nous n'avions une perte de qualite. Donc,
+malgres tout nos tests et le temps perdu a implementer cette
+ondelette, nous sommes rester a Haar, que nous avions implementer des
+le commencement du projet.
 \chapter{Conclusion}
 Pour résumer le projet, je dirai qu'il s'agissait d'un projet plus qu'ambitieux,
 frôlant avec la recherche. En effet, on ne peut pas dire que les ondelettes
