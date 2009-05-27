@@ -76,7 +76,44 @@ fichier possède. Enfin, le dernier champ est un tableau de chunk et se finit
 avec la fin du fichier.
 \subsection{Format d'un chunk}
 Commençons par le dernier champ, il s'agit des données compressées que l'on ne
-peut pas réellement typer, sa taille est indiquée par le premier champ, qui est
-codé sur 4 octets
+peut pas réellement typer, sa taille est indiquée par le premier champ,
+qui est
+codé sur 4 octetss. Le champ suivant, qui est cod\'e sur 1 octet,
+repr\'esente le nombre de bit de chaque coefficients quantifi\'e. Le
+champ suivant, toujours indispensable \`a la quantification est le
+facteur de quantification, il est cod\'e sur 2 octets. Enfin, l'avant
+dernier champ repr\'esente la taille du dernier champ avant que l'on ne
+le compresse avec Huffman, il est quant \`a lui cod\'e sur 4 octets.
+\section{Algorithme utilis\'es}
+\subsection{Les ondelettes}
+Pour les ondelettes, il s'agit d'une simple ondelette de Haar, pour
+laquelle, le coefficient du filtre miroir conjugu\'e, qui vaut
+normalement $\frac{1}{\sqrt{2}}$, vaut ici $\frac{1}{2}$, ceci pour des
+probl\'emes de pr\'ecisions vis-\`a-vis de la quantification.
+\subsection{La quantification}
+Il s'agit d'une simple quantification non lin\'eaire, qui a pour formule
+:$$ k = sign\left(f\right) *
+\left|\frac{f}{factor}\right|^{\frac{3}{4}}$$
+et la décompression :
+$$ f = sign\left(k\right) * \left|k\right|^{\frac{4}{3}} * factor$$
+Avec $factor$ la puissance de la quantification.
+\subsection{Huffman}
+L'algorithme de Huffman est tr\`es simple, ce qui est particulier \`a
+notre codec c'est la facon dont est \'ecrit l'arbre de Huffman.\\
+Celle-ci est \'egalement tr\`es simple. Il s'agit d'effectuer un
+parcours largeur de l\'arbre. Lorsque l'on rencontre un noeud, on
+\'ecrit 0, lorsque l'on rencontre une feuille, on \'ecrit 1 puis le
+caract\`ere correspondant \`a la feuille. Le tout occupe tr\`es
+exactement 771. Apr\'es l'arbre de Huffman se trouve les caract\`eres
+"Huffmani\'es".
+\subsection{Ordre des algorithmes}
+L'ordre des algorithmes va de soit. Il s'agit d'effectuer la
+tranform\'ee par ondelette, puis de quantifi\'ees les coefficients selon
+la qualit\'es voulue, puis de faire le passage par Huffman.
+
+\section{Conclusion}
+Vous avez desormais tous les \'elements en main pour r\'ealiser \`a la
+fois un lecteur ihy, et un endodeur. Bon code.
+
 
 \end{document}
