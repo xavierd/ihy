@@ -190,78 +190,79 @@ on_expose_event(GtkWidget *widget,
 	{
 	    if (i==1)
 	    {
+		h = random() % 400;
 		cairo_set_source_rgba(cr, 0, 0, 1, 1);
-		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_rectangle(cr, 42*i, h, 40,  500 - h);
 		cairo_fill(cr);
 	    }
 	    else if (i==2)
 	    {
-		y = tab[2];
-		h = tab[3];
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 0, 1, 0, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
 	    else if (i==3)
 	    {   
-		y = tab[4];
-		h = tab[5];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 0, 1, 1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
 	    else if (i==4)
 	    {
-		y = tab[6];
-		h = tab[7];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 1, 0, 0, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
 	    else if (i==5)
 	    {
-		y = tab[8];
-		h = tab[9];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 1, 0, 1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
 	    else if (i==6)
 	    {
-		y = tab[10];
-		h = tab[11];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 1, 1, 0, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
 	    else if (i==7)
 	    {
-		y = tab[12];
-		h = tab[13];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 1, 1, 1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }	    
 	    else if (i==8)
 	    {
-		y = tab[14];
-		h = tab[15];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 0.5, 0, 0.5, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
 	    else if (i==9)
 	    {
-		y = tab[16];
-		h = tab[17];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 0, 0.5, .75, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
 	    else if (i==10)
 	    {
-		y = tab[18];
-		h = tab[19];    
+		y = random() % 400;
+		h = 500 - y;
 		cairo_set_source_rgba(cr, 0.2, 0, 0.1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
