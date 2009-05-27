@@ -6,6 +6,8 @@
 #include <gdk/gdkkeysyms.h>
 #include <glib/gprintf.h>
 
+#include "audio_output/gui_streaming.h"
+
 #define TAILLE_MAX 78
 
 
@@ -40,7 +42,7 @@ void OnStar(GtkWidget *pWidget, gpointer data);
 GtkListStore *pListStore;
 GtkListStore *pListStore2;
 gboolean stop = TRUE;
-gboolean pause = TRUE;
+gboolean pause2 = TRUE;
 gboolean play = FALSE;
 GtkWidget   *quit;
 GtkTreeIter pIter;
@@ -54,7 +56,7 @@ gdouble y,h;
 static gdouble angle = 0;
 gint j = 0;
 
-
+t_playdata playdata;
 
 
 
@@ -133,7 +135,8 @@ on_expose_event(GtkWidget *widget,
 
     cairo_save(cr);
 
-    if (play && pause && stop) 
+    /*scale += delta;*/
+    if (play && pause2 && stop) 
     {
 	/*angle += 0.01;*/
 	/*while ((y >= 100) && (h <= 400))*/
@@ -155,7 +158,7 @@ on_expose_event(GtkWidget *widget,
 	cairo_save(cr);
 
     }
-    else if (!pause)
+    else if (!pause2)
     {
 	cairo_save(cr);
     }
@@ -578,18 +581,24 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
     gint iTotal = 2000;
     gdouble dFraction;
 
+    ihy_data *ihy; 
     data = data;
 
     stop = TRUE;
-    pause = TRUE;
+    pause2 = TRUE;
     play = TRUE;
 
+
     /* Initialisation */
+    ihy = create_ihy();
+    read_ihy(GetFirst(), ihy);
+    playdata = create_gui_streaming(ihy);
+    play_gui_streaming(playdata);
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
     for(k = j ; k <= iTotal ; ++k)
     {
-	if (stop && pause)
+	if (stop && pause2)
 	{
 	    dFraction = (gdouble)k / (gdouble)iTotal;
 
@@ -600,7 +609,7 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	    j=j+1;
 
 	}
-	else if (!pause)
+	else if (!pause2)
 	{
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
 	}
@@ -611,7 +620,7 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	}
 
     }
-    if (stop && pause)
+    if (stop && pause2)
     {
 	j=0;
 	angle=0;
@@ -623,7 +632,7 @@ void OnPause(GtkWidget *pWidget, gpointer data)
 {
     pWidget = pWidget;
     data = data;
-    pause = !pause;
+    pause2 = !pause2;
 }
 
 void OnStop(GtkWidget *pWidget, gpointer data)
