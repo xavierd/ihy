@@ -289,6 +289,9 @@ int main(int argc, char **argv)
     height = 500;
 
     gtk_init(&argc, &argv);
+    caml_main(argv);
+
+    playdata = NULL;
 
     pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_add_events (pWindow, GDK_BUTTON_PRESS_MASK);
@@ -662,10 +665,15 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 
 
     /* Initialisation */
-    ihy = create_ihy();
-    read_ihy(GetFirst(), ihy);
-    playdata = create_gui_streaming(ihy);
-    play_gui_streaming(playdata);
+    if (!playdata)
+    {
+	ihy = create_ihy();
+	read_ihy(GetFirst(), ihy);
+	playdata = create_gui_streaming(ihy);
+    }
+    else
+	play_gui_streaming(playdata);
+
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
     for(k = j ; k <= iTotal ; ++k)
@@ -704,6 +712,7 @@ void OnPause(GtkWidget *pWidget, gpointer data)
     pWidget = pWidget;
     data = data;
     pause2 = !pause2;
+    pause_gui_streaming(playdata);
 }
 
 void OnStop(GtkWidget *pWidget, gpointer data)

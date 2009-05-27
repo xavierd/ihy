@@ -12,9 +12,6 @@ typedef struct gui_streaming_data *t_playdata;
 t_playdata create_gui_streaming(ihy_data *ihy);
 void play_gui_streaming(t_playdata played);
 void pause_gui_streaming(t_playdata played);
-void stop_gui_streaming(t_playdata played);
-void forward_gui_streaming(t_playdata played);
-void rewind_gui_streaming(t_playdata played);
 void destroy_gui_streaming(t_playdata played);
 
 #endif
