@@ -100,7 +100,46 @@ on_expose_event(GtkWidget *widget,
     h = 100;
 
     for ( i = 1; i <= 10; i++) {
-	cairo_set_source_rgba(cr, 0, 0, 1, 1);
+	if (i==1)
+	{
+	    cairo_set_source_rgba(cr, 0, 0, 1, 1);
+	}
+	else if (i==2)
+	{
+	    cairo_set_source_rgba(cr, 0, 1, 0, 1);
+	}
+	else if (i==3)
+	{   
+	    cairo_set_source_rgba(cr, 0, 1, 1, 1);
+	}
+	else if (i==4)
+	{
+	    cairo_set_source_rgba(cr, 1, 0, 0, 1);
+	}
+	else if (i==5)
+	{
+	    cairo_set_source_rgba(cr, 1, 0, 1, 1);
+	}
+	else if (i==6)
+	{
+	    cairo_set_source_rgba(cr, 1, 1, 0, 1);
+	}
+	else if (i==7)
+	{
+	    cairo_set_source_rgba(cr, 1, 1, 1, 1);
+	}	    
+	else if (i==8)
+	{
+	    cairo_set_source_rgba(cr, 0.5, 0, 0.5, 1);
+	}
+	else if (i==9)
+	{
+	    cairo_set_source_rgba(cr, 0, 0.5, .75, 1);
+	}
+	else if (i==10)
+	{
+	    cairo_set_source_rgba(cr, 0.2, 0, 0.1, 1);
+	}
 	cairo_rectangle(cr, 42*i, y, 40, h);
 	cairo_fill(cr);
     }
@@ -159,7 +198,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[2];
 		h = tab[3];
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 0, 1, 0, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -167,7 +206,7 @@ on_expose_event(GtkWidget *widget,
 	    {   
 		y = tab[4];
 		h = tab[5];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 0, 1, 1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -175,7 +214,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[6];
 		h = tab[7];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 1, 0, 0, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -183,7 +222,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[8];
 		h = tab[9];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 1, 0, 1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -191,7 +230,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[10];
 		h = tab[11];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 1, 1, 0, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -199,7 +238,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[12];
 		h = tab[13];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 1, 1, 1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }	    
@@ -207,7 +246,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[14];
 		h = tab[15];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 0.5, 0, 0.5, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -215,7 +254,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[16];
 		h = tab[17];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 0, 0.5, .75, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -223,7 +262,7 @@ on_expose_event(GtkWidget *widget,
 	    {
 		y = tab[18];
 		h = tab[19];    
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_set_source_rgba(cr, 0.2, 0, 0.1, 1);
 		cairo_rectangle(cr, 42*i, y, 40, h);
 		cairo_fill(cr);
 	    }
@@ -652,13 +691,12 @@ void OnQuit(GtkWidget *pWidget, gpointer data)
 
 void OnPlay(GtkWidget *pWidget, gpointer data)
 {
-
     gint k;
-    gint iTotal = 2000;
     gdouble dFraction;
     char *path;
 
     data = data;
+    k = k;
 
     stop = TRUE;
     pause2 = TRUE;
@@ -684,18 +722,17 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
-    for(k = j ; k <= iTotal ; ++k)
+    while (playdata && (playdata->percentage < 100.) && (!playdata->stop_status) && (!playdata->pause_status))
     {
 	if (stop && pause2)
 	{
-	    dFraction = (gdouble)k / (gdouble)iTotal;
+	    dFraction = ((gdouble)playdata->percentage) / 100;
 
 	    /* Modification of the progress bar */
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), dFraction);
 	    /* we give the hand to GTK+ */
 	    gtk_main_iteration ();
 	    j=j+1;
-
 	}
 	else if (!pause2)
 	{
