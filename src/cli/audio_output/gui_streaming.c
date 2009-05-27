@@ -1,22 +1,11 @@
 #include "gui_streaming.h"
 
-/* General structure for played data */
-struct gui_streaming_data
-{
-    t_buffer	buffer;
-    ihy_data	*ihy;
-    int		current_offset;
-    pthread_t	playing_thread;
-    pthread_t	filling_thread;
-    int		pause_status;
-    int		stop_status;
-};
-
 /* Structure and action made by the thread actually playing the sound */
 struct s_playing_thread_data {
     t_buffer	buffer;
     int		*status;
     ihy_data	*ihy;
+    float	*percentage;
 };
 static void *playing_thread_action(void *data)
 {
@@ -24,12 +13,15 @@ static void *playing_thread_action(void *data)
     ao_device *playing_device;
     int *to_play;
     struct s_playing_thread_data *data2;
+    int numchunk;
 
     data2 = data;
 
     continue_playing = 1;
     playing_device = ao_init_device(16, data2->ihy->Channels, data2->ihy->Frequency);
     to_play = NULL;
+
+    numchunk = 0;
 
     while (continue_playing)
     {
@@ -41,6 +33,8 @@ static void *playing_thread_action(void *data)
 	    if (to_play)
 	    {
 		ao_play_samples(playing_device, to_play, data2->ihy->ChunkSize * 2);
+		*data2->percentage = ((float)numchunk / (float)data2->ihy->NbChunk) * 100;
+		numchunk++;
 		free(to_play);
 	    }
 	    else
@@ -108,8 +102,10 @@ t_playdata create_gui_streaming(ihy_data *ihy)
     pt_data->buffer = res->buffer;
     pt_data->status = &(res->pause_status);
     pt_data->ihy = ihy;
+    pt_data->percentage = &res->percentage;
     res->pause_status = 1;
     res->stop_status = 0;
+    res->percentage = 0.;
     pthread_create(&res->filling_thread, NULL, &filling_thread_action, ft_data);
     pthread_create(&res->playing_thread, NULL, &playing_thread_action, pt_data);
 
