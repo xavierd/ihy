@@ -26,6 +26,7 @@
   };*/
 
 
+gdouble tab[20] = {400, 100, 100, 400, 350, 150, 150, 350, 300, 200, 380, 120, 120, 380, 200, 300, 280, 220, 220, 280}; 
 void OnPlay(GtkWidget *pWidget, gpointer data);
 void OnPause(GtkWidget *pWidget, gpointer data);
 void OnStop(GtkWidget *pWidget, gpointer data);
@@ -133,29 +134,100 @@ on_expose_event(GtkWidget *widget,
 
       scale += delta;*/
 
-    cairo_save(cr);
-
     /*scale += delta;*/
     if (play && pause2 && stop) 
     {
-	/*angle += 0.01;*/
-	/*while ((y >= 100) && (h <= 400))*/
 
-	cairo_restore(cr);
 	/* fill the background black */
 	cairo_set_source_rgb(cr, 0, 0, 0);
 	cairo_rectangle(cr, 0, 0, width, height);
 	cairo_fill(cr);
 
-	y = 100;
-	h = 400;
+	y = tab[0];
+	h = tab[1];
 
-	for ( i = 1; i <= 10; i++) {
-	    cairo_set_source_rgba(cr, 0, 0, 1, 1);
-	    cairo_rectangle(cr, 42*i, y, 40, h);
-	    cairo_fill(cr);
+	for ( i = 1; i <= 10; i++) 
+	{
+	    if (i==1)
+	    {
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==2)
+	    {
+		y = tab[2];
+		h = tab[3];
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==3)
+	    {   
+		y = tab[4];
+		h = tab[5];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==4)
+	    {
+		y = tab[6];
+		h = tab[7];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==5)
+	    {
+		y = tab[8];
+		h = tab[9];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==6)
+	    {
+		y = tab[10];
+		h = tab[11];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==7)
+	    {
+		y = tab[12];
+		h = tab[13];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }	    
+	    else if (i==8)
+	    {
+		y = tab[14];
+		h = tab[15];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==9)
+	    {
+		y = tab[16];
+		h = tab[17];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
+	    else if (i==10)
+	    {
+		y = tab[18];
+		h = tab[19];    
+		cairo_set_source_rgba(cr, 0, 0, 1, 1);
+		cairo_rectangle(cr, 42*i, y, 40, h);
+		cairo_fill(cr);
+	    }
 	}
-	cairo_save(cr);
+
 
     }
     else if (!pause2)
@@ -630,7 +702,6 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
     if (stop && pause2)
     {
 	j=0;
-	angle=0;
 	play = !play;
     }
 } 
@@ -650,7 +721,4 @@ void OnStop(GtkWidget *pWidget, gpointer data)
     stop = !stop;
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
     j=0;
-    angle=0;
-    destroy_gui_streaming(playdata);
-    playdata = NULL;
 }
