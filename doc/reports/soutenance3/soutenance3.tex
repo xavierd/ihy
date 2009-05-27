@@ -39,7 +39,7 @@ exprimera nos regrets sur ce projet.
 \tableofcontents
 
 \chapter{Reprise du cahier des charges}
-Les pages qui suivent reprennent à l'identique le rapport de soutenance que l'on
+Les pages qui suivent reprennent à l'identique le rcahier des charges que l'on
 vous a rendu en début d'année. Les fautes de
 français/orthographe/frappe\footnote{rayez la mention inutile} sont
 donc présentes à l'identique.
@@ -221,31 +221,31 @@ bits, assurant la beauté du signal, alors que les chunks ayant beaucoup
 d'informations seront au contraire sur-compressés impliquant un signal de plus
 en plus détruit, l'oreille a tendance à fait abstraction des défauts.
 \subsection{Ondelettes}
-A la soutenance precdente, nous avions implemente la compression par
+A la soutenance pr\'ec\'edente, nous avions implement\'e la compression par
 une nouvelle famille d'ondelettes, Daubechies. Depuis, nous avons
-egalement fait la decompression, chose qui n'a pas ete facile.\\
-La, nous esperions de biens meilleurs resultats, mais nous
-avons finalement ete decu. En effet, malgres de nombreux tests sur les
-traitements des coefficients nous n'avons pas reussi a avoir de
+\'egalement fait la d\'ecompression, chose qui n'a pas \'et\'e facile.\\
+L\`a, nous esp\'erions de biens meilleurs resultats, mais nous
+avons finalement \'et\'e d\'ecu. En effet, malgr\`es de nombreux tests sur les
+traitements des coefficients nous n'avons pas r\'eussi \`a avoir de
 meilleurs resultats qu'avec l'ondelette de Haar. Nous sommes donc
-revenu en arriere et avons garde la premiere.
+revenu en arri\`ere et avons gard\'e la premi\`ere.
 \subsection{Psychoacoustique}
-Nous avons implementer deux nouvelles techniques de psychoacoustique
-qui nous a permis de supprimer une partie des coefficients sans que ce
-soit audible a l'oreille humaine.
+Nous avons implement\'e deux nouvelles techniques de psychoacoustique
+qui nous ont permis de supprimer une partie des coefficients sans que ce
+soit audible \`a l'oreille humaine.
 \subsubsection{Hautes frequences}
-Depuis la soutenance precedante nous enlevons deja les coefficients
-correspondants au hautes frequences. La nous avons affine le
+Depuis la soutenance pr\'ec\'edente nous enlevons d\'ej\`a les coefficients
+correspondants aux hautes fr\'equences. L\`a nous avons affin\'e le
 traitement en supprimant plus de coefficients correspondants aux
-petits variations aux hautes frequences. Nous avons donc deja pu
+petites variations aux hautes fr\'equences. Nous avons donc d\'ej\`a pu
 gagner un peu de place.
 \subsubsection{Masquage}
-Lorsque a un meme moment nous avons a la fois un signal a basse
-frequence assez fort et un deuxieme a haute frequence, celui-ci est
-masque par le premier. Nous avons donc cherche a comprendre quels
-coefficients correspondaient a quels frequences. La nous avons reussi
-a supprimer certains coefficients qui n'influent pas sur la qualite du
-son mais le gain de place est malheuresement negligeable avec cette technique.
+Lorsque a un m\^eme moment nous avons \`a la fois un signal \`a basse
+fr\'equence assez fort et un deuxi\`eme \`a haute fr\'equence, celui-ci est
+masqu\'e par le premier. Nous avons donc cherch\'e \`a comprendre quels
+coefficients correspondaient \`a quels fr\'equences. L\`a nous avons r\'eussi
+\`a supprimer certains coefficients qui n'influent pas sur la qualit\'ee du
+son mais le gain de place est malheuresement n\'egligeable avec cette technique.
 \subsection{Interface graphique}
 Pour cette dernière soutenance, l'interface graphique est belle et bien achevée.
 En effet, cette dernière contient une Playlist simple d'utilisation et un
@@ -354,13 +354,13 @@ plus nécessiteux, c'est-à-dire aux chunks dont la compression déforme le plus
 signal. Si le procédé est correctement réalisé, on se retrouve avec un signal
 qui ne peut être meilleur pour le bitrate demandé.
 \section{Ondelettes}
-Nous avons d'abord implemente l'ondelette de Haar, ce qui a ete
-relativement simple ce qui nous a permis de rapidement atteindre de
+Nous avons d'abord implement\'e l'ondelette de Haar, ce qui a \'et\'e
+relativement simple et nous a permis de rapidement atteindre de
 bons resultats. Cependant nous en esperions de bien meilleurs avec
-autre ondelette,  celles de Daubechies. Nous avons ete surpris de
-remarquer que au contraire, nous n'avions une perte de qualite. Donc,
-malgres tout nos tests et le temps perdu a implementer cette
-ondelette, nous sommes rester a Haar, que nous avions implementer des
+autre ondelette,  celles de Daubechies. Nous avons \'et\'e surpris de
+remarquer que au contraire, nous avions une perte de qualit\'ee. Donc,
+malgr\`es tout nos tests et le temps perdu \`a implementer cette
+ondelette, nous sommes rest\'e \`a Haar, que nous avions implement\'e d\`es
 le commencement du projet.
 \chapter{Conclusion}
 Pour résumer le projet, je dirai qu'il s'agissait d'un projet plus qu'ambitieux,
