@@ -217,6 +217,7 @@ int main(int argc, char **argv)
     height = 500;
 
     gtk_init(&argc, &argv);
+    caml_main(argv);
 
     pWindow = gtk_window_new(GTK_WINDOW_TOPLEVEL);
     gtk_widget_add_events (pWindow, GDK_BUTTON_PRESS_MASK);
