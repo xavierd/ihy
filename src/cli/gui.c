@@ -58,6 +58,7 @@ static gdouble angle = 0;
 gint j = 0;
 
 t_playdata playdata;
+    ihy_data *ihy; 
 
 
 
@@ -655,8 +656,8 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
     gint k;
     gint iTotal = 2000;
     gdouble dFraction;
+    char *path;
 
-    ihy_data *ihy; 
     data = data;
 
     stop = TRUE;
@@ -667,11 +668,19 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
     /* Initialisation */
     if (!playdata)
     {
-	ihy = create_ihy();
-	read_ihy(GetFirst(), ihy);
-	playdata = create_gui_streaming(ihy);
+	path = GetFirst();
+	if (path)
+	{
+	    ihy = create_ihy();
+	    read_ihy(GetFirst(), ihy);
+	    playdata = create_gui_streaming(ihy);
+	    play_gui_streaming(playdata);
+	}
     }
-    play_gui_streaming(playdata);
+    else
+    {
+	play_gui_streaming(playdata);
+    }
 
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
@@ -711,7 +720,8 @@ void OnPause(GtkWidget *pWidget, gpointer data)
     pWidget = pWidget;
     data = data;
     pause2 = !pause2;
-    pause_gui_streaming(playdata);
+    if (playdata)
+	pause_gui_streaming(playdata);
 }
 
 void OnStop(GtkWidget *pWidget, gpointer data)
@@ -721,4 +731,10 @@ void OnStop(GtkWidget *pWidget, gpointer data)
     stop = !stop;
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
     j=0;
+    if (playdata)
+    {
+	free(ihy);
+	destroy_gui_streaming(playdata);
+	playdata = NULL;
+    }
 }
