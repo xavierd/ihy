@@ -50,6 +50,7 @@ GtkWidget   *pListView2;
 gchar *sTitle;
 gchar *sChemin;
 GtkWidget   *pNotebook;
+gdouble y,h;
 static gdouble angle = 0;
 gint j = 0;
 
@@ -75,7 +76,6 @@ on_expose_event(GtkWidget *widget,
     cairo_t *cr;
     gint width, height;
     gint i;
-    gdouble y,h;
     /*static gdouble scale = 1;*/
     /*static gdouble delta = 0.01;*/
 
@@ -92,8 +92,8 @@ on_expose_event(GtkWidget *widget,
     cairo_rectangle(cr, 0, 0, width, height);
     cairo_fill(cr);
 
-    y = 450;
-    h = 150;
+    y = 400;
+    h = 100;
 
     for ( i = 1; i <= 10; i++) {
 	cairo_set_source_rgba(cr, 0, 0, 1, 1);
@@ -130,25 +130,30 @@ on_expose_event(GtkWidget *widget,
       }
 
       scale += delta;*/
+
     cairo_save(cr);
 
     if (play && pause && stop) 
     {
 	/*angle += 0.01;*/
-	while ((y >= 100) && (h <= 400))
-	{
-	    cairo_restore(cr);
-	    y = y-10;
-	    h = h+10;
+	/*while ((y >= 100) && (h <= 400))*/
 
-	    for ( i = 1; i <= 10; i++) {
-		cairo_set_source_rgba(cr, 0, 0, 1, 1);
-		cairo_rectangle(cr, 42*i, y, 40, h);
-		cairo_fill(cr);
-	    }
-	    cairo_save(cr);
-	    /*cairo_destroy(cr);*/
+	cairo_restore(cr);
+	/* fill the background black */
+	cairo_set_source_rgb(cr, 0, 0, 0);
+	cairo_rectangle(cr, 0, 0, width, height);
+	cairo_fill(cr);
+
+	y = 100;
+	h = 400;
+
+	for ( i = 1; i <= 10; i++) {
+	    cairo_set_source_rgba(cr, 0, 0, 1, 1);
+	    cairo_rectangle(cr, 42*i, y, 40, h);
+	    cairo_fill(cr);
 	}
+	cairo_save(cr);
+
     }
     else if (!pause)
     {
