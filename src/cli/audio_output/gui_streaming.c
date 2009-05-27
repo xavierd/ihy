@@ -8,7 +8,8 @@ struct gui_streaming_data
     int		current_offset;
     pthread_t	playing_thread;
     pthread_t	filling_thread;
-    int		status;
+    int		pause_status;
+    int		stop_status;
 };
 
 /* Structure and action made by the thread actually playing the sound */
@@ -32,8 +33,10 @@ static void *playing_thread_action(void *data)
 
     while (continue_playing)
     {
-	if (*data2->status)
+	if (!(*data2->status))
 	{
+	    while (buffer_isempty(data2->buffer))
+		usleep(50000);
 	    to_play = buffer_get(((t_playdata)data)->buffer);
 	    if (to_play)
 	    {
@@ -47,7 +50,7 @@ static void *playing_thread_action(void *data)
 	}
 	else
 	{
-	    usleep(150000);
+	    usleep(50000);
 	}
     }
 
@@ -71,7 +74,7 @@ static void *filling_thread_action(void *data)
 
     data2 = data;
 
-    while (*(data2->status))
+    while (!(*(data2->status)) && (*data2->current_offset <= data2->ihy->NbChunk))
     {
 	chunk = &(data2->ihy->DataChunks[*data2->current_offset]);
 	to_add = calloc(data2->ihy->ChunkSize * 2, 1);
@@ -79,6 +82,8 @@ static void *filling_thread_action(void *data)
 	buffer_add(to_add, data2->buffer);
 	(*data2->current_offset)++;
     }
+
+    buffer_add(NULL, data2->buffer);
 
     return NULL;
 }
@@ -96,16 +101,17 @@ t_playdata create_gui_streaming(ihy_data *ihy)
     res->current_offset = 0;
     ft_data = malloc(sizeof(struct s_filling_thread_data));
     ft_data->buffer = res->buffer;
-    ft_data->status = &(res->status);
+    ft_data->status = &(res->stop_status);
     ft_data->current_offset = &(res->current_offset);
     ft_data->ihy = ihy;
     pt_data = malloc(sizeof(struct s_playing_thread_data));
     pt_data->buffer = res->buffer;
-    pt_data->status = &(res->status);
+    pt_data->status = &(res->pause_status);
     pt_data->ihy = ihy;
+    res->pause_status = 1;
+    res->stop_status = 0;
     pthread_create(&res->filling_thread, NULL, &filling_thread_action, ft_data);
     pthread_create(&res->playing_thread, NULL, &playing_thread_action, pt_data);
-    res->status = 0;
 
     return res;
 }
@@ -113,30 +119,27 @@ t_playdata create_gui_streaming(ihy_data *ihy)
 /* Function controling the playback of the sound */
 void play_gui_streaming(t_playdata played)
 {
-    played->status = 1;
+    played->pause_status = 0;
 }
 
 void pause_gui_streaming(t_playdata played)
 {
-    played->status = 0;
-}
-
-void stop_gui_streaming(t_playdata played)
-{
-    played = played;
-}
-
-void forward_gui_streaming(t_playdata played)
-{
-    played = played;
-}
-
-void rewind_gui_streaming(t_playdata played)
-{
-    played = played;
+    played->pause_status = 1;
 }
 
 void destroy_gui_streaming(t_playdata played)
 {
-    played = played;
+    int *tmp;
+
+    played->stop_status = 0;
+    while (!buffer_isempty(played->buffer))
+    {
+	buffer_get(played->buffer);
+	free(tmp);
+    }
+    buffer_add(NULL, played->buffer);
+    pthread_join(played->playing_thread, NULL);
+    pthread_join(played->filling_thread, NULL);
+    buffer_destroy(played->buffer);
+    free(played);
 }
