@@ -599,8 +599,7 @@ void OnPlay(GtkWidget *pWidget, gpointer data)
 	read_ihy(GetFirst(), ihy);
 	playdata = create_gui_streaming(ihy);
     }
-    else
-	play_gui_streaming(playdata);
+    play_gui_streaming(playdata);
 
     gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(pWidget), 0.0);
 
