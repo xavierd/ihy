@@ -21,7 +21,7 @@ endif
 CSRC=codecs/wav.c codecs/ihy.c audio_output/ao.c \
      audio_output/ihy_streaming.c compression/quantization.c \
      compression/wavelet.c compression/ihy.c compression/huffman.c \
-     utils/queue.c utils/buffer.c utils/half.c main.c
+     utils/queue.c utils/buffer.c utils/half.c
 COBJ=${CSRC:.c=.o}
 CAMLSRC=compression/wavelets/haar.ml
 CAMLINTERFACE=compression/wavelets/haar.mli
@@ -30,13 +30,16 @@ CAMLCMI=${CAMLINTERFACE:.mli=.cmi}
 CAMLO=${CAMLSRC:.ml=.o}
 CAMLCMX=${CAMLSRC:.ml=.cmx}
 
-EXEC=ihyconvert
+CLISRC=cli.c
+CLIOBJ=${CLISRC:.c=.o}
+CLIEXEC=ihycli
 
-all: ${EXEC}
+all: ${CLIEXEC}
 
-${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
-	@${CC} -o ${OUTPUT}${EXEC} ${CAMLOBJ} ${COBJ} ${LDFLAGS}
-	@echo "  LD	${EXEC}"
+${CLIEXEC}: ${COBJ} ${CLIOBJ} ${CAMLCMI} ${CAMLOBJ}
+	@${CC} -o ${OUTPUT}${CLIEXEC} ${CAMLOBJ} ${COBJ} ${CLIOBJ} ${LDFLAGS}
+	@echo "  LD	${CLIEXEC}"
+
 
 %.o: %.c %.h
 	@${CC} ${CFLAGS} -c $< -o $@
@@ -55,8 +58,8 @@ ${EXEC}: ${COBJ} ${CAMLCMI} ${CAMLOBJ}
 	@echo "  MLI	$<"
 
 clean:
-	rm -rf ${COBJ}
+	rm -rf ${COBJ} ${CLIOBJ}
 	rm -rf ${CAMLOBJ} ${CAMLCMX} ${CAMLCMI} ${CAMLO}
-	rm -rf ${OUTPUT}${EXEC}
+	rm -rf ${OUTPUT}${CLIEXEC}
 
 -include ${OCAMLPATH}/Makefile.config

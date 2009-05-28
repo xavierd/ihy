@@ -141,7 +141,8 @@ int main(int argc, char **argv)
     pthread_t play;
     int i;
     int is_thread_playing_ihy = 0;
-    ihy_data *input_to_play;
+    ihy_data *input_to_play = NULL;
+    int nb_threads = 2;
     int q = 3;
 
     if (argc == 1)

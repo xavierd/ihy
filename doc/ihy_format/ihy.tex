@@ -22,52 +22,98 @@ utilisées dans un fichier audio au format ihy.
 \tableofcontents
 
 \section{Introduction}
+Ce document a pour but de présenter le codec ihy, codec audio utilisant les
+ondelettes. Il a pour principale cible les développeurs, qui pourront avec ce
+manuel coder leur propre implémentation du codec.
 
-Voici la structure du ihy, tel qu'il a été initialement implanté.
+\section{Qualité audio}
+Le format ihy définit 4 niveaux de qualités, afin de répondre aux multiples
+attentes de l'utilisateur final, selon son utilisation.\\
+Le premier niveau correspond à un débit de 128kbits/s, sa qualité auditive est
+très médiocre. Pour cette raison, nous ne conseillons pas d'utiliser cette
+compression.\\
+Le deuxième niveau de compression, qui équivaut à un débit de 192kbits/s, est de
+bien meilleure qualité, on peut néanmoins ressentir avec de bons écouteurs, la
+pauvre qualité du signal.\\
+Le troisième correspond au débit binaire de 256kbits/s, qui est, dans
+l'implémentation de référence, la qualité par défaut, est le bon compromis entre
+qualité auditive et taille du fichier final.\\
+Enfin le dernier niveau de compression, qui correspond à un débit de 320kbits/s
+et de très bonne qualité et n'est recommandé qu'aux audiophiles.
 
-\lstset{numbers=left}
-\begin{lstlisting}[frame=single]
-typedef struct ihy_chunk
-{
-    uint32_t		ChunkSize;
-    uint8_t		*Values;
-} ihy_chunk;
+\section{Format du header}
+Un fichier ihy est composé avant tout d'un header principal sur tout le fichier,
+ainsi qu'un header particulier pour chaque ``chunk''. Un fichier ihy étant
+découpé en plusieurs ``chunks'' de taille fixe.\\
+\subsection{Champs principaux}
+Les 4 premiers octets du fichier, sont les octets de reconnaissance du fichier.
+Il s'agit du ``magick number'' du ihy, qui est égal à : SNXT
+Suit ensuite, 8 octets\footnote{Sauf contre indication, lorsque l'on parle d'une
+taille, il s'agit d'un nombre non signé}
+représentant la taille totale du fichier ihy, ce dernier
+champs n'est pas indispensable et peut même valoir 0.\\
+Le champs suivant qui est codé sur 2octets, correspond au type de compression
+effectuée sur le fichier. Il s'agit avant tout d'un champ réservé pour de
+futures applications et extensions du codec. Par défaut, lorsque ce champs est
+nul, on y applique les compressions de base (voir plus bas).\\
+Deux champs suivent enfin, le nombre de canaux, sur un octet ainsi que la
+fréquence d'échantillonnage sur 4 octets.\\
+\subsection{Tags audio}
+Notre codec peut également contenir des tags audio, pour que l'identification
+d'une piste soit facilitée. On a donc, dans l'ordre, sur 2 octets, la taille du
+champ artiste qui le suit, sur 2octets encore, la taille du champs suivant
+qui est le titre de la musique. Suivent l'année, sur 2 octets et le genre
+musical sur 1
+octet. Pour le genre, on se référera aux même genres que l'ID3. Enfin les deux
+derniers champs sont dédiés aux commentaire, avec sur 4 octets la taille du
+commentaire qui le suit.
+\subsection{Les données}
+Le header principal se finit sur 3 champs, surement les plus importants. Le
+premier, sur 4 octets, représente la taille non compressée d'un chunk, un chunk
+ayant une taille constante sur tout le fichier.\\
+Le champs suivant, encore sur 4 octets, représente le nombre de chunk que le
+fichier possède. Enfin, le dernier champ est un tableau de chunk et se finit
+avec la fin du fichier.
+\subsection{Format d'un chunk}
+Commençons par le dernier champ, il s'agit des données compressées que l'on ne
+peut pas réellement typer, sa taille est indiquée par le premier champ,
+qui est
+codé sur 4 octetss. Le champ suivant, qui est cod\'e sur 1 octet,
+repr\'esente le nombre de bit de chaque coefficients quantifi\'e. Le
+champ suivant, toujours indispensable \`a la quantification est le
+facteur de quantification, il est cod\'e sur 2 octets. Enfin, l'avant
+dernier champ repr\'esente la taille du dernier champ avant que l'on ne
+le compresse avec Huffman, il est quant \`a lui cod\'e sur 4 octets.
+\section{Algorithme utilis\'es}
+\subsection{Les ondelettes}
+Pour les ondelettes, il s'agit d'une simple ondelette de Haar, pour
+laquelle, le coefficient du filtre miroir conjugu\'e, qui vaut
+normalement $\frac{1}{\sqrt{2}}$, vaut ici $\frac{1}{2}$, ceci pour des
+probl\'emes de pr\'ecisions vis-\`a-vis de la quantification.
+\subsection{La quantification}
+Il s'agit d'une simple quantification non lin\'eaire, qui a pour formule
+:$$ k = sign\left(f\right) *
+\left|\frac{f}{factor}\right|^{\frac{3}{4}}$$
+et la décompression :
+$$ f = sign\left(k\right) * \left|k\right|^{\frac{4}{3}} * factor$$
+Avec $factor$ la puissance de la quantification.
+\subsection{Huffman}
+L'algorithme de Huffman est tr\`es simple, ce qui est particulier \`a
+notre codec c'est la facon dont est \'ecrit l'arbre de Huffman.\\
+Celle-ci est \'egalement tr\`es simple. Il s'agit d'effectuer un
+parcours largeur de l\'arbre. Lorsque l'on rencontre un noeud, on
+\'ecrit 0, lorsque l'on rencontre une feuille, on \'ecrit 1 puis le
+caract\`ere correspondant \`a la feuille. Le tout occupe tr\`es
+exactement 771. Apr\'es l'arbre de Huffman se trouve les caract\`eres
+"Huffmani\'es".
+\subsection{Ordre des algorithmes}
+L'ordre des algorithmes va de soit. Il s'agit d'effectuer la
+tranform\'ee par ondelette, puis de quantifi\'ees les coefficients selon
+la qualit\'es voulue, puis de faire le passage par Huffman.
 
-typedef struct ihy_data
-{
-    /* Header */
-    char		FileID[4]; /* "SNXT" */
-    uint64_t		FileSize;
-    uint16_t		CompressionType;
-    uint8_t		Channels;
-    uint32_t		Frequency;
-    /* Tags */
-    uint16_t		ArtistLength;
-    char		*Artist;
-    uint16_t		AlbumLength;
-    char		*Album;
-    uint16_t		TrackLength;
-    char		*Track;
-    uint16_t		Year;
-    uint8_t		Genre;
-    uint32_t		CommentLength;
-    char		*Comment;
-    /* Data */
-    uint32_t		NbChunk;
-    ihy_chunk		*DataChunks;
-} ihy_data;
-\end{lstlisting}
+\section{Conclusion}
+Vous avez desormais tous les \'elements en main pour r\'ealiser \`a la
+fois un lecteur ihy, et un endodeur. Bon code.
 
-Les types de chaque champs renseignent la taille, ils ont été choisis pour être
-invariant sur toutes les architecture.
-
-\section{Headers}
-
-Premièrement, le ``magic number'' du format, qui est la suite des 4 caractères
-SNXT écrit en big-endian dans le fichier.
-S'en suit le FileSize qui représente la taille totale en octet du fichier.
-Le champ CompressionType sera détaillé plus bas, il donne les compressions
-utilisées, à noter que plus le nombre de compressions augmente, plus la
-décompression est lente, mais le fichier est alors de taille moindre.
 
 \end{document}

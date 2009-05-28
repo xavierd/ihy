@@ -1,0 +1,376 @@
+\documentclass[a4paper,12pt]{report}
+\usepackage[francais]{babel}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{pslatex}
+\usepackage{url}
+\usepackage{graphicx}
+\usepackage{lscape}
+\selectlanguage{francais}
+
+
+\title{Rapport de projet}
+\author{
+Ihy Group : \\
+deguil\_x (Xavier Deguillard)\\
+genite\_n (Nicolas Geniteau)\\
+sezer\_s (Stephane Sezer)\\
+wagnac\_t (Teddy Wagnac)
+}
+\begin{document}
+
+\maketitle
+
+\section*{Introduction générale}
+Dans ce rapport de projet, dédié au codec audio de nouvelle
+génération\footnote{en exagérant à peine}, nous essayerons de vous montrer
+l'évolution de celui-ci, les impasses que nous avons prises, les choses qui
+marchent, celle qui ne fonctionnent pas, etc.\\
+Ainsi que vous le verrez dans ce rapport, ce projet doit plus être considérer
+comme un sujet de recherche plutôt qu'un véritable nouveau codec. Les
+compétences techniques nécessaire à la réalisation d'une telle chose ne sont
+vraisemblablement pas à notre portée.\\
+Ce rapport sera découpée en plusieurs parties, en premier lieu, la reprise
+intégrale du cahier des charges, pour mettre en relief ce que nous voulions
+faire et ce que nous avons finalement réalisé. En deuxième partie nous verrons
+la chronologie du projet tel que nous l'avons fait. Enfin la dernière partie
+exprimera nos regrets sur ce projet.
+
+\tableofcontents
+
+\chapter{Reprise du cahier des charges}
+Les pages qui suivent reprennent à l'identique le rcahier des charges que l'on
+vous a rendu en début d'année. Les fautes de
+français/orthographe/frappe\footnote{rayez la mention inutile} sont
+donc présentes à l'identique.
+\include{cahierdescharges}
+
+\chapter{Chronologie du projet}
+\section{Première soutenance}
+\subsection{L'état du codec}
+Il faut le dire, le codec audio n'était pas très utile à cette époque. En effet,
+celui-ci ne compressait pas la musique, au contraire, il doublait la taille du
+fichier wav original non compressé. En effet, nous passions d'un échantillons
+codé sur 2 octets dans le cas du wav, à un coefficient d'ondelettes codé sur 4
+octets. Les données écrites étant brutes, cela doublait effectivement la taille
+du fichier.\\
+Si l'on excepte ce petit défaut, nous pouvions encoder un fichier ihy, le
+décoder pour obtenir le fichier original. Cela a montré plusieurs choses,
+premièrement, que les ondelettes que nous avions implantés fonctionnent,
+deuxièmement, que l'interface entre le C et le Caml fonctionne également, et
+enfin, que notre fichier ihy est parfaitement lisible, et l'on peut donc en
+extraire sans problèmes les informations dont on a besoin.\\
+Les techniques de compression utilisées étaient inexistantes, la compression via
+l'algorithme de Huffman avait été implanté, mais pas sa décompression. Quand aux
+ondelettes, nous avions implantés l'ondelette la plus simple de toute (mais
+néanmoins très puissante), qui est l'ondelette de Haar.\\
+De plus, nous pouvions lire un fichier wav et utiliser la carte son de
+l'ordinateur pour lire le fichier wav en question, ceci afin de préparer la
+lecture d'un fichier ihy en lui-même que nous n'avions pas à cette soutenance.\\
+Nous avions également une petite application graphique nous permettant de
+visualiser les coefficients sur une échelle temps/fréquence.
+\subsection{L'interface graphique}
+Lors de cette première soutenance, notre interface graphique était des plus
+sobre, elle n'était constitué que de 5 boutons, ainsi que d'une barre de
+progression. Cette dernière se remplissait lorsque l'on appuyait sur le bouton
+``play'', afin de simuler l'avancement d'une musique.
+\subsection{Ce que nous ne savions pas}
+L'informatique n'est pas une science exacte, et nous avons pu le vérifier après
+cette soutenance. En effet, le fichier décompressé étant le même (à l'oreille),
+nous ne nous doutions pas qu'il y avait un problème. En fait, 75\% des
+coefficients d'ondelettes n'étaient pas présent dans le fichier ihy, ils étaient
+remplacés par des caractères ``random'', la faute à un memcpy dont la taille à
+copié avait été mal renseignée.\\
+Néanmoins cette petite erreur nous a appris une chose, les ondelettes sont un
+outil puissant qui avec un peu de travail peuvent donner naissance à un codec
+audio très intéressant\footnote{En réécoutant attentivement le fichier wav en
+sortie, ce dernier était au final assez différent de l'original.}.
+\subsection{Conclusion partielle}
+Une bonne première soutenance donc, qui nous a permis de nous familiariser avec
+les ondelettes ainsi qu'avec le développement sous UNIX en C et Caml.
+
+\newpage
+
+\section{Deuxième soutenance}
+\subsection{L'état du codec}
+La deuxième soutenance vit l'apparition d'une véritable compression, avec très
+peu de pertes, en fait ces pertes étaient inaudibles à l'oreille humaine, ce qui
+est le but recherché dans un codec audio : supprimer un maximum d'informations
+inaudibles.\\
+Mais avant cela, nous avons terminé l'algorithme de Huffman, ce qui nous a
+permis d'obtenir, comme la théorie le veut, une compression d'environ 20\%. Nous
+étions hélas encore loin de la taille originale d'un fichier wav. Pour pallier a
+ce problème, nous avons réfléchis à comment réduire significativement la taille
+du fichier, ou vu d'une autre façon : qu'est-ce qui fait grossir le fichier
+inutilement? La réponse a cette question est simple : la taille d'un coefficient
+d'ondelette est deux fois plus gros qu'un échantillon. Nous avons donc codé un
+coefficient sur 16bits à l'aide des ``half floats'', ce qui nous permettait non
+seulement de réduire considérablement la taille du fichier ihy, mais aussi de
+passer en dessous de la taille du fichier wav. Nous pouvions désormais appeler
+notre codec de codec compressif.\\
+Au niveau du travail sur les coefficients non audibles, nous avons réussi à
+rendre 50\% des coefficients nul. En effet, ces derniers représentaient les
+hautes fréquences du signal, qui sont inaudibles à l'oreille humaine. Couplée à
+Huffman, cela nous a permis d'atteindre les 50\% de compression, toujours très
+loin d'un codec comme le mp3 qui compresse ``sans dommages'' jusqu'à 12 fois la
+taille originale.\\
+Au rang des changements, on peut également noter l'apparition de la lecture du
+fichier ihy en streaming, afin de pouvoir lire directement le fichier, sans
+avoir à le décompresser. Également présent, la compression de façon parallèle
+réalisée à l'aide des ``forks'' et des ``shared memory''
+\subsection{L'interface graphique}
+Cette dernière a bien avancé depuis la soutenance précédente. En effet, nous
+avons désormais une zone de dessin dans laquelle deux étoiles tournent, il
+s'agit là de la première étape vers un spectrographe fonctionnel, en effet, nous
+pouvons désormais dessiner ce que l'on souhaite et l'animer au sein de cette
+zone de dessin. On retrouve bien évidement, comme à la soutenance précédente,
+une barre de progression ainsi que trois boutons : play, pause et stop.
+\subsection{Le petit imprévu}
+Cette soutenance avait un petit imprévu plutôt sympathique. Nous avions porté le
+codec sur iPhone, qui représente en lui-même une petite prouesse technique,
+l'iPhone n'étant absolument pas considéré comme performant. Il faut également
+considérer qu'Apple n'a aucun intérêt a montré comment faire pour lire
+différents codecs que ceux qu'il autorise, il a donc fallu fouiller dans la doc,
+utiliser des fonction assez peu documentées (et utilisées nulle part sur
+internet).\\
+Toujours est-il que cela fonctionne, et donc n'importe qui peut désormais
+écouter un fichier ihy, ou qu'il se trouve, sur un iPhone.
+\subsection{Conclusion partielle}
+Cette deuxieme soutenance a ete un grand pas dans l'avancement de
+notre projet. Nous avions enfin un codec utlile qui compressait
+reellement tout en gardant une bonne qualitee. Quel bonheur de pouvoir
+ecouter sa musique encode avec son propre codec sur son ordinateur, ou
+encore mieu, sur son balladeur.
+\newpage
+
+\section{Troisième soutenance}
+\subsection{Nouvelles techniques de compression}
+\subsubsection{N'écrire que ce qui est utile}
+Pour cette troisième et dernière soutenance, nous avons cherché à compresser un
+maximum le signal audio. Pour cela nous avons encore une fois chercher à savoir
+ce qui prenait le plus de place. Première constatation, il ne sert à rien
+d'écrire le ``dernier tableau des coefficients d'ondelettes''. En effet, quoi
+qu'il arrive, on passe tous les coefficients à 0, car il s'agit des coefficients
+représentant les hautes fréquences. Cela nous a permis de gagner un peu plus de
+place.\\
+\subsubsection{La quantification}
+Mais voilà, le fichier ihy est encore trop gros, certes la qualité d'écoute est
+au rendez-vous, mais la taille n'y est pas. Pour diminuer encore la taille, il
+nous a fallu regarder du coté des codecs concurrents, pour regarder les
+techniques employées. Il y en a une qui est utilisée dans tous les codecs, même
+dans un fichier wav. Il s'agit d'une technique de compression appelée
+quantification.\\
+Cela consiste à passer du monde des nombres flottants au monde des entiers, qui
+sont plus simple et surtout plus facilement compressible. En effet, le half
+float que l'on utilisait jusqu'à présent pour diminuer la taille du fichier
+montrait ses limites pour des coefficients de grande amplitudes, on pouvait
+entendre des artefacts dans le signal reconstitué.\\
+La quantification nous permet donc de transformer tous nos coefficients
+flottants en coefficients entier. La formule que l'on utilisait lors de nos
+premiers tests était la suivante :
+$$ k = sign\left(f\right) * \left\lfloor\left|\frac{f}{factor}\right|
+							    \right\rfloor$$
+Avec $k$ le coefficient quantifié, $f$ le coefficient à quantifié, $sign$ qui
+renvois le signe de $f$ et $factor$ qui est le facteur de quantification, plus
+celui-ci est important, plus la quantification est importante, donc plus
+l'amplitude de $k$ sera faible. La décompression se fait avec la formule
+suivante :
+$$ f = sign\left(k\right) * \left(\left|k\right| + 0,5 \right) * factor$$
+Cela nous permet de retrouver les coefficients flottants précédemment
+quantifiés, en ayant bien entendu un peu de perte. Lors de nos premiers tests
+expérimentaux, nous avons essayés avec un $factor$ de 80. Les résultats étaient
+extrêmement encourageant, en effet, pour un fichier wav de 11méga-octets, nous
+n'avions plus qu'un fichier ihy de 2méga-octets!! Bien évidement, la qualité
+n'était absolument pas au rendez-vous.\\
+Pour diminuer encore la taille du fichier, sans impacter la qualité, on a
+cherché à écrire les coefficients quantifiés sur exactement le nombre de bit
+nécessaire. Par exemple, si l'on avait des coefficients allant de -125 à 110,
+nous pouvions sans aucuns problèmes coder ceux-ci sur 8bits\footnote{il s'agit
+là de l'amplitude de coefficients quantifiés avec un $factor$ de 80}, la taille
+du fichier se retrouvant divisé par 2 par rapport au half float.\\
+Une autre formule nous est venue à l'esprit, qui est directement liée à la façon
+dont l'oreille humaine fonctionne. Un homme va facilement détecter une variation
+de fréquence de 100hertz lorsqu'on se situe dans des fréquences basses, par
+contre, il ne va pas du tout le sentir dans les fréquences hautes. Au niveau des
+coefficients, cela signifie que plus un coefficient est élevé, plus il
+représente une fréquence élevée. Grâce à cette analyse, on a cherché une formule
+nous permettant de refléter ce défaut de l'oreille :
+$$ k = sign\left(f\right) * \left|\frac{f}{factor}\right|^{\frac{3}{4}}$$
+et la décompression :
+$$ f = sign\left(k\right) * \left|k\right|^{\frac{4}{3}} * factor$$
+Ces deux formules nous ont permis d'augmenter considérablement la qualité, mais
+également de diminuer la taille du fichier, le nombre de bit nécessaire pour
+coder un gros coefficient diminue fortement. Le même fichier wav quantifiée à
+l'aide de cette formule nous permet d'avoir une bonne qualité audio à des débits
+binaires faible.
+\subsection{Débits binaire}
+À l'aide de la quantification, nous pouvions désormais jouer sur la taille du
+fichier final, ou plutôt, sur la taille de chaque chunk. En effet, en modifiant
+le $factor$, nous pouvons augmenter la compression, ou au contraire, la
+diminuer. Pour obtenir un débit binaire intéressant, on commence avec un
+$factor$ faible, on compresse à l'aide de la quantification, puis on passe par
+l'algorithme de Huffman. Là deux possibilités : soit la taille est intéressante
+auquel cas on peut continuer, soit elle est encore trop grosse auquel cas il ne
+reste plus qu'à recommencer avec un $factor$ plus important.\\
+Il ne nous restait plus qu'à définir un certains nombre de débits en fonction de
+la qualité audio recherchée. Quatre qualités sont disponible, auxquelles sont
+associées quatre débits binaire, du plus faible au plus important : 128 kbits/s,
+192 kbits/s, 256 kbits/s et 320 kbits/s.\\
+Ainsi, les chunks contenant peu d'informations seront codés avec un maximum de
+bits, assurant la beauté du signal, alors que les chunks ayant beaucoup
+d'informations seront au contraire sur-compressés impliquant un signal de plus
+en plus détruit, l'oreille a tendance à fait abstraction des défauts.
+\subsection{Ondelettes}
+A la soutenance pr\'ec\'edente, nous avions implement\'e la compression par
+une nouvelle famille d'ondelettes, Daubechies. Depuis, nous avons
+\'egalement fait la d\'ecompression, chose qui n'a pas \'et\'e facile.\\
+L\`a, nous esp\'erions de biens meilleurs resultats, mais nous
+avons finalement \'et\'e d\'ecu. En effet, malgr\`es de nombreux tests sur les
+traitements des coefficients nous n'avons pas r\'eussi \`a avoir de
+meilleurs resultats qu'avec l'ondelette de Haar. Nous sommes donc
+revenu en arri\`ere et avons gard\'e la premi\`ere.
+\subsection{Psychoacoustique}
+Nous avons implement\'e deux nouvelles techniques de psychoacoustique
+qui nous ont permis de supprimer une partie des coefficients sans que ce
+soit audible \`a l'oreille humaine.
+\subsubsection{Hautes frequences}
+Depuis la soutenance pr\'ec\'edente nous enlevons d\'ej\`a les coefficients
+correspondants aux hautes fr\'equences. L\`a nous avons affin\'e le
+traitement en supprimant plus de coefficients correspondants aux
+petites variations aux hautes fr\'equences. Nous avons donc d\'ej\`a pu
+gagner un peu de place.
+\subsubsection{Masquage}
+Lorsque a un m\^eme moment nous avons \`a la fois un signal \`a basse
+fr\'equence assez fort et un deuxi\`eme \`a haute fr\'equence, celui-ci est
+masqu\'e par le premier. Nous avons donc cherch\'e \`a comprendre quels
+coefficients correspondaient \`a quels fr\'equences. L\`a nous avons r\'eussi
+\`a supprimer certains coefficients qui n'influent pas sur la qualit\'ee du
+son mais le gain de place est malheuresement n\'egligeable avec cette technique.
+\subsection{Interface graphique}
+Pour cette dernière soutenance, l'interface graphique est belle et bien achevée.
+En effet, cette dernière contient une Playlist simple d'utilisation et un
+spectrographe qui permet à l'utiliateur de visualiser le spectre de la musique
+qui est entrain de jouer.
+\subsubsection{La Playlist}
+En quelques termes, la Playlist nous permet d'ajouter un élément à jouer au
+lecteur (biensûr au format ihy) et de retirer un élément. On peut aussi parcourir
+la Playlist ou encore la vider.\\
+En réalité, la Playlist est tout simplement un GtkListStore qui est un élément
+de la vague bibliothèque de GTK+ que nous avons utilisé tout au long de l'anné
+pour le projet. Ce dernier est assez simple d'utilisation avec des fonctions
+intuitives comme par exemple, pour ajouter un morceau dans la liste il suffit
+d'appeler la fonction gtk-list-store-append() et la mettre à jour pour un
+éventuel prochain ajout avec gtk-list-store-set(). Pour supprimer c'est aussi
+simple, il suffit de sélectionner un élément qui sera reconnu grâce à la
+fonction gtk-tree-selection-select-iter() et de le supprimer avec la fonction
+gtk-list-store-remove(). Pour la suppression de la liste entièrement et pour la
+parcourir les fonctions utilisées sont similairement intuitives. En effet, pour
+vider la Playlist on utilisera gtk-list-store-clear() et pour la parcourir
+gtk-tree-model-iter-next(), c'est une fonction destiné normalement pour les
+arbres dans GTK+ mais on peut aussi l'appeler pour les listes, il suffit juste
+de précisé dans les paramètres que nous ne sommes pas en présence d'un arbre.
+\subsubsection{La Playlist "invisible"}
+En effet, comme vous pouvez le constater lors de l'ajout de la chanson au format
+ihy dans la Playlist tout ce qui apparaît est le nom du fichier. Or, GTK+ lui,
+lors de la recherche d'un fichier, nous renvois le chemin en chaine de caractère 
+de ce dernier avec la fonction gtk-file-chooser-get-filename(). Donc pour
+afficher juste le nom il a fallu faire un simple parcour de chaine et retenir
+juste ce qui nous intéressait. Mais biensûr, pour la lecture, on avait besoin du
+chemin en entier du fichier afin de pouvoir l'utilisé directement. Donc il a
+fallu créer une nouvelle liste qui ne sera pas afficher et qui elle contient les
+chemins des différentes chansons à écouter et qui se remplit, ce vide ou se
+parcourt en même temps que la Playlist qui elle est évidemment affichée.
+\subsubsection{Le Spectrographe}
+A la soutenance précédente, nous avions deux étoiles en mouvement que nous
+avions chargé grâce à cairo qui est une bibliothèque compatible avec GTK+ et avec
+laquel on peut réaliser des transformations mathématiques. Par la suite, il nous
+fallait faire des formes géométriques qui bougeaient en fonction des fréquences
+du son. On a d'abord dans un premier lieu réussi mettre en mouvement l'étoile
+grâce à l'action du bouton "Play". En effet, lorsqu'on appuyait sur "Play"
+l'étoile qui était tout d'abord initialisé à une position précise, ce mettait à
+bouger et réalisait une rotation. Ensuite, avec le "Pause" l'étoile restait
+immobile à sa place actuel grâce à la fonction cairo-save() et le "Stop"
+réinnitialisait l'étoile à sa position initiale. Donc voilà, tout ça c'était
+bien jolie mais on ne pouvait pas encore réelement parler de spectrographe. Par
+le suite, nous décidâmes de charger toujours grâce à cairo dix rectangles qui
+changerons de dimensions différement en fonction de la fréquence du son. Un
+spectrographe classique en gros. 
+\subsection{Comparaison inter-codecs}
+La section précédente implique directement celle-ci. Mais que vaut réellement
+notre codec? Est-il performant? Est-il à la hauteur? Remplacera-t'il le mp3 dans
+nos lecteurs portables?\\
+Nous pourrions vous montrer des graphiques, des analyses du spectre audio et
+autres fioritures pour vous prouver que notre codec est à la hauteur. Mais ce
+que cela ne montrerai pas c'est la qualité auditive. Pour cela rien de vaut une
+écoute à l'aveugle, et sur ce point, il faut le dire\footnote{Attention à la
+déception}, le son est inaudible a 128 kbits/s. Le son original est certes
+toujours présent mais perdu au milieu d'un souffle ambiant. Pour faire une
+comparaison avec ce qui a existé, il suffit de reprendre un vieux vinyle qui a
+pris la poussière pendant une dizaine d'année (voir plus) et de l'écouter, il
+suffit d'imaginer le son que cela risque de produire pour grincer des dents et
+avoir peur pour ses oreilles.\\
+Par contre, a des débits plus élevés, c'est à dire 256 kbits/s et 320 kbits/s,
+le son est parfaitement audible et peut même être comparé avec le son original.
+Les seuls différences se situent au niveau des moments ``intense'', ou le
+souffle commence un peu à se faire sentir (il faut néanmoins tendre l'oreille ou
+être habitué).\\
+Il est de notoriété publique que les tests de codecs se font dans des débits
+faibles, et que passer 256kbits/s, tous se ressemble et peu de gens sont capable
+de dire quel codec est meilleur. Le notre en fait heureusement parti.
+\chapter{Regrets}
+Il s'agit bien évidement du fait que notre codec n'est pas en mesure de
+concurrencer les codecs usuellement utilisés tels que le mp3, vorbis, wma, \ldots.
+De plus, quelques algorithmes aurait pu être utilisés autrement, et d'autre
+utilisés.\\
+\section{Algorithme de Huffman}
+Commençons par l'algorithme de Huffman. Dans son implantation actuelle, on doit,
+pour chaque chunk reconstruire un nouvel arbre et le réécrire intégralement.
+Bien sûr cela a l'avantage de produire des arbres localement parfait (dans le
+sens ou il encore de façon optimale), mais cela a l'inconvénient d'avoir à
+écrire l'arbre. Un arbre prend de façon exacte 771 octets, dans notre
+implémentation actuelle, soit 771 octets pour trois-quarts de seconde dans le
+cas d'un signal double canaux. Soit, en chiffrant, 8 kbits/s de base, sans avoir
+aucun signal, ce qui est dans les débits que l'on utilise, peu, mais dans le cas
+d'un véritable codec, ie qui peut encoder a 64 kbits/s, beaucoup.\\
+La solution aurai été d'avoir une base de donnée de plusieurs arbres de Huffman
+et de choisir le meilleur pour chaque chunk.
+\section{Quantification vectorielle}
+La quantification vectorielle, autre technique de quantification est notamment
+utilisée dans le codec vorbis, elle permet de quantifier des flottants de façon
+plus juste qu'une simple quantification, permettant d'avoir le moins de perte
+possible, tout en conservant une très bonne qualité après reconstitution. Il
+s'agit plus ou moins d'une étude statistique des coefficients, avec évolution
+intelligente, implanté à l'aide d'un réseau de neurones.\\
+On peut considérer que cela aurai améliorer grandement la qualité sans impacter
+la taille du fichier.
+\section{Allocateur de bits}
+Derrière ces termes un peu barbare se cache une chose très simple. Plutôt que de
+faire comme on l'a fait, c'est à dire avec un bitrate constant sur tous les
+chunks, il s'agit d'allouer un nombre de bit fixe qui servira pour tout le
+fichier, que l'on peut calculer simplement en multipliant le débit que l'on
+souhaite par la durée de la musique.\\
+Il s'agit ensuite de correctement distribuer l'espace disponible aux chunks les
+plus nécessiteux, c'est-à-dire aux chunks dont la compression déforme le plus le
+signal. Si le procédé est correctement réalisé, on se retrouve avec un signal
+qui ne peut être meilleur pour le bitrate demandé.
+\section{Ondelettes}
+Nous avons d'abord implement\'e l'ondelette de Haar, ce qui a \'et\'e
+relativement simple et nous a permis de rapidement atteindre de
+bons resultats. Cependant nous en esperions de bien meilleurs avec
+autre ondelette,  celles de Daubechies. Nous avons \'et\'e surpris de
+remarquer que au contraire, nous avions une perte de qualit\'ee. Donc,
+malgr\`es tout nos tests et le temps perdu \`a implementer cette
+ondelette, nous sommes rest\'e \`a Haar, que nous avions implement\'e d\`es
+le commencement du projet.
+\chapter{Conclusion}
+Pour résumer le projet, je dirai qu'il s'agissait d'un projet plus qu'ambitieux,
+frôlant avec la recherche. En effet, on ne peut pas dire que les ondelettes
+pullulent sur internet. On a essayé, on a presque réussi, il ne faut pas perdre
+également de vue que nous ne sommes que 4 étudiants n'ayant aucune expérience
+dans le domaine de la compression audio, codant sur une durée de 6mois.\\
+Ce projet est donc une belle réussite si l'on considère les éléments
+précédents, malgré le fait qu'il ne réalise pas nos espoirs, à savoir la
+disparition du mp3 et de sa qualité plus que médiocre\footnote{l'hôpital qui se
+fout de la charité}.
+
+\end{document}
